@@ -19,7 +19,6 @@ on:
   workflow_dispatch:
  
 env:
-  FLYWAY_LICENSE_KEY: ${{ secrets.FLYWAY_LICENSE_KEY }} #Repository Secret - Create this within the Projects Settings > Secrets > Actions section
   # Enable this for additional debug logging
   ACTIONS_RUNNER_DEBUG: true
   ACTION_EMAIL: "MTPenguinAction@youremail.com"
