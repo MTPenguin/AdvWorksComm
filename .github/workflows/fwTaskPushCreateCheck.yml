@@ -75,7 +75,7 @@ jobs:
         id: checkStates
         run: |   # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
           md -Force ${{ env.REPORT_PATH }}
-          flyway -user="sa" -password="W1O!@#W1O!@#" -configFiles="C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\flyway.conf" -locations="filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations, filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\\migrations-prod" info -url="jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true" -outputType=json > C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\reports\4297199153-Info.json
+          flyway -user="sa" -password="W1O!@#W1O!@#" -configFiles="C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\flyway.conf" -locations="filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations, filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations-prod" info -url="jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true" -outputType=json > C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\reports\4297199153-Info.json
           
       # - name: Run Flyway info command
       #   id: checkStates
