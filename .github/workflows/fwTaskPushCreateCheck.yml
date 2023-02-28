@@ -76,22 +76,22 @@ jobs:
         run: |   # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
           flyway -user="sa" -password="W1O!@#W1O!@#" -licenseKey="FL012CF4BA3F13D20F075B98857E412073ED27E4F548AC689D2B41AA826E97E49768B8F3732176261B9D2C22ADFB7D38ADBCDE503CB4EE886E1FD3B17D3F936745AF9112E052AEFF2DE9085A1EE5EA3597BC9BE0A044D0E58C2662CA88410554FD87BE6FC7A86036E5D4A78F8292C43256367A755774BD1646843F3C3CD6EEFBAAFE94A56BB96DF6A64D81830BBDE3E7FDDC3B47F311649649FC32C2B48FE5D8A05347A726F7615909A0609FDBD4D51FAD06CCD49374AAC37F2E4D27727DBAEABB1879B60FF5AEEDFF563A02D124784A79CB6D6FFEA568E37FB41B2E6D19F58DF8F66436675DE260CF4F65E6AB3FD54BB1A0810232F1576FD0878C9B9CDA244BE993" -configFiles="C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\flyway.conf" -locations="filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations, filesystem:C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\\migrations-prod" info -url="jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true" -outputType=json > C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\reports\4297199153-Info.json
           
-      - name: Run Flyway info command
-        id: checkStates
-        run: |   # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          md -Force ${{ env.REPORT_PATH }}
-          flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-          $infoObj = Get-Content -Raw -Path ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json | ConvertFrom-Json
-          cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-          echo "FLYWAY migration information:" > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          $infoObj.migrations | Format-Table -AutoSize -Wrap version, description, state, filepath >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt 
-          echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          $pending = @($infoObj.migrations | Where-Object -Property state -Match "^Pending")
-          echo "$( $pending )"
-          echo "$( $pending.count )"
-          echo "pendingMigrations=$( $pending.count -ne 0)" > $env:GITHUB_OUTPUT
+      # - name: Run Flyway info command
+      #   id: checkStates
+      #   run: |   # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
+      #     md -Force ${{ env.REPORT_PATH }}
+      #     flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
+      #     $infoObj = Get-Content -Raw -Path ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json | ConvertFrom-Json
+      #     cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
+      #     echo "FLYWAY migration information:" > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
+      #     echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
+      #     $infoObj.migrations | Format-Table -AutoSize -Wrap version, description, state, filepath >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt 
+      #     echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
+      #     cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
+      #     $pending = @($infoObj.migrations | Where-Object -Property state -Match "^Pending")
+      #     echo "$( $pending )"
+      #     echo "$( $pending.count )"
+      #     echo "pendingMigrations=$( $pending.count -ne 0)" > $env:GITHUB_OUTPUT
           
       - name: Add info files to repo
         run: |
