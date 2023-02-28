@@ -1,10 +1,28 @@
 {
   "version": "2.0",
-  "name": "AdvWorksAuto",
+  "name": "AdvWorksComm",
   "id": "6c7b3386-139e-48e4-8aad-5016a2be6760",
   "databaseType": "SqlServer",
   "development": {
     "scriptsFolder": "./schema-model"
+  },
+  "developmentDatabase": {
+    "connectionProvider": {
+      "type": "UsernamePassword",
+      "url": "jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm_Dev;encrypt=true;integratedSecurity=false;trustServerCertificate=true"
+    },
+    "displayName": "AdvWorksComm_Dev"
+  },
+  "capabilities": {
+    "staticData": {
+      "configuredTables": [
+        {
+          "schema": "SalesLT",
+          "table": "Customer",
+          "excludedColumns": []
+        }
+      ]
+    }
   },
   "deployment": {
     "flywayConfFiles": [
@@ -23,33 +41,27 @@
         },
         "schemas": [],
         "displayName": "AdvWorks"
+      },
+      {
+        "connectionProvider": {
+          "type": "UsernamePassword",
+          "url": "jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true",
+          "username": "sa",
+          "password": {
+            "secretType": "DefaultSecretStore",
+            "name": "Flyway Desktop 1b09c8c0-b4f2-4849-8057-51f8d02f7e88"
+          }
+        },
+        "displayName": "AdvWorksComm"
       }
     ],
     "generateUndoScripts": true,
     "shadowDatabase": {
       "connectionProvider": {
         "type": "UsernamePassword",
-        "url": "jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdventureWorksLT2019_Shadow;encrypt=true;integratedSecurity=false;trustServerCertificate=true"
+        "url": "jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm_Shadow;encrypt=true;integratedSecurity=false;trustServerCertificate=true"
       },
-      "displayName": "AdvWorks_Shadow"
-    }
-  },
-  "developmentDatabase": {
-    "connectionProvider": {
-      "type": "UsernamePassword",
-      "url": "jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdventureWorksLT2019_Dev;encrypt=true;integratedSecurity=false;trustServerCertificate=true"
-    },
-    "displayName": "AdvWorks_Dev"
-  },
-  "capabilities": {
-    "staticData": {
-      "configuredTables": [
-        {
-          "schema": "SalesLT",
-          "table": "Customer",
-          "excludedColumns": []
-        }
-      ]
+      "displayName": "AdvWorksComm_Shadow"
     }
   }
 }

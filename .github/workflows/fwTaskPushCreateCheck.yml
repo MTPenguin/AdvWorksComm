@@ -5,7 +5,7 @@ run-name: Check ${{ github.head_ref || github.ref_name }} migration to ${{ githu
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for branches beginning with 'task' that have changes in the migrations folder.
+  # Triggers the workflow on push or pull request events but only for branches beginning with 'task' that have changes in their respective migration folder.
   push:
     branches:
       - 'task**'
@@ -25,7 +25,7 @@ env:
   ACTION_EMAIL: "MTPenguinAction@youremail.com"
   ACTION_USER: "MTPenguinAction"
   REPORT_PATH: ${{ github.WORKSPACE }}\reports\
-  PUBLISH_PATH: https://mtpenguin.github.io/AdvWorksAuto/
+  PUBLISH_PATH: https://mtpenguin.github.io/AdvWorksComm/
   INFO_FILENAME: "${{ github.RUN_ID }}-Info"
 
 permissions:
