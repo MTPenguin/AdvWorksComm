@@ -75,7 +75,7 @@ jobs:
         id: checkStates
         run: |   # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
           md -Force ${{ env.REPORT_PATH }}
-          flyway -user="${{ env.userName }}" -password="${{ env.password }}" -licenseKey="${{ env.FLYWAY_LICENSE_KEY }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
+          flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
           $infoObj = Get-Content -Raw -Path ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json | ConvertFrom-Json
           cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
           echo "FLYWAY migration information:" > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt

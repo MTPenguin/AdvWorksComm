@@ -16,3 +16,4 @@ UPDATE [SalesLT].[Customer] SET [Suffix]=NULL WHERE [CustomerID] = 5
 UPDATE [SalesLT].[Customer] SET [Suffix]=NULL WHERE [CustomerID] = 6
 
 
+
