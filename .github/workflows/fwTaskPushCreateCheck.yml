@@ -231,39 +231,39 @@ jobs:
         - uses: actions/checkout@v3
           
         # Runs the Flyway Check command, to produce a deployment report, against the production database
-        - name: Create check reports
-          if: env.generateDriftAndChangeReport == 'true'
-          run: |
-            flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\migrations-${{ env.deployment_environment }}" check -dryrun -changes -drift "-check.failOnDrift=${{ env.failReleaseIfDriftDetected }}" "-check.buildUrl=${{ env.check_JDBC }}" "-check.buildUser=${{ env.check_userName }}" "-check.buildPassword=${{ env.check_password }}" -url="${{ env.JDBC }}" "-check.reportFilename=${{ env.REPORT_PATH }}${{ env.REPORT_FILE }}"
-          continue-on-error: false
+        # - name: Create check reports
+        #   if: env.generateDriftAndChangeReport == 'true'
+        #   run: |
+        #     flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\migrations-${{ env.deployment_environment }}" check -dryrun -changes -drift "-check.failOnDrift=${{ env.failReleaseIfDriftDetected }}" "-check.buildUrl=${{ env.check_JDBC }}" "-check.buildUser=${{ env.check_userName }}" "-check.buildPassword=${{ env.check_password }}" -url="${{ env.JDBC }}" "-check.reportFilename=${{ env.REPORT_PATH }}${{ env.REPORT_FILE }}"
+        #   continue-on-error: false
  
-        - name: Publish check report
-          if: env.publishArtifacts == 'true' && (${{ failure() }} || ${{ success() }})
-          uses: actions/upload-artifact@v3
-          with: 
-            name: flyway-reports
-            path: ${{ github.WORKSPACE }}\reports
+        # - name: Publish check report
+        #   if: env.publishArtifacts == 'true' && (${{ failure() }} || ${{ success() }})
+        #   uses: actions/upload-artifact@v3
+        #   with: 
+        #     name: flyway-reports
+        #     path: ${{ github.WORKSPACE }}\reports
 
-        # Commit report to GitHub and put pages URL in commit message
-        - name: Commit report
-          if: ${{ failure() }} || ${{ success() }}
-          run: |
-            git config --global user.name "${{ env.ACTION_USER }}"
-            git config --global user.email "${{ env.ACTION_EMAIL }}"
-            git add ${{ env.REPORT_PATH }}
-            git commit -am "Flyway check report URL:${{ env.PUBLISH_PATH }}${{ env.REPORT_FILE }}"
-            git pull
-            git push
+        # # Commit report to GitHub and put pages URL in commit message
+        # - name: Commit report
+        #   if: ${{ failure() }} || ${{ success() }}
+        #   run: |
+        #     git config --global user.name "${{ env.ACTION_USER }}"
+        #     git config --global user.email "${{ env.ACTION_EMAIL }}"
+        #     git add ${{ env.REPORT_PATH }}
+        #     git commit -am "Flyway check report URL:${{ env.PUBLISH_PATH }}${{ env.REPORT_FILE }}"
+        #     git pull
+        #     git push
         
         - name: Create ${{ env.branch_name }} pull request
           run: |
             gh pr create -B main -H "${{ env.branch_name }}" --title 'Merge ${{ env.branch_name }} into main' --body 'Created by Github action.'
             gh pr merge --auto --merge
 
-        # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
-        - name: Trigger check report to GitHub pages workflow
-          if: ${{ failure() }} || ${{ success() }}
-          run: |
-            gh workflow run fwCheckReport.yml -r ${{ github.ref }} -f report_path="${{ env.PUBLISH_PATH }}" -f check_file="${{ env.REPORT_FILE }}" -f info_file="${{ env.INFO_FILENAME }}.txt"
+        # # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
+        # - name: Trigger check report to GitHub pages workflow
+        #   if: ${{ failure() }} || ${{ success() }}
+        #   run: |
+        #     gh workflow run fwCheckReport.yml -r ${{ github.ref }} -f report_path="${{ env.PUBLISH_PATH }}" -f check_file="${{ env.REPORT_FILE }}" -f info_file="${{ env.INFO_FILENAME }}.txt"
         
         
