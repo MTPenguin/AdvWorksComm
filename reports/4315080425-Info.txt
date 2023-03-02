@@ -1,9 +1,0 @@
-FLYWAY migration information:
-```
-
-version            description           state    filepath
--------            -----------           -----    --------
-1                  << Flyway Baseline >> Baseline 
-003.20230224210757 BMac                  Future   
-
-```
