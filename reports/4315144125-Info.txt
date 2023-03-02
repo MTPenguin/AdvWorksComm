@@ -1,0 +1,12 @@
+FLYWAY migration information:
+```
+
+version            description           state    filepath
+-------            -----------           -----    --------
+1                  << Flyway Baseline >> Baseline 
+003.20230224210757 BMac                  Success  C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migr
+                                                  ations\V003_20230224210757.sql
+004.20230224210757                       Pending  C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migr
+                                                  ations\V004_20230224210757.sql
+
+```
