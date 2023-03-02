@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "003.20230224210757",
+  "schemaName": "",
+  "migrations": [
+    {
+      "category": "Versioned",
+      "version": "001.20230224120276",
+      "description": "baseline",
+      "type": "SQL",
+      "installedOnUTC": "2023-03-03T00:24:59.370Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V001_20230224120276__baseline.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 950
+    },
+    {
+      "category": "Versioned",
+      "version": "002.20230224191036",
+      "description": "BMac",
+      "type": "SQL",
+      "installedOnUTC": "2023-03-03T00:24:59.483Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V002_20230224191036__BMac.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 31
+    },
+    {
+      "category": "Versioned",
+      "version": "003.20230224210757",
+      "description": "BMac",
+      "type": "SQL",
+      "installedOnUTC": "2023-03-03T00:24:59.553Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V003_20230224210757__BMac.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 25
+    },
+    {
+      "category": "Versioned",
+      "version": "004.20230224210757",
+      "description": "BMac",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Pending",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V004_20230224210757__BMac.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    }
+  ],
+  "allSchemasEmpty": false,
+  "flywayVersion": "9.15.1",
+  "database": "AdvWorksComm",
+  "warnings": [],
+  "operation": "info"
+}
