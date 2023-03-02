@@ -260,10 +260,10 @@ jobs:
             gh pr create -B main -H "${{ env.branch_name }}" --title 'Merge ${{ env.branch_name }} into main' --body 'Created by Github action.'
             gh pr merge --auto --merge
 
-        # # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
-        # - name: Trigger check report to GitHub pages workflow
-        #   if: ${{ failure() }} || ${{ success() }}
-        #   run: |
-        #     gh workflow run fwCheckReport.yml -r ${{ github.ref }} -f report_path="${{ env.PUBLISH_PATH }}" -f check_file="${{ env.REPORT_FILE }}" -f info_file="${{ env.INFO_FILENAME }}.txt"
+        # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
+        - name: Trigger check report to GitHub pages workflow
+          if: ${{ failure() }} || ${{ success() }}
+          run: |
+            gh workflow run fwCheckReport.yml -r ${{ github.ref }} -f report_path="${{ env.PUBLISH_PATH }}" -f check_file="${{ env.REPORT_FILE }}" -f info_file="${{ env.INFO_FILENAME }}.txt"
         
         
