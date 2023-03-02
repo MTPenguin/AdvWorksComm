@@ -43,6 +43,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env: 
+      GITHUB_TOKEN: ${{ github.token }} 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -57,10 +59,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-      - name: Comment Pull Request
-        env: 
-          GITHUB_TOKEN: ${{ github.token }} 
+      - name: Set Check Report Available
+        run: |
+          echo "checkReport=$( ${{ inputs.check_file }} === '?' )" >> $env:GITHUB_ENV
+      - name: Echo checkReport
+        run: |
+          echo "${{ env.checkReport }}"
+      - name: Comment Pull Request Info
         run: |
           gh pr comment --body-file "${{ env.REPORT_PATH }}/${{ inputs.info_file }}"
+      - name: Comment Pull Request Check Report
+        if: ${{ env.checkReport == 'True' }}
+        run: |
           gh pr comment --body "FLYWAY Check Report can be found here:${{ inputs.report_path }}${{ inputs.check_file }}"
           
