@@ -65,3 +65,4 @@ UPDATE [SalesLT].[Customer] SET [Suffix]=NULL WHERE [CustomerID] = 6
 
 
 
+
