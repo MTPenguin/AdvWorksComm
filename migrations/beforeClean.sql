@@ -1,4 +1,4 @@
-PRINT "CALLBACK"
+PRINT 'CALLBACK'
 
 DROP INDEX PXML_ProductModel_CatalogDescription ON SalesLT.ProductModel
 
