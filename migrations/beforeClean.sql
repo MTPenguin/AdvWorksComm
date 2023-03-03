@@ -2,6 +2,11 @@ PRINT 'CALLBACK'
 
 DROP INDEX PXML_ProductModel_CatalogDescription ON SalesLT.ProductModel
 
+EXEC sys.sp_dropextendedproperty 
+@level0type = N'SCHEMA' -- The object schema
+,@level0name = [SalesLT] -- The object schema name
+;
+
 -----------------------------------------------------------------------
 -- User-defined variables
 -----------------------------------------------------------------------
