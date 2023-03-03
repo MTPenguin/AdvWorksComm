@@ -1,6 +1,6 @@
 PRINT 'CALLBACK'
 
-DROP INDEX PXML_ProductModel_CatalogDescription ON SalesLT.ProductModel
+DROP INDEX if exists PXML_ProductModel_CatalogDescription ON SalesLT.ProductModel
 
 EXEC sys.sp_dropextendedproperty 
 @level0type = N'SCHEMA' -- The object schema
