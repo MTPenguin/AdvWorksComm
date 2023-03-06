@@ -240,6 +240,4 @@ SELECT SQLText FROM #ModifyDrop
 
 EXEC sp_dropextendedproperty   
      @name = 'MS_Description'   
-    ,@level0type = 'schema'   
-    ,@level0name = dbo  
 
