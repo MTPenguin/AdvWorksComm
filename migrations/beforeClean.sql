@@ -238,3 +238,8 @@ SELECT SQLText FROM #ModifyDrop
 --     ,@level0type = 'schema'   
 --     ,@level0name = salesLT  
 
+EXEC sp_dropextendedproperty   
+     @name = 'MS_Description'   
+    ,@level0type = 'schema'   
+    ,@level0name = dbo  
+
