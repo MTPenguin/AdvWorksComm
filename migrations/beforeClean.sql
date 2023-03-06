@@ -10,7 +10,6 @@ EXEC sp_dropextendedproperty
 EXEC sp_dropextendedproperty   
      @name = 'MS_Description'   
 
-
 -----------------------------------------------------------------------
 -- User-defined variables
 -----------------------------------------------------------------------
