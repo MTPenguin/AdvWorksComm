@@ -13,7 +13,9 @@ version            description state   filepath
                                        _20230224210757__BMac.sql
 005.20230224210757 BMac        Success C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations\V005
                                        _20230224210757__BMac.sql
-006.20230224210757 BMac        Pending C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations\V006
+006.20230224210757 BMac        Success C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations\V006
+                                       _20230224210757__BMac.sql
+007.20230224210757 BMac        Pending C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations\V007
                                        _20230224210757__BMac.sql
 
 ```

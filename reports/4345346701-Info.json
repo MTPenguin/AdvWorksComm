@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "004.20230224210757",
-  "schemaName": "",
+  "schemaVersion": "006.20230224210757",
+  "schemaName": "salesLT, dbo",
   "migrations": [
     {
       "category": "Versioned",
@@ -59,10 +59,36 @@
       "version": "005.20230224210757",
       "description": "BMac",
       "type": "SQL",
+      "installedOnUTC": "2023-03-03T04:16:25.780Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V005_20230224210757__BMac.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 27
+    },
+    {
+      "category": "Versioned",
+      "version": "006.20230224210757",
+      "description": "BMac",
+      "type": "SQL",
+      "installedOnUTC": "2023-03-03T04:18:41.883Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V006_20230224210757__BMac.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 30
+    },
+    {
+      "category": "Versioned",
+      "version": "007.20230224210757",
+      "description": "BMac",
+      "type": "SQL",
       "installedOnUTC": "",
       "state": "Pending",
       "undoable": "No",
-      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V005_20230224210757__BMac.sql",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V007_20230224210757__BMac.sql",
       "undoFilepath": "",
       "installedBy": "",
       "executionTime": 0
