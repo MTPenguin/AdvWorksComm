@@ -2,11 +2,6 @@ PRINT 'CALLBACK'
 
 DROP INDEX if exists PXML_ProductModel_CatalogDescription ON SalesLT.ProductModel
 
-EXEC sp_dropextendedproperty   
-     @name = 'MS_Description'   
-    ,@level0type = 'schema'   
-    ,@level0name = salesLT  
-
 -----------------------------------------------------------------------
 -- User-defined variables
 -----------------------------------------------------------------------
@@ -236,3 +231,10 @@ BEGIN
  END
 END
 SELECT SQLText FROM #ModifyDrop
+
+
+EXEC sp_dropextendedproperty   
+     @name = 'MS_Description'   
+    ,@level0type = 'schema'   
+    ,@level0name = salesLT  
+
