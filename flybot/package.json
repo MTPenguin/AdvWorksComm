@@ -1,0 +1,33 @@
+{
+  "name": "flybot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Probot app",
+  "author": "MTPenguin",
+  "license": "ISC",
+  "homepage": "https://github.com//",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "start": "nodemon ./main.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "probot": "^12.2.4"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "nock": "^13.0.5",
+    "nodemon": "^2.0.21",
+    "smee-client": "^1.2.2"
+  },
+  "engines": {
+    "node": ">= 10.13.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
