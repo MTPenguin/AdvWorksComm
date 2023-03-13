@@ -6,63 +6,74 @@
 const thisFile = 'index.js'
 
 module.exports = (app) => {
-  const consoleLog = app.log.info
+  // const consoleLog = app.log.info
+  const consoleLog = console.log
   consoleLog(thisFile, "Yay, the app was loaded!");
-  
+
 
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
-    const repoOwner = 'MTPenguin'
+    // consoleLog(thisFile, 'context:', context)
+    const repo = context.payload.repository
+    const repoOwner = repo.owner.login
+    const repoName = repo.name
+    const mergeBranchName = 'main'
 
     let newBranch = 'testFlyBot';
 
-    /**
-     * In order to create a new branch off of master, we first have to get the sha of master
-     */
-    const branches = await octokit.request(`GET /repos/${repoOwner}/${config.gitHubRepoName}/branches`, {
-        owner: repoOwner,
-        repo: config.gitHubRepoName
-    });
-
-    consoleLog(thisFile, 'branches:', branches)
-
-    let mainSha;
-    for (const branch in branches.data) {
-      if (branch.name === 'main') {
-        mainSha = branch.commit.sha
-      }
-      if (branch.name === newBranch) {
-          newBranch = newBranch + '.' + Date.now()
-      }
-    }
-
-    consoleLog(thisFile, 'newBranch:', newBranch)
-
-    // _.forEach(branches.data, function(branch) {
-    //     if (branch.name === 'main') {
-    //       mainSha = _.get(branch, 'commit.sha');
-    //     }
-    //     if (branch.name === newBranch) {
-    //         newBranch = newBranch + '.' + moment().format('X');
-    //     }
-    // });
+    consoleLog(thisFile
+      , `\n${repo}:`, repo
+      , `\n${repoOwner}:`, repoOwner
+      , `\n${repoName}:`, repoName
+      , `\n${mergeBranchName}:`, mergeBranchName
+      , `\n${newBranch}:`, newBranch
+    )
 
     /**
-     * Create a new branch off of master with the sha of master
+     * In order to create a new branch off of main, we first have to get the sha of mergeBranch
      */
-    const result = await octokit.request(`POST /repos/${repoOwner}/${config.gitHubRepoName}/git/refs`, {
-        owner: repoOwner,
-        repo: config.gitHubRepoName,
-        ref: `refs/heads/${newBranch}`,
-        sha: masterSha
-    });
 
+    const mergeBranch = await octokit.request(repo.branches_url, { branch: mergeBranchName })
+    consoleLog(thisFile, 'mergeBranch:', mergeBranch)
+
+    /**
+     * Create a new branch off of main with the sha of main
+     */
+    let result = await octokit.git.createRef({
+      owner: repoOwner,
+      repo: repoName,
+      ref: `refs/heads/${newBranch}`,
+      sha: mergeBranch.data.commit.sha,
+    });
     consoleLog(thisFile, 'result:', result)
 
+    // const content = `--inserted code
+    // Declare @version varchar(25);
+    // SELECT @version= Coalesce(Json_Value(
+    //   (SELECT Convert(NVARCHAR(3760), value) 
+    //    FROM sys.extended_properties AS EP
+    //    WHERE major_id = 0 AND minor_id = 0 
+    //     AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
+    // IF @version <> '2.1.5'
+    // BEGIN
+    // RAISERROR ('The Target was at version %s, not the correct version (2.1.5)',16,1,@version)
+    // SET NOEXEC ON;
+    // END
+    // --end of inserted code
+    // `
+    // const message = "Add versioned migration file";
+    // const isBinary = false;
+    // branch.write('PATH/TO/FILE.txt', content, message, isBinary)
+    //   .done(function () { });
+
+    /**
+     * Create a new issue comment
+     */
     const issueComment = context.issue({
       body: "Thanks for opening this issue!",
     });
-    return octokit.issues.createComment(issueComment);
+    result = octokit.issues.createComment(issueComment);
+    consoleLog(thisFile, 'result:', result)
   });
 
   // For more information on building apps:

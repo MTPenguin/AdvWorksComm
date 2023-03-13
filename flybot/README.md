@@ -2,6 +2,10 @@
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) that A Probot app
 
+## Outline of process
+### Create branch where the version is in the branch name as well as a new migrations file.  All branches will have a matching migration file.
+
+
 ## Setup
 
 ```sh
@@ -10,16 +14,6 @@ npm install
 
 # Run the bot
 npm start
-```
-
-## Docker
-
-```sh
-# 1. Build container
-docker build -t flybot .
-
-# 2. Start container
-docker run -e APP_ID=<app-id> -e PRIVATE_KEY=<pem-value> flybot
 ```
 
 ## Contributing
