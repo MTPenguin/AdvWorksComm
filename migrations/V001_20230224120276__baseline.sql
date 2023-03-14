@@ -143,15 +143,15 @@ PRINT N'Creating [SalesLT].[SalesOrderDetail]'
 GO
 CREATE TABLE [SalesLT].[SalesOrderDetail]
 (
-[SalesOrderID] [int] NOT NULL,
-[SalesOrderDetailID] [int] NOT NULL IDENTITY(1, 1),
-[OrderQty] [smallint] NOT NULL,
-[ProductID] [int] NOT NULL,
-[UnitPrice] [money] NOT NULL,
-[UnitPriceDiscount] [money] NOT NULL CONSTRAINT [DF_SalesOrderDetail_UnitPriceDiscount] DEFAULT ((0.0)),
-[LineTotal] AS (isnull(([UnitPrice]*((1.0)-[UnitPriceDiscount]))*[OrderQty],(0.0))),
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_SalesOrderDetail_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderDetail_ModifiedDate] DEFAULT (getdate())
+  [SalesOrderID] [int] NOT NULL,
+  [SalesOrderDetailID] [int] NOT NULL IDENTITY(1, 1),
+  [OrderQty] [smallint] NOT NULL,
+  [ProductID] [int] NOT NULL,
+  [UnitPrice] [money] NOT NULL,
+  [UnitPriceDiscount] [money] NOT NULL CONSTRAINT [DF_SalesOrderDetail_UnitPriceDiscount] DEFAULT ((0.0)),
+  [LineTotal] AS (isnull(([UnitPrice]*((1.0)-[UnitPriceDiscount]))*[OrderQty],(0.0))),
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_SalesOrderDetail_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderDetail_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID] on [SalesLT].[SalesOrderDetail]'
@@ -173,33 +173,33 @@ GO
 -- execution to jump to the CATCH block of a TRY...CATCH construct. 
 -- Should be executed from within the scope of a CATCH block otherwise 
 -- it will return without printing any error information.
-CREATE PROCEDURE [dbo].[uspPrintError] 
+CREATE PROCEDURE [dbo].[uspPrintError]
 AS
 BEGIN
-    SET NOCOUNT ON;
+  SET NOCOUNT ON;
 
-    -- Print error information. 
-    PRINT 'Error ' + CONVERT(varchar(50), ERROR_NUMBER()) +
+  -- Print error information. 
+  PRINT 'Error ' + CONVERT(varchar(50), ERROR_NUMBER()) +
           ', Severity ' + CONVERT(varchar(5), ERROR_SEVERITY()) +
           ', State ' + CONVERT(varchar(5), ERROR_STATE()) + 
           ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + 
           ', Line ' + CONVERT(varchar(5), ERROR_LINE());
-    PRINT ERROR_MESSAGE();
+  PRINT ERROR_MESSAGE();
 END;
 GO
 PRINT N'Creating [dbo].[ErrorLog]'
 GO
 CREATE TABLE [dbo].[ErrorLog]
 (
-[ErrorLogID] [int] NOT NULL IDENTITY(1, 1),
-[ErrorTime] [datetime] NOT NULL CONSTRAINT [DF_ErrorLog_ErrorTime] DEFAULT (getdate()),
-[UserName] [sys].[sysname] NOT NULL,
-[ErrorNumber] [int] NOT NULL,
-[ErrorSeverity] [int] NULL,
-[ErrorState] [int] NULL,
-[ErrorProcedure] [nvarchar] (126) NULL,
-[ErrorLine] [int] NULL,
-[ErrorMessage] [nvarchar] (4000) NOT NULL
+  [ErrorLogID] [int] NOT NULL IDENTITY(1, 1),
+  [ErrorTime] [datetime] NOT NULL CONSTRAINT [DF_ErrorLog_ErrorTime] DEFAULT (getdate()),
+  [UserName] [sys].[sysname] NOT NULL,
+  [ErrorNumber] [int] NOT NULL,
+  [ErrorSeverity] [int] NULL,
+  [ErrorState] [int] NULL,
+  [ErrorProcedure] [nvarchar] (126) NULL,
+  [ErrorLine] [int] NULL,
+  [ErrorMessage] [nvarchar] (4000) NOT NULL
 )
 GO
 PRINT N'Creating primary key [PK_ErrorLog_ErrorLogID] on [dbo].[ErrorLog]'
@@ -214,17 +214,19 @@ GO
 -- TRY...CATCH construct. This should be executed from within the scope 
 -- of a CATCH block otherwise it will return without inserting error 
 -- information. 
-CREATE PROCEDURE [dbo].[uspLogError] 
-    @ErrorLogID [int] = 0 OUTPUT -- contains the ErrorLogID of the row inserted
-AS                               -- by uspLogError in the ErrorLog table
+CREATE PROCEDURE [dbo].[uspLogError]
+  @ErrorLogID [int] = 0 OUTPUT
+-- contains the ErrorLogID of the row inserted
+AS
+-- by uspLogError in the ErrorLog table
 BEGIN
-    SET NOCOUNT ON;
+  SET NOCOUNT ON;
 
-    -- Output parameter value of 0 indicates that error 
-    -- information was not logged
-    SET @ErrorLogID = 0;
+  -- Output parameter value of 0 indicates that error 
+  -- information was not logged
+  SET @ErrorLogID = 0;
 
-    BEGIN TRY
+  BEGIN TRY
         -- Return if there is no error information to log
         IF ERROR_NUMBER() IS NULL
             RETURN;
@@ -234,30 +236,30 @@ BEGIN
         -- a transaction is in an uncommittable state.
         IF XACT_STATE() = -1
         BEGIN
-            PRINT 'Cannot log error since the current transaction is in an uncommittable state. ' 
+    PRINT 'Cannot log error since the current transaction is in an uncommittable state. ' 
                 + 'Rollback the transaction before executing uspLogError in order to successfully log error information.';
-            RETURN;
-        END
+    RETURN;
+  END
 
-        INSERT [dbo].[ErrorLog] 
-            (
-            [UserName], 
-            [ErrorNumber], 
-            [ErrorSeverity], 
-            [ErrorState], 
-            [ErrorProcedure], 
-            [ErrorLine], 
-            [ErrorMessage]
-            ) 
-        VALUES 
-            (
-            CONVERT(sysname, CURRENT_USER), 
-            ERROR_NUMBER(),
-            ERROR_SEVERITY(),
-            ERROR_STATE(),
-            ERROR_PROCEDURE(),
-            ERROR_LINE(),
-            ERROR_MESSAGE()
+        INSERT [dbo].[ErrorLog]
+    (
+    [UserName],
+    [ErrorNumber],
+    [ErrorSeverity],
+    [ErrorState],
+    [ErrorProcedure],
+    [ErrorLine],
+    [ErrorMessage]
+    )
+  VALUES
+    (
+      CONVERT(sysname, CURRENT_USER),
+      ERROR_NUMBER(),
+      ERROR_SEVERITY(),
+      ERROR_STATE(),
+      ERROR_PROCEDURE(),
+      ERROR_LINE(),
+      ERROR_MESSAGE()
             );
 
         -- Pass back the ErrorLogID of the row inserted
@@ -274,28 +276,28 @@ PRINT N'Creating [SalesLT].[SalesOrderHeader]'
 GO
 CREATE TABLE [SalesLT].[SalesOrderHeader]
 (
-[SalesOrderID] [int] NOT NULL IDENTITY(1, 1),
-[RevisionNumber] [tinyint] NOT NULL CONSTRAINT [DF_SalesOrderHeader_RevisionNumber] DEFAULT ((0)),
-[OrderDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderHeader_OrderDate] DEFAULT (getdate()),
-[DueDate] [datetime] NOT NULL,
-[ShipDate] [datetime] NULL,
-[Status] [tinyint] NOT NULL CONSTRAINT [DF_SalesOrderHeader_Status] DEFAULT ((1)),
-[OnlineOrderFlag] [dbo].[Flag] NOT NULL CONSTRAINT [DF_SalesOrderHeader_OnlineOrderFlag] DEFAULT ((1)),
-[SalesOrderNumber] AS (isnull(N'SO'+CONVERT([nvarchar](23),[SalesOrderID],(0)),N'*** ERROR ***')),
-[PurchaseOrderNumber] [dbo].[OrderNumber] NULL,
-[AccountNumber] [dbo].[AccountNumber] NULL,
-[CustomerID] [int] NOT NULL,
-[ShipToAddressID] [int] NULL,
-[BillToAddressID] [int] NULL,
-[ShipMethod] [nvarchar] (50) NOT NULL,
-[CreditCardApprovalCode] [varchar] (15) NULL,
-[SubTotal] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_SubTotal] DEFAULT ((0.00)),
-[TaxAmt] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_TaxAmt] DEFAULT ((0.00)),
-[Freight] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_Freight] DEFAULT ((0.00)),
-[TotalDue] AS (isnull(([SubTotal]+[TaxAmt])+[Freight],(0))),
-[Comment] [nvarchar] (max) NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_SalesOrderHeader_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderHeader_ModifiedDate] DEFAULT (getdate())
+  [SalesOrderID] [int] NOT NULL IDENTITY(1, 1),
+  [RevisionNumber] [tinyint] NOT NULL CONSTRAINT [DF_SalesOrderHeader_RevisionNumber] DEFAULT ((0)),
+  [OrderDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderHeader_OrderDate] DEFAULT (getdate()),
+  [DueDate] [datetime] NOT NULL,
+  [ShipDate] [datetime] NULL,
+  [Status] [tinyint] NOT NULL CONSTRAINT [DF_SalesOrderHeader_Status] DEFAULT ((1)),
+  [OnlineOrderFlag] [dbo].[Flag] NOT NULL CONSTRAINT [DF_SalesOrderHeader_OnlineOrderFlag] DEFAULT ((1)),
+  [SalesOrderNumber] AS (isnull(N'SO'+CONVERT([nvarchar](23),[SalesOrderID],(0)),N'*** ERROR ***')),
+  [PurchaseOrderNumber] [dbo].[OrderNumber] NULL,
+  [AccountNumber] [dbo].[AccountNumber] NULL,
+  [CustomerID] [int] NOT NULL,
+  [ShipToAddressID] [int] NULL,
+  [BillToAddressID] [int] NULL,
+  [ShipMethod] [nvarchar] (50) NOT NULL,
+  [CreditCardApprovalCode] [varchar] (15) NULL,
+  [SubTotal] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_SubTotal] DEFAULT ((0.00)),
+  [TaxAmt] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_TaxAmt] DEFAULT ((0.00)),
+  [Freight] [money] NOT NULL CONSTRAINT [DF_SalesOrderHeader_Freight] DEFAULT ((0.00)),
+  [TotalDue] AS (isnull(([SubTotal]+[TaxAmt])+[Freight],(0))),
+  [Comment] [nvarchar] (max) NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_SalesOrderHeader_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_SalesOrderHeader_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_SalesOrderHeader_SalesOrderID] on [SalesLT].[SalesOrderHeader]'
@@ -321,15 +323,15 @@ GO
 CREATE TRIGGER [SalesLT].[iduSalesOrderDetail] ON [SalesLT].[SalesOrderDetail] 
 AFTER INSERT, DELETE, UPDATE AS 
 BEGIN
-    DECLARE @Count int;
+  DECLARE @Count int;
 
-    SET @Count = @@ROWCOUNT;
-    IF @Count = 0 
+  SET @Count = @@ROWCOUNT;
+  IF @Count = 0 
         RETURN;
 
-    SET NOCOUNT ON;
+  SET NOCOUNT ON;
 
-    BEGIN TRY
+  BEGIN TRY
         -- If inserting or updating these columns
         IF UPDATE([ProductID]) OR UPDATE([OrderQty]) OR UPDATE([UnitPrice]) OR UPDATE([UnitPriceDiscount]) 
 
@@ -338,9 +340,10 @@ BEGIN
         UPDATE [SalesLT].[SalesOrderHeader]
         SET [SalesLT].[SalesOrderHeader].[SubTotal] = 
             (SELECT SUM([SalesLT].[SalesOrderDetail].[LineTotal])
-                FROM [SalesLT].[SalesOrderDetail]
-                WHERE [SalesLT].[SalesOrderHeader].[SalesOrderID] = [SalesLT].[SalesOrderDetail].[SalesOrderID])
-        WHERE [SalesLT].[SalesOrderHeader].[SalesOrderID] IN (SELECT inserted.[SalesOrderID] FROM inserted);
+  FROM [SalesLT].[SalesOrderDetail]
+  WHERE [SalesLT].[SalesOrderHeader].[SalesOrderID] = [SalesLT].[SalesOrderDetail].[SalesOrderID])
+        WHERE [SalesLT].[SalesOrderHeader].[SalesOrderID] IN (SELECT inserted.[SalesOrderID]
+  FROM inserted);
 
     END TRY
     BEGIN CATCH
@@ -350,8 +353,8 @@ BEGIN
         -- inserting information in the ErrorLog
         IF @@TRANCOUNT > 0
         BEGIN
-            ROLLBACK TRANSACTION;
-        END
+    ROLLBACK TRANSACTION;
+  END
 
         EXECUTE [dbo].[uspLogError];
     END CATCH;
@@ -363,24 +366,25 @@ GO
 CREATE TRIGGER [SalesLT].[uSalesOrderHeader] ON [SalesLT].[SalesOrderHeader] 
 AFTER UPDATE AS 
 BEGIN
-    DECLARE @Count int;
+  DECLARE @Count int;
 
-    SET @Count = @@ROWCOUNT;
-    IF @Count = 0 
+  SET @Count = @@ROWCOUNT;
+  IF @Count = 0 
         RETURN;
 
-    SET NOCOUNT ON;
+  SET NOCOUNT ON;
 
-    BEGIN TRY
+  BEGIN TRY
         -- Update RevisionNumber for modification of any field EXCEPT the Status.
         IF NOT (UPDATE([Status]) OR UPDATE([RevisionNumber]))
         BEGIN
-            UPDATE [SalesLT].[SalesOrderHeader]
+    UPDATE [SalesLT].[SalesOrderHeader]
             SET [SalesLT].[SalesOrderHeader].[RevisionNumber] = 
                 [SalesLT].[SalesOrderHeader].[RevisionNumber] + 1
             WHERE [SalesLT].[SalesOrderHeader].[SalesOrderID] IN 
-                (SELECT inserted.[SalesOrderID] FROM inserted);
-        END;
+                (SELECT inserted.[SalesOrderID]
+    FROM inserted);
+  END;
     END TRY
     BEGIN CATCH
         EXECUTE [dbo].[uspPrintError];
@@ -389,8 +393,8 @@ BEGIN
         -- inserting information in the ErrorLog
         IF @@TRANCOUNT > 0
         BEGIN
-            ROLLBACK TRANSACTION;
-        END
+    ROLLBACK TRANSACTION;
+  END
 
         EXECUTE [dbo].[uspLogError];
     END CATCH;
@@ -400,15 +404,15 @@ PRINT N'Creating [SalesLT].[Address]'
 GO
 CREATE TABLE [SalesLT].[Address]
 (
-[AddressID] [int] NOT NULL IDENTITY(1, 1),
-[AddressLine1] [nvarchar] (60) NOT NULL,
-[AddressLine2] [nvarchar] (60) NULL,
-[City] [nvarchar] (30) NOT NULL,
-[StateProvince] [dbo].[Name] NOT NULL,
-[CountryRegion] [dbo].[Name] NOT NULL,
-[PostalCode] [nvarchar] (15) NOT NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Address_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Address_ModifiedDate] DEFAULT (getdate())
+  [AddressID] [int] NOT NULL IDENTITY(1, 1),
+  [AddressLine1] [nvarchar] (60) NOT NULL,
+  [AddressLine2] [nvarchar] (60) NULL,
+  [City] [nvarchar] (30) NOT NULL,
+  [StateProvince] [dbo].[Name] NOT NULL,
+  [CountryRegion] [dbo].[Name] NOT NULL,
+  [PostalCode] [nvarchar] (15) NOT NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Address_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Address_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_Address_AddressID] on [SalesLT].[Address]'
@@ -431,11 +435,11 @@ PRINT N'Creating [SalesLT].[CustomerAddress]'
 GO
 CREATE TABLE [SalesLT].[CustomerAddress]
 (
-[CustomerID] [int] NOT NULL,
-[AddressID] [int] NOT NULL,
-[AddressType] [dbo].[Name] NOT NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_CustomerAddress_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_CustomerAddress_ModifiedDate] DEFAULT (getdate())
+  [CustomerID] [int] NOT NULL,
+  [AddressID] [int] NOT NULL,
+  [AddressType] [dbo].[Name] NOT NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_CustomerAddress_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_CustomerAddress_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_CustomerAddress_CustomerID_AddressID] on [SalesLT].[CustomerAddress]'
@@ -450,23 +454,23 @@ PRINT N'Creating [SalesLT].[Customer]'
 GO
 CREATE TABLE [SalesLT].[Customer]
 (
-[CustomerID] [int] NOT NULL IDENTITY(1, 1),
-[NameStyle] [dbo].[NameStyle] NOT NULL CONSTRAINT [DF_Customer_NameStyle] DEFAULT ((0)),
-[Title] [nvarchar] (8) NULL,
-[FirstName] [dbo].[Name] NOT NULL,
-[MiddleName] [dbo].[Name] NULL,
-[LastName] [dbo].[Name] NOT NULL,
-[Suffix] [nvarchar] (10) NULL,
-[CompanyName] [nvarchar] (128) NULL,
-[SalesPerson] [nvarchar] (256) NULL,
-[EmailAddress] [nvarchar] (50) NULL,
-[Phone] [dbo].[Phone] NULL,
-[PasswordHash] [varchar] (128) NOT NULL,
-[PasswordSalt] [nchar] (10) NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Customer_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Customer_ModifiedDate] DEFAULT (getdate()),
-[New] [nchar] (10) NULL,
-[New2] [nchar] (10) NULL
+  [CustomerID] [int] NOT NULL IDENTITY(1, 1),
+  [NameStyle] [dbo].[NameStyle] NOT NULL CONSTRAINT [DF_Customer_NameStyle] DEFAULT ((0)),
+  [Title] [nvarchar] (8) NULL,
+  [FirstName] [dbo].[Name] NOT NULL,
+  [MiddleName] [dbo].[Name] NULL,
+  [LastName] [dbo].[Name] NOT NULL,
+  [Suffix] [nvarchar] (10) NULL,
+  [CompanyName] [nvarchar] (128) NULL,
+  [SalesPerson] [nvarchar] (256) NULL,
+  [EmailAddress] [nvarchar] (50) NULL,
+  [Phone] [dbo].[Phone] NULL,
+  [PasswordHash] [varchar] (128) NOT NULL,
+  [PasswordSalt] [nchar] (10) NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Customer_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Customer_ModifiedDate] DEFAULT (getdate()),
+  [New] [nchar] (10) NULL,
+  [New2] [nchar] (10) NULL
 )
 GO
 PRINT N'Creating primary key [PK_Customer_CustomerID] on [SalesLT].[Customer]'
@@ -485,11 +489,11 @@ PRINT N'Creating [SalesLT].[ProductCategory]'
 GO
 CREATE TABLE [SalesLT].[ProductCategory]
 (
-[ProductCategoryID] [int] NOT NULL IDENTITY(1, 1),
-[ParentProductCategoryID] [int] NULL,
-[Name] [dbo].[Name] NOT NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductCategory_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductCategory_ModifiedDate] DEFAULT (getdate())
+  [ProductCategoryID] [int] NOT NULL IDENTITY(1, 1),
+  [ParentProductCategoryID] [int] NULL,
+  [Name] [dbo].[Name] NOT NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductCategory_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductCategory_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_ProductCategory_ProductCategoryID] on [SalesLT].[ProductCategory]'
@@ -508,23 +512,23 @@ PRINT N'Creating [SalesLT].[Product]'
 GO
 CREATE TABLE [SalesLT].[Product]
 (
-[ProductID] [int] NOT NULL IDENTITY(1, 1),
-[Name] [dbo].[Name] NOT NULL,
-[ProductNumber] [nvarchar] (25) NOT NULL,
-[Color] [nvarchar] (15) NULL,
-[StandardCost] [money] NOT NULL,
-[ListPrice] [money] NOT NULL,
-[Size] [nvarchar] (5) NULL,
-[Weight] [decimal] (8, 2) NULL,
-[ProductCategoryID] [int] NULL,
-[ProductModelID] [int] NULL,
-[SellStartDate] [datetime] NOT NULL,
-[SellEndDate] [datetime] NULL,
-[DiscontinuedDate] [datetime] NULL,
-[ThumbNailPhoto] [varbinary] (max) NULL,
-[ThumbnailPhotoFileName] [nvarchar] (50) NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Product_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Product_ModifiedDate] DEFAULT (getdate())
+  [ProductID] [int] NOT NULL IDENTITY(1, 1),
+  [Name] [dbo].[Name] NOT NULL,
+  [ProductNumber] [nvarchar] (25) NOT NULL,
+  [Color] [nvarchar] (15) NULL,
+  [StandardCost] [money] NOT NULL,
+  [ListPrice] [money] NOT NULL,
+  [Size] [nvarchar] (5) NULL,
+  [Weight] [decimal] (8, 2) NULL,
+  [ProductCategoryID] [int] NULL,
+  [ProductModelID] [int] NULL,
+  [SellStartDate] [datetime] NOT NULL,
+  [SellEndDate] [datetime] NULL,
+  [DiscontinuedDate] [datetime] NULL,
+  [ThumbNailPhoto] [varbinary] (max) NULL,
+  [ThumbnailPhotoFileName] [nvarchar] (50) NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_Product_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_Product_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_Product_ProductID] on [SalesLT].[Product]'
@@ -547,11 +551,11 @@ PRINT N'Creating [SalesLT].[ProductModel]'
 GO
 CREATE TABLE [SalesLT].[ProductModel]
 (
-[ProductModelID] [int] NOT NULL IDENTITY(1, 1),
-[Name] [dbo].[Name] NOT NULL,
-[CatalogDescription] [xml] (CONTENT [SalesLT].[ProductDescriptionSchemaCollection]) NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductModel_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductModel_ModifiedDate] DEFAULT (getdate())
+  [ProductModelID] [int] NOT NULL IDENTITY(1, 1),
+  [Name] [dbo].[Name] NOT NULL,
+  [CatalogDescription] [xml] (CONTENT [SalesLT].[ProductDescriptionSchemaCollection]) NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductModel_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductModel_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_ProductModel_ProductModelID] on [SalesLT].[ProductModel]'
@@ -575,10 +579,10 @@ PRINT N'Creating [SalesLT].[ProductDescription]'
 GO
 CREATE TABLE [SalesLT].[ProductDescription]
 (
-[ProductDescriptionID] [int] NOT NULL IDENTITY(1, 1),
-[Description] [nvarchar] (400) NOT NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductDescription_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductDescription_ModifiedDate] DEFAULT (getdate())
+  [ProductDescriptionID] [int] NOT NULL IDENTITY(1, 1),
+  [Description] [nvarchar] (400) NOT NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductDescription_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductDescription_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_ProductDescription_ProductDescriptionID] on [SalesLT].[ProductDescription]'
@@ -593,11 +597,11 @@ PRINT N'Creating [SalesLT].[ProductModelProductDescription]'
 GO
 CREATE TABLE [SalesLT].[ProductModelProductDescription]
 (
-[ProductModelID] [int] NOT NULL,
-[ProductDescriptionID] [int] NOT NULL,
-[Culture] [nchar] (6) NOT NULL,
-[rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductModelProductDescription_rowguid] DEFAULT (newid()),
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductModelProductDescription_ModifiedDate] DEFAULT (getdate())
+  [ProductModelID] [int] NOT NULL,
+  [ProductDescriptionID] [int] NOT NULL,
+  [Culture] [nchar] (6) NOT NULL,
+  [rowguid] [uniqueidentifier] NOT NULL ROWGUIDCOL CONSTRAINT [DF_ProductModelProductDescription_rowguid] DEFAULT (newid()),
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_ProductModelProductDescription_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Creating primary key [PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture] on [SalesLT].[ProductModelProductDescription]'
@@ -612,22 +616,23 @@ PRINT N'Creating [SalesLT].[vProductAndDescription]'
 GO
 
 
-CREATE VIEW [SalesLT].[vProductAndDescription] 
-WITH SCHEMABINDING 
-AS 
--- View (indexed or standard) to display products and product descriptions by language.
-SELECT 
+CREATE VIEW [SalesLT].[vProductAndDescription]
+WITH
+  SCHEMABINDING
+AS
+  -- View (indexed or standard) to display products and product descriptions by language.
+  SELECT
     p.[ProductID] 
-    ,p.[Name] 
-    ,pm.[Name] AS [ProductModel] 
-    ,pmx.[Culture] 
-    ,pd.[Description] 
-FROM [SalesLT].[Product] p 
-    INNER JOIN [SalesLT].[ProductModel] pm 
-    ON p.[ProductModelID] = pm.[ProductModelID] 
-    INNER JOIN [SalesLT].[ProductModelProductDescription] pmx 
-    ON pm.[ProductModelID] = pmx.[ProductModelID] 
-    INNER JOIN [SalesLT].[ProductDescription] pd 
+    , p.[Name] 
+    , pm.[Name] AS [ProductModel] 
+    , pmx.[Culture] 
+    , pd.[Description]
+  FROM [SalesLT].[Product] p
+    INNER JOIN [SalesLT].[ProductModel] pm
+    ON p.[ProductModelID] = pm.[ProductModelID]
+    INNER JOIN [SalesLT].[ProductModelProductDescription] pmx
+    ON pm.[ProductModelID] = pmx.[ProductModelID]
+    INNER JOIN [SalesLT].[ProductDescription] pd
     ON pmx.[ProductDescriptionID] = pd.[ProductDescriptionID];
 GO
 PRINT N'Creating index [IX_vProductAndDescription] on [SalesLT].[vProductAndDescription]'
@@ -637,93 +642,96 @@ GO
 PRINT N'Creating [SalesLT].[vProductModelCatalogDescription]'
 GO
 
-CREATE VIEW [SalesLT].[vProductModelCatalogDescription] 
-AS 
-SELECT 
+CREATE VIEW [SalesLT].[vProductModelCatalogDescription]
+AS
+  SELECT
     [ProductModelID] 
-    ,[Name] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [Name] 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace html="http://www.w3.org/1999/xhtml"; 
         (/p1:ProductDescription/p1:Summary/html:p)[1]', 'nvarchar(max)') AS [Summary] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Manufacturer/p1:Name)[1]', 'nvarchar(max)') AS [Manufacturer] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Manufacturer/p1:Copyright)[1]', 'nvarchar(30)') AS [Copyright] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Manufacturer/p1:ProductURL)[1]', 'nvarchar(256)') AS [ProductURL] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wm="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain"; 
         (/p1:ProductDescription/p1:Features/wm:Warranty/wm:WarrantyPeriod)[1]', 'nvarchar(256)') AS [WarrantyPeriod] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wm="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain"; 
         (/p1:ProductDescription/p1:Features/wm:Warranty/wm:Description)[1]', 'nvarchar(256)') AS [WarrantyDescription] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wm="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain"; 
         (/p1:ProductDescription/p1:Features/wm:Maintenance/wm:NoOfYears)[1]', 'nvarchar(256)') AS [NoOfYears] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wm="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain"; 
         (/p1:ProductDescription/p1:Features/wm:Maintenance/wm:Description)[1]', 'nvarchar(256)') AS [MaintenanceDescription] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wf="http://www.adventure-works.com/schemas/OtherFeatures"; 
         (/p1:ProductDescription/p1:Features/wf:wheel)[1]', 'nvarchar(256)') AS [Wheel] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wf="http://www.adventure-works.com/schemas/OtherFeatures"; 
         (/p1:ProductDescription/p1:Features/wf:saddle)[1]', 'nvarchar(256)') AS [Saddle] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wf="http://www.adventure-works.com/schemas/OtherFeatures"; 
         (/p1:ProductDescription/p1:Features/wf:pedal)[1]', 'nvarchar(256)') AS [Pedal] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wf="http://www.adventure-works.com/schemas/OtherFeatures"; 
         (/p1:ProductDescription/p1:Features/wf:BikeFrame)[1]', 'nvarchar(max)') AS [BikeFrame] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         declare namespace wf="http://www.adventure-works.com/schemas/OtherFeatures"; 
         (/p1:ProductDescription/p1:Features/wf:crankset)[1]', 'nvarchar(256)') AS [Crankset] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Picture/p1:Angle)[1]', 'nvarchar(256)') AS [PictureAngle] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Picture/p1:Size)[1]', 'nvarchar(256)') AS [PictureSize] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Picture/p1:ProductPhotoID)[1]', 'nvarchar(256)') AS [ProductPhotoID] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Specifications/Material)[1]', 'nvarchar(256)') AS [Material] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Specifications/Color)[1]', 'nvarchar(256)') AS [Color] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Specifications/ProductLine)[1]', 'nvarchar(256)') AS [ProductLine] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Specifications/Style)[1]', 'nvarchar(256)') AS [Style] 
-    ,[CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
+    , [CatalogDescription].value(N'declare namespace p1="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription"; 
         (/p1:ProductDescription/p1:Specifications/RiderExperience)[1]', 'nvarchar(1024)') AS [RiderExperience] 
-    ,[rowguid] 
-    ,[ModifiedDate]
-FROM [SalesLT].[ProductModel] 
-WHERE [CatalogDescription] IS NOT NULL;
+    , [rowguid] 
+    , [ModifiedDate]
+  FROM [SalesLT].[ProductModel]
+  WHERE [CatalogDescription] IS NOT NULL;
 GO
 PRINT N'Creating [SalesLT].[vGetAllCategories]'
 GO
 
 CREATE VIEW [SalesLT].[vGetAllCategories]
-WITH SCHEMABINDING 
-AS 
--- Returns the CustomerID, first name, and last name for the specified customer.
+WITH
+  SCHEMABINDING
+AS
+  -- Returns the CustomerID, first name, and last name for the specified customer.
 
-WITH CategoryCTE([ParentProductCategoryID], [ProductCategoryID], [Name]) AS 
-(
-	SELECT [ParentProductCategoryID], [ProductCategoryID], [Name]
-	FROM SalesLT.ProductCategory
-	WHERE ParentProductCategoryID IS NULL
+  WITH
+    CategoryCTE([ParentProductCategoryID], [ProductCategoryID], [Name])
+    AS
+    (
+              SELECT [ParentProductCategoryID], [ProductCategoryID], [Name]
+        FROM SalesLT.ProductCategory
+        WHERE ParentProductCategoryID IS NULL
 
-UNION ALL
+      UNION ALL
 
-	SELECT C.[ParentProductCategoryID], C.[ProductCategoryID], C.[Name]
-	FROM SalesLT.ProductCategory AS C
-	INNER JOIN CategoryCTE AS BC ON BC.ProductCategoryID = C.ParentProductCategoryID
-)
+        SELECT C.[ParentProductCategoryID], C.[ProductCategoryID], C.[Name]
+        FROM SalesLT.ProductCategory AS C
+          INNER JOIN CategoryCTE AS BC ON BC.ProductCategoryID = C.ParentProductCategoryID
+    )
 
-SELECT PC.[Name] AS [ParentProductCategoryName], CCTE.[Name] as [ProductCategoryName], CCTE.[ProductCategoryID]  
-FROM CategoryCTE AS CCTE
-JOIN SalesLT.ProductCategory AS PC 
-ON PC.[ProductCategoryID] = CCTE.[ParentProductCategoryID]
+  SELECT PC.[Name] AS [ParentProductCategoryName], CCTE.[Name] as [ProductCategoryName], CCTE.[ProductCategoryID]
+  FROM CategoryCTE AS CCTE
+    JOIN SalesLT.ProductCategory AS PC
+    ON PC.[ProductCategoryID] = CCTE.[ParentProductCategoryID]
 
 GO
 PRINT N'Creating [dbo].[ufnGetCustomerInformation]'
@@ -734,12 +742,12 @@ RETURNS TABLE
 AS 
 -- Returns the CustomerID, first name, and last name for the specified customer.
 RETURN (
-    SELECT 
-        CustomerID, 
-        FirstName, 
-        LastName
-    FROM [SalesLT].[Customer] 
-    WHERE [CustomerID] = @CustomerID
+    SELECT
+  CustomerID,
+  FirstName,
+  LastName
+FROM [SalesLT].[Customer]
+WHERE [CustomerID] = @CustomerID
 );
 GO
 PRINT N'Creating [dbo].[ufnGetAllCategories]'
@@ -750,33 +758,35 @@ GO
 CREATE FUNCTION [dbo].[ufnGetAllCategories]()
 RETURNS @retCategoryInformation TABLE 
 (
-    -- Columns returned by the function
-    [ParentProductCategoryName] [nvarchar](50) NULL, 
-    [ProductCategoryName] [nvarchar](50) NOT NULL,
-	[ProductCategoryID] [int] NOT NULL
+  -- Columns returned by the function
+  [ParentProductCategoryName] [nvarchar](50) NULL,
+  [ProductCategoryName] [nvarchar](50) NOT NULL,
+  [ProductCategoryID] [int] NOT NULL
 )
 AS 
 -- Returns the CustomerID, first name, and last name for the specified customer.
 BEGIN
-	WITH CategoryCTE([ParentProductCategoryID], [ProductCategoryID], [Name]) AS 
-	(
-		SELECT [ParentProductCategoryID], [ProductCategoryID], [Name]
-		FROM SalesLT.ProductCategory
-		WHERE ParentProductCategoryID IS NULL
+  WITH
+    CategoryCTE([ParentProductCategoryID], [ProductCategoryID], [Name])
+    AS
+    (
+              SELECT [ParentProductCategoryID], [ProductCategoryID], [Name]
+        FROM SalesLT.ProductCategory
+        WHERE ParentProductCategoryID IS NULL
 
-	UNION ALL
+      UNION ALL
 
-		SELECT C.[ParentProductCategoryID], C.[ProductCategoryID], C.[Name]
-		FROM SalesLT.ProductCategory AS C
-		INNER JOIN CategoryCTE AS BC ON BC.ProductCategoryID = C.ParentProductCategoryID
-	)
+        SELECT C.[ParentProductCategoryID], C.[ProductCategoryID], C.[Name]
+        FROM SalesLT.ProductCategory AS C
+          INNER JOIN CategoryCTE AS BC ON BC.ProductCategoryID = C.ParentProductCategoryID
+    )
 
-	INSERT INTO @retCategoryInformation
-	SELECT PC.[Name] AS [ParentProductCategoryName], CCTE.[Name] as [ProductCategoryName], CCTE.[ProductCategoryID]  
-	FROM CategoryCTE AS CCTE
-	JOIN SalesLT.ProductCategory AS PC 
-	ON PC.[ProductCategoryID] = CCTE.[ParentProductCategoryID];
-	RETURN;
+  INSERT INTO @retCategoryInformation
+  SELECT PC.[Name] AS [ParentProductCategoryName], CCTE.[Name] as [ProductCategoryName], CCTE.[ProductCategoryID]
+  FROM CategoryCTE AS CCTE
+    JOIN SalesLT.ProductCategory AS PC
+    ON PC.[ProductCategoryID] = CCTE.[ParentProductCategoryID];
+  RETURN;
 END;
 GO
 PRINT N'Creating [dbo].[ufnGetSalesOrderStatusText]'
@@ -788,9 +798,9 @@ RETURNS [nvarchar](15)
 AS 
 -- Returns the sales order status text representation for the status value.
 BEGIN
-    DECLARE @ret [nvarchar](15);
+  DECLARE @ret [nvarchar](15);
 
-    SET @ret = 
+  SET @ret = 
         CASE @Status
             WHEN 1 THEN 'In process'
             WHEN 2 THEN 'Approved'
@@ -800,18 +810,18 @@ BEGIN
             WHEN 6 THEN 'Cancelled'
             ELSE '** Invalid **'
         END;
-    
-    RETURN @ret
+
+  RETURN @ret
 END;
 GO
 PRINT N'Creating [dbo].[BuildVersion]'
 GO
 CREATE TABLE [dbo].[BuildVersion]
 (
-[SystemInformationID] [tinyint] NOT NULL IDENTITY(1, 1),
-[Database Version] [nvarchar] (25) NOT NULL,
-[VersionDate] [datetime] NOT NULL,
-[ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_BuildVersion_ModifiedDate] DEFAULT (getdate())
+  [SystemInformationID] [tinyint] NOT NULL IDENTITY(1, 1),
+  [Database Version] [nvarchar] (25) NOT NULL,
+  [VersionDate] [datetime] NOT NULL,
+  [ModifiedDate] [datetime] NOT NULL CONSTRAINT [DF_BuildVersion_ModifiedDate] DEFAULT (getdate())
 )
 GO
 PRINT N'Adding constraints to [SalesLT].[Product]'
@@ -1324,3 +1334,10 @@ EXEC sp_addextendedproperty N'MS_Description', N'Contains objects related to pro
 GO
 EXEC sp_addextendedproperty N'MS_Description', N'AdventureWorksLT 2012 Sample OLTP Database', NULL, NULL, NULL, NULL, NULL, NULL
 GO
+
+
+
+
+
+
+

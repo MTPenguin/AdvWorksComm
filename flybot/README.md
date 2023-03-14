@@ -4,13 +4,14 @@
 
 ## Outline of process
 ### Create branch where the version is in the branch name as well as a new migrations file.  All branches will have a matching migration file.
-Formatted:   Jira-Scope-FromVersion-ToVersion.sql
+Formatted BRANCH naming:   Jira-Scope-FromVersion
+Formatted MIGRATION naming:   ToVersion__Jira-Scope-FromVersion
   JIR-123-data-v1.0.0.sql with current db version on data create.
-  JIR-123-data-v1.0.0-v1.0.1.sql with new version on data merge.
-  JIR-123-refData-v1.0.0.sql with current db version on dataRef create.
-  JIR-123-refData-v1.0.0-v1.1.0.sql with new version on dataRef merge.
+  V1.0.1__JIR-123-data-v1.0.0.sql with new version on data merge.
+  JIR-123-refData-v1.0.0.sql with current db version on refData create.
+  V1.1.0__JIR-123-refData-v1.0.0.sql with new version on refData merge.
   JIR-123-schema-v1.0.0.sql with current db version on schema create.
-  JIR-123-schema-v1.0.0-v2.0.0.sql with new version on schema merge.
+  V2.0.0__JIR-123-schema-v1.0.0.sql with new version on schema merge.
 
 ## Setup
 
