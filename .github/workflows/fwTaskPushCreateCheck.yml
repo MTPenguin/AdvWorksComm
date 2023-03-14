@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - "[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]-data-**"
+
     paths:
       - "migrations/V**"
       - "migrations-build/V**"
