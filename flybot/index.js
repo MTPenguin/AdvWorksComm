@@ -3,7 +3,7 @@
  * @param {import('probot').Probot} app
  */
 const { encode } = require('js-base64')
-const semverSort = require('semver/functions/rsort')
+const semver = require('semver')
 const thisFile = 'index.js'
 
 module.exports = (app) => {
@@ -72,14 +72,29 @@ module.exports = (app) => {
      */
     const tags = await octokit.request(repo.tags_url)
     consoleLog(thisFile, 'tags:', tags)
-    const tagsSorted = semverSort(tags.data.map(d => d.name))
+    const tagsSorted = semver.sort(tags.data.map(d => d.name))
     consoleLog(thisFile, 'tagsSorted:', tagsSorted)
     const currentVersion = tagsSorted[0]
     consoleLog(thisFile, 'currentVersion:', currentVersion)
+    let level
+    switch (jsonBody.scope) {
+      case 'data':
+        level = 'patch'
+      case 'refData':
+        level = 'minor'
+      case 'schema':
+        level = 'major'
+    }
+    consoleLog(thisFile, 'level:', level)
+
+    const newVersion = semver.inc(currentVersion, level).replace(/^v/, 'V')
+    consoleLog(thisFile, 'newVersion:', newVersion)
+
 
     let newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
-    let newMigration = currentVersion + '__' + jsonBody.jira + '-' + jsonBody.scope
+    let newMigration = newVersion + '__' + newBranch
     consoleLog(thisFile, 'newBranch:', newBranch)
+    consoleLog(thisFile, 'newMigration:', newMigration)
 
 
     /**
@@ -93,7 +108,7 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
-    const message = "Add versioned migration file";
+    const message = "Add versioned migration file [skip actions]";
     let content = "--flybot inserted version gate"
     content += `
     Declare @version varchar(25);
@@ -113,7 +128,7 @@ module.exports = (app) => {
       owner: repoOwner,
       repo: repoName,
       branch: newBranch,
-      path: 'migrations/' + newBranch + '.sql',
+      path: 'migrations/' + newMigration + '.sql',
       message,
       content: encode(content)
     })
