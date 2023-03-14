@@ -58,13 +58,13 @@ module.exports = (app) => {
     const mergeBranch = await octokit.request(repo.branches_url, { branch: mergeBranchName })
     consoleLog(thisFile, 'mergeBranch:', mergeBranch)
 
-    // DEBUG ADD LIGHT TAG REF
-    // await octokit.git.createRef({
-    //   owner: repoOwner,
-    //   repo: repoName,
-    //   ref: 'refs/tags/v1.0.' + Date.now(),
-    //   sha: mergeBranch.data.commit.sha
-    // })
+    /* DEBUG ADD LIGHT TAG REF */
+    await octokit.git.createRef({
+      owner: repoOwner,
+      repo: repoName,
+      ref: 'refs/tags/v1.0.' + Date.now(),
+      sha: mergeBranch.data.commit.sha
+    })
 
 
     /**
@@ -77,7 +77,9 @@ module.exports = (app) => {
     const currentVersion = tagsSorted[0]
     consoleLog(thisFile, 'currentVersion:', currentVersion)
 
-    let newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion;
+    let newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
+    let newMigration = currentVersion + '__' + jsonBody.jira + '-' + jsonBody.scope
+    consoleLog(thisFile, 'newBranch:', newBranch)
 
 
     /**

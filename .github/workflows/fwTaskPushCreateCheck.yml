@@ -10,10 +10,10 @@ on:
     branches:
       - "[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]-data-**"
     paths:
-      - "migrations/**"
-      - "migrations-build/**"
-      - "migrations-prod-check/**"
-      - "migrations-prod/**"
+      - "migrations/V**"
+      - "migrations-build/V**"
+      - "migrations-prod-check/V**"
+      - "migrations-prod/V**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
