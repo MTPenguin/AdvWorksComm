@@ -2,7 +2,8 @@
  * This is the main entrypoint to your Probot app
  * @param {import('probot').Probot} app
  */
-
+const { encode } = require('js-base64')
+const semverSort = require('semver/functions/rsort')
 const thisFile = 'index.js'
 
 module.exports = (app) => {
@@ -13,28 +14,71 @@ module.exports = (app) => {
 
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
-    // consoleLog(thisFile, 'context:', context)
-    const repo = context.payload.repository
+    const payload = context.payload
+    const repo = payload.repository
+    const issueBody = payload.issue.body
     const repoOwner = repo.owner.login
     const repoName = repo.name
     const mergeBranchName = 'main'
 
-    let newBranch = 'testFlyBot';
-
     consoleLog(thisFile
-      , `\n${repo}:`, repo
-      , `\n${repoOwner}:`, repoOwner
-      , `\n${repoName}:`, repoName
-      , `\n${mergeBranchName}:`, mergeBranchName
-      , `\n${newBranch}:`, newBranch
+      , `\npayload:`, payload
+      // , `\nrepo:`, repo
+      , `\nissueBody:`, issueBody
+      , `\nrepoOwner:`, repoOwner
+      , `\nrepoName:`, repoName
+      , `\nmergeBranchName:`, mergeBranchName
     )
+    /**
+     * Does issue body contain valid json?
+     */
+    const firstT = issueBody.indexOf('```')
+    const lastT = issueBody.lastIndexOf('```')
+    let jsonBody
+    if (~firstT && ~lastT) {
+      try {
+        jsonBody = issueBody.substr(firstT + 3, (lastT - firstT) - 3)
+        consoleLog(thisFile, 'jsonBody:', jsonBody)
+        jsonBody = JSON.parse(jsonBody)
+      } catch (error) {
+        console.error('Throwing:', error.message)
+        throw error
+      }
+      consoleLog(thisFile, 'jsonBody:', jsonBody)
+    } else {
+      consoleLog(thisFile, 'firstT:', firstT, 'lastT:', lastT)
+      throw new Error('No JSON body')
+    }
+
+    if (!(jsonBody.jira && jsonBody.scope)) throw new Error('Missing parameter(s) jsonBody.jira && jsonBody.scope')
 
     /**
      * In order to create a new branch off of main, we first have to get the sha of mergeBranch
      */
-
     const mergeBranch = await octokit.request(repo.branches_url, { branch: mergeBranchName })
     consoleLog(thisFile, 'mergeBranch:', mergeBranch)
+
+    // DEBUG ADD LIGHT TAG REF
+    // await octokit.git.createRef({
+    //   owner: repoOwner,
+    //   repo: repoName,
+    //   ref: 'refs/tags/v1.0.' + Date.now(),
+    //   sha: mergeBranch.data.commit.sha
+    // })
+
+
+    /**
+     * Get current version
+     */
+    const tags = await octokit.request(repo.tags_url)
+    consoleLog(thisFile, 'tags:', tags)
+    const tagsSorted = semverSort(tags.data.map(d => d.name))
+    consoleLog(thisFile, 'tagsSorted:', tagsSorted)
+    const currentVersion = tagsSorted[0]
+    consoleLog(thisFile, 'currentVersion:', currentVersion)
+
+    let newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion;
+
 
     /**
      * Create a new branch off of main with the sha of main
@@ -45,35 +89,48 @@ module.exports = (app) => {
       ref: `refs/heads/${newBranch}`,
       sha: mergeBranch.data.commit.sha,
     });
-    consoleLog(thisFile, 'result:', result)
+    consoleLog(thisFile, 'branch result:', result)
 
-    // const content = `--inserted code
-    // Declare @version varchar(25);
-    // SELECT @version= Coalesce(Json_Value(
-    //   (SELECT Convert(NVARCHAR(3760), value) 
-    //    FROM sys.extended_properties AS EP
-    //    WHERE major_id = 0 AND minor_id = 0 
-    //     AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
-    // IF @version <> '2.1.5'
-    // BEGIN
-    // RAISERROR ('The Target was at version %s, not the correct version (2.1.5)',16,1,@version)
-    // SET NOEXEC ON;
-    // END
-    // --end of inserted code
-    // `
-    // const message = "Add versioned migration file";
-    // const isBinary = false;
-    // branch.write('PATH/TO/FILE.txt', content, message, isBinary)
-    //   .done(function () { });
+    const message = "Add versioned migration file";
+    let content = "--flybot inserted version gate"
+    content += `
+    Declare @version varchar(25);
+    SELECT @version= Coalesce(Json_Value(
+      (SELECT Convert(NVARCHAR(3760), value) 
+       FROM sys.extended_properties AS EP
+       WHERE major_id = 0 AND minor_id = 0 
+        AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
+    IF @version <> \${flyway:expectedVersion}
+    BEGIN
+    RAISERROR ('The Target was at version %s, not the correct version (\${flyway:expectedVersion})',16,1,@version)
+    SET NOEXEC ON;
+    END`
+    content += "\n--flybot inserted version gate"
+
+    result = await octokit.repos.createOrUpdateFileContents({
+      owner: repoOwner,
+      repo: repoName,
+      branch: newBranch,
+      path: 'migrations/' + newBranch + '.sql',
+      message,
+      content: encode(content)
+    })
+    consoleLog(thisFile, 'file result:', result)
 
     /**
      * Create a new issue comment
      */
+    let commentBody = "Thanks for opening this issue!\n\n\n"
+    commentBody += "I have created a new branch (["
+    commentBody += newBranch
+    commentBody += "](https://github.com/MTPenguin/AdvWorksComm/tree/"
+    commentBody += newBranch
+    commentBody += ")) to work on this migration"
     const issueComment = context.issue({
-      body: "Thanks for opening this issue!",
+      body: commentBody,
     });
-    result = octokit.issues.createComment(issueComment);
-    consoleLog(thisFile, 'result:', result)
+    result = await octokit.issues.createComment(issueComment);
+    consoleLog(thisFile, 'issue result:', result)
   });
 
   // For more information on building apps:

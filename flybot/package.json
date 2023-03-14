@@ -16,7 +16,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "probot": "^12.2.4"
+    "js-base64": "^3.7.5",
+    "probot": "^12.2.4",
+    "semver": "^7.3.8"
   },
   "devDependencies": {
     "jest": "^29.0.0",
