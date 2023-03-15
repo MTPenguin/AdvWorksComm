@@ -23,6 +23,17 @@ npm install
 npm start
 ```
 
+## Teardown
+
+```sh
+# When stuck, get pid to kill -9 <PID>
+lsof -i tcp:3000
+COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    21278 BMac   24u  IPv6 0x9fe0588a70af83c5      0t0  TCP *:hbci (LISTEN)
+node    21278 BMac   33u  IPv4 0x9fe0587747fb57ed      0t0  TCP localhost:58989->localhost:hbci (ESTABLISHED)
+node    21278 BMac   34u  IPv6 0x9fe0588a70af38c5      0t0  TCP localhost:hbci->localhost:58989 (ESTABLISHED)
+```
+
 ## Contributing
 
 If you have suggestions for how flybot could be improved, or want to report a bug, open an issue! We'd love all and any contributions.
