@@ -4,13 +4,13 @@
   "migrations": [
     {
       "category": "Versioned",
-      "version": "001.20230224120276",
+      "version": "1.0.20230224120276",
       "description": "baseline",
       "type": "SQL",
       "installedOnUTC": "",
       "state": "Pending",
       "undoable": "No",
-      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V001_20230224120276__baseline.sql",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V1_0_20230224120276__baseline.sql",
       "undoFilepath": "",
       "installedBy": "",
       "executionTime": 0
