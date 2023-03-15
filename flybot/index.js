@@ -174,7 +174,17 @@ module.exports = (app) => {
       body: commentBody,
     });
     result = await octokit.issues.createComment(issueComment);
-    consoleLog(thisFile, 'issue result:', result)
+    consoleLog(thisFile, 'issue comment result:', result)
+    result = await octokit.issues.update({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: payload.issue.number,
+      title: newBranch,
+      // body: '',
+      state: 'open',
+      labels: [newVersion]
+    });
+    consoleLog(thisFile, 'issue update result:', result)
   });
 
   // For more information on building apps:
