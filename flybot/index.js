@@ -125,6 +125,15 @@ module.exports = (app) => {
 
     const message = "Add versioned migration file [skip actions]";
     let content = "--flybot created " + newMigration
+    content += "-- DEBUG ---"
+    content += `PRINT(N'Update 6 rows in [SalesLT].[Customer]')
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 1
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 2
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 3
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 4
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 5
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 6
+    `
     // let content = "--flybot inserted version gate"
     // content += `
     // Declare @version varchar(25);
