@@ -77,17 +77,21 @@ module.exports = (app) => {
     const currentVersion = tagsSorted[0]
     consoleLog(thisFile, 'currentVersion:', currentVersion)
     let level
+    let newVersion
     switch (jsonBody.scope) {
       case 'data':
         level = 'patch'
+        newVersion = 'V' + semver.major(currentVersion) + semver.minor(currentVersion) + Date.now()
+        break
       case 'refData':
         level = 'minor'
+        newVersion = 'V' + semver.inc(currentVersion, level)
+        break
       case 'schema':
         level = 'major'
+        newVersion = 'V' + semver.inc(currentVersion, level)
     }
     consoleLog(thisFile, 'level:', level)
-
-    const newVersion = semver.inc(currentVersion, level).replace(/^v/, 'V')
     consoleLog(thisFile, 'newVersion:', newVersion)
 
 
