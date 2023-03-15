@@ -1,8 +1,0 @@
-FLYWAY migration information:
-```
-
-version            description           state    filepath
--------            -----------           -----    --------
-001.20230224120276 << Flyway Baseline >> Baseline 
-
-```
