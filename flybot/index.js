@@ -19,7 +19,6 @@ module.exports = (app) => {
     const issueBody = payload.issue.body
     const repoOwner = repo.owner.login
     const repoName = repo.name
-    const mergeBranchName = 'main'
 
     consoleLog(thisFile
       , `\npayload:`, payload
@@ -53,21 +52,6 @@ module.exports = (app) => {
     if (!(jsonBody.jira && jsonBody.scope)) throw new Error('Missing parameter(s) jsonBody.jira && jsonBody.scope')
 
     /**
-     * In order to create a new branch off of main, we first have to get the sha of mergeBranch
-     */
-    const mergeBranch = await octokit.request(repo.branches_url, { branch: mergeBranchName })
-    consoleLog(thisFile, 'mergeBranch:', mergeBranch)
-
-    /* DEBUG ADD LIGHT TAG REF */
-    await octokit.git.createRef({
-      owner: repoOwner,
-      repo: repoName,
-      ref: 'refs/tags/v1.0.' + Date.now(),
-      sha: mergeBranch.data.commit.sha
-    })
-
-
-    /**
      * Get current version
      */
     const tags = await octokit.request(repo.tags_url)
@@ -93,6 +77,23 @@ module.exports = (app) => {
     }
     consoleLog(thisFile, 'level:', level)
     consoleLog(thisFile, 'newVersion:', newVersion)
+
+    /**
+     * In order to create a new branch off of main, we first have to get the sha of mergeBranch
+     */
+    const mergeBranch = await octokit.request(repo.branches_url, { branch: 'dev' + semver.major(currentVersion) })
+    consoleLog(thisFile, 'mergeBranch:', mergeBranch)
+
+    /* DEBUG ADD LIGHT TAG REF */
+    await octokit.git.createRef({
+      owner: repoOwner,
+      repo: repoName,
+      ref: 'refs/tags/v1.0.' + Date.now(),
+      sha: mergeBranch.data.commit.sha
+    })
+
+
+
 
 
     let newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
