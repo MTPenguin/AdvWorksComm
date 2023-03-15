@@ -1,9 +1,0 @@
-FLYWAY migration information:
-```
-
-version            description state   filepath
--------            ----------- -----   --------
-1.0.20230224120276 baseline    Pending C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\AdvWorksComm\migrations\V1_0
-                                       _20230224120276__baseline.sql
-
-```
