@@ -7,5 +7,4 @@ PRINT(N'Update 6 rows in [SalesLT].[Customer]')
       UPDATE [SalesLT].[Customer] SET [Suffix]='20230315170157' WHERE [CustomerID] = 4
       UPDATE [SalesLT].[Customer] SET [Suffix]='20230315170157' WHERE [CustomerID] = 5
       UPDATE [SalesLT].[Customer] SET [Suffix]='20230315170157' WHERE [CustomerID] = 6
-    
 -- DEBUG ---
