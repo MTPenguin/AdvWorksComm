@@ -106,9 +106,8 @@ module.exports = (app) => {
 
 
 
-    let newBranchWithoutIssue = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
-    let newBranch = payload.issue.number + '-' + newBranchWithoutIssue
-    let newMigration = newVersion + '__' + newBranch
+    const newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
+    const newMigration = newVersion + '__' + newBranch
     consoleLog(thisFile, 'newBranch:', newBranch)
     consoleLog(thisFile, 'newMigration:', newMigration)
 
@@ -180,7 +179,7 @@ module.exports = (app) => {
       owner: repoOwner,
       repo: repoName,
       issue_number: payload.issue.number,
-      title: newBranchWithoutIssue,
+      title: newBranch,
       // body: '',
       state: 'open',
       labels: Object.values(jsonBody)
