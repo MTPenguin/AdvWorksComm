@@ -26,7 +26,6 @@ module.exports = (app) => {
       , `\nissueBody:`, issueBody
       , `\nrepoOwner:`, repoOwner
       , `\nrepoName:`, repoName
-      , `\nmergeBranchName:`, mergeBranchName
     )
     /**
      * Does issue body contain valid json?
@@ -56,16 +55,27 @@ module.exports = (app) => {
      */
     const tags = await octokit.request(repo.tags_url)
     consoleLog(thisFile, 'tags:', tags)
-    const tagsSorted = semver.sort(tags.data.map(d => d.name))
+    const tagsSorted = semver.rsort(tags.data.map(d => d.name))
     consoleLog(thisFile, 'tagsSorted:', tagsSorted)
     const currentVersion = tagsSorted[0]
     consoleLog(thisFile, 'currentVersion:', currentVersion)
+
+    /**
+    * Flyway Date Stamp yyyy-MM-dd HH:mm:ss
+    */
+    const dateNow = new Date()
+    consoleLog(thisFile, 'dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, \'0\') :', dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, '0'))
+    consoleLog(thisFile, 'String(dateNow.getUTCDate()).padStart(2, \'0\'):', String(dateNow.getUTCDate()).padStart(2, '0'))
+    const dateStamp = dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, '0') + String(dateNow.getUTCDate()).padStart(2, '0')
+      + String(dateNow.getUTCHours()).padStart(2, '0') + String(dateNow.getUTCMinutes()).padStart(2, '0') + String(dateNow.getUTCSeconds()).padStart(2, '0')
+    consoleLog(thisFile, 'dateStamp:', dateStamp)
+
     let level
     let newVersion
     switch (jsonBody.scope) {
       case 'data':
         level = 'patch'
-        newVersion = 'V' + semver.major(currentVersion) + semver.minor(currentVersion) + Date.now()
+        newVersion = 'V' + semver.major(currentVersion) + '.' + semver.minor(currentVersion) + '.' + dateStamp
         break
       case 'refData':
         level = 'minor'
@@ -88,7 +98,7 @@ module.exports = (app) => {
     await octokit.git.createRef({
       owner: repoOwner,
       repo: repoName,
-      ref: 'refs/tags/v1.0.' + Date.now(),
+      ref: 'refs/tags/v1.0.' + dateStamp,
       sha: mergeBranch.data.commit.sha
     })
 
@@ -114,20 +124,21 @@ module.exports = (app) => {
     consoleLog(thisFile, 'branch result:', result)
 
     const message = "Add versioned migration file [skip actions]";
-    let content = "--flybot inserted version gate"
-    content += `
-    Declare @version varchar(25);
-    SELECT @version= Coalesce(Json_Value(
-      (SELECT Convert(NVARCHAR(3760), value) 
-       FROM sys.extended_properties AS EP
-       WHERE major_id = 0 AND minor_id = 0 
-        AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
-    IF @version <> \${flyway:expectedVersion}
-    BEGIN
-    RAISERROR ('The Target was at version %s, not the correct version (\${flyway:expectedVersion})',16,1,@version)
-    SET NOEXEC ON;
-    END`
-    content += "\n--flybot inserted version gate"
+    let content = "--flybot created " + newMigration
+    // let content = "--flybot inserted version gate"
+    // content += `
+    // Declare @version varchar(25);
+    // SELECT @version= Coalesce(Json_Value(
+    //   (SELECT Convert(NVARCHAR(3760), value) 
+    //    FROM sys.extended_properties AS EP
+    //    WHERE major_id = 0 AND minor_id = 0 
+    //     AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
+    // IF @version <> \${flyway:expectedVersion}
+    // BEGIN
+    // RAISERROR ('The Target was at version %s, not the correct version (\${flyway:expectedVersion})',16,1,@version)
+    // SET NOEXEC ON;
+    // END`
+    // content += "\n--flybot inserted version gate"
 
     result = await octokit.repos.createOrUpdateFileContents({
       owner: repoOwner,

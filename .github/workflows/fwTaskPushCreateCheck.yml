@@ -257,7 +257,7 @@ jobs:
 
       - name: Create ${{ env.branch_name }} pull request
         run: |
-          gh pr create -B main -H "${{ env.branch_name }}" --title 'Merge ${{ env.branch_name }} into main' --body 'Created by Github action.'
+          gh pr create -B "${{ github.base_ref }}" -H "${{ env.branch_name }}" --title 'Merge ${{ env.branch_name }} into main' --body 'Created by Github action.'
           gh pr merge --auto --merge
 
       # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
