@@ -64,8 +64,6 @@ module.exports = (app) => {
     * Flyway Date Stamp yyyy-MM-dd HH:mm:ss
     */
     const dateNow = new Date()
-    consoleLog(thisFile, 'dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, \'0\') :', dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, '0'))
-    consoleLog(thisFile, 'String(dateNow.getUTCDate()).padStart(2, \'0\'):', String(dateNow.getUTCDate()).padStart(2, '0'))
     const dateStamp = dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, '0') + String(dateNow.getUTCDate()).padStart(2, '0')
       + String(dateNow.getUTCHours()).padStart(2, '0') + String(dateNow.getUTCMinutes()).padStart(2, '0') + String(dateNow.getUTCSeconds()).padStart(2, '0')
     consoleLog(thisFile, 'dateStamp:', dateStamp)
@@ -123,7 +121,7 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
-    const message = "Add " + newVersion + " migration file [skip actions]";
+    const message = `Issue #${payload.issue.number} - ${newBranch} [skip actions]`
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
     const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
@@ -162,8 +160,19 @@ module.exports = (app) => {
     consoleLog(thisFile, 'file result:', result)
 
     /**
-     * Create a new issue comment
+     * Create an issue ref ????   NOT WORKING (Trying to connect to 'Development' branch under issue.
      */
+    result = await octokit.git.createRef({
+      owner: repoOwner,
+      repo: repoName,
+      ref: `refs/issues/${payload.issue.number}`,
+      sha: result.data.commit.sha,
+    });
+    consoleLog(thisFile, 'issue ref result:', result)
+
+    /**
+      * Create a new issue comment
+      */
     let commentBody = "Thanks for opening this issue!\n\n\n"
     commentBody += "A new branch (["
     commentBody += newBranch
@@ -182,7 +191,10 @@ module.exports = (app) => {
       title: newBranch,
       // body: '',
       state: 'open',
-      labels: Object.values(jsonBody)
+      labels: Object.values(jsonBody),
+      development: {
+        branch: newBranch
+      }
     });
     consoleLog(thisFile, 'issue update result:', result)
   });
