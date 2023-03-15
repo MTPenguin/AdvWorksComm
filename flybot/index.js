@@ -164,11 +164,11 @@ module.exports = (app) => {
      * Create a new issue comment
      */
     let commentBody = "Thanks for opening this issue!\n\n\n"
-    commentBody += "I have created a new branch (["
+    commentBody += "A new branch (["
     commentBody += newBranch
     commentBody += "](https://github.com/MTPenguin/AdvWorksComm/tree/"
     commentBody += newBranch
-    commentBody += ")) to work on this migration"
+    commentBody += ")) has been created for this migration"
     const issueComment = context.issue({
       body: commentBody,
     });
