@@ -1,7 +1,7 @@
 # This is the final workflow in a pipeline to run migration scripts on production and merge the PR on success
- 
-name: Flyway Dispatch Deploy Pipeline (Self-Hosted)
-run-name: Deploy ${{ github.event.pull_request.head.ref }} To ${{ github.event.repository.name }}/${{ github.event.pull_request.base.ref }}
+
+name: DEP Pipeline (Self-Hosted)
+run-name: DEP ${{ github.event.pull_request.head.ref }} -> ${{ github.event.repository.name }}/${{ github.event.pull_request.base.ref }}
 
 # Controls when the workflow will run
 on:
@@ -9,16 +9,15 @@ on:
   pull_request_review:
     types: [submitted]
     branch: task**
-  
+
 env:
   # Enable this for additional debug logging
-  ACTIONS_RUNNER_DEBUG: true 
- 
+  ACTIONS_RUNNER_DEBUG: true
+
 # Allow one concurrent deployment
 concurrency:
   group: "fwDeploy"
   cancel-in-progress: true
-
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,17 +30,17 @@ jobs:
     name: Deploy Production On Approval
     # The type of runner that the job will run on
     runs-on: self-hosted
-    environment: 'prod' #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured 
+    environment: "prod" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
     if: github.event.review.state == 'approved' #On approval
     env:
-      stage: 'Prod'
+      stage: "Prod"
       # Used for environment specific migration scripts
       databaseName: ${{ secrets.databaseName}}
       JDBC: ${{ secrets.JDBC }}
       userName: ${{ secrets.userName }}
       password: ${{ secrets.password }}
-      GITHUB_TOKEN: ${{ github.token }} 
-        
+      GITHUB_TOKEN: ${{ github.token }}
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Get/Set deployment environment
@@ -60,17 +59,15 @@ jobs:
       - name: Migrate Production DB
         run: |
           flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -baselineVersion="${{ vars.BASELINE_VERSION }}" -configFiles="${{ GITHUB.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info migrate info -url="${{ env.JDBC }}" -cleanDisabled='false'
-          
+
       # Trigger Log Workflow On Failure
       - name: Trigger Run Failed Log Comment On Pull Request
         if: ${{ failure() }}
         run: |
           gh workflow run commentLog.yml -r ${{ github.event.pull_request.head.ref }} -f run_id="${{ github.run_id }}" -f repo_name="${{ github.event.repository.full_name }}" -f branch_name="${{ github.event.pull_request.head.ref }}"
-      
+
       - name: Comment Pull Request Post Deploy
         if: ${{ success() }}
         continue-on-error: true
         run: |
           gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "${{ github.event.pull_request.head.ref }} Successfully Migrated"
-
-        
