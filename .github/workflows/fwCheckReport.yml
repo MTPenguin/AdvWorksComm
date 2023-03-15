@@ -1,28 +1,27 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy Flyway Check Report To Github Pages
-run-name: Deploy ${{ inputs.title }}
+name: Publish Flyway Check Report To Github Pages
+run-name: Publish ${{ inputs.title }}
 
 on:
   # Allows you to run this workflow manually from the Actions tab AND from other actions (fwTaskPushCreateCheck)
   workflow_dispatch:
     inputs:
       title:
-        description: 'Report Title'
+        description: "Report Title"
         required: false
-        default: 'Info and Check Reports'
+        default: "Info and Check Reports"
       report_path:
-        description: 'Report Path'
+        description: "Report Path"
         required: false
-        default: '?'
+        default: "?"
       check_file:
-        description: 'Check File'
+        description: "Check File"
         required: false
-        default: '?'
+        default: "?"
       info_file:
-        description: 'Info File'
+        description: "Info File"
         required: false
-        default: '?'
-      
+        default: "?"
 
 env:
   REPORT_PATH: ${{ github.WORKSPACE }}/reports # ./reports
@@ -34,7 +33,7 @@ permissions:
   pages: write
   pull-requests: write
   id-token: write
-  
+
 # Allow one concurrent deployment
 concurrency:
   group: "pages"
@@ -47,8 +46,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    env: 
-      GITHUB_TOKEN: ${{ github.token }} 
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -76,4 +75,3 @@ jobs:
         if: ${{ env.checkReport == 'True' }}
         run: |
           gh pr comment --body "FLYWAY Check Report can be found here:${{ inputs.report_path }}${{ inputs.check_file }}"
-          
