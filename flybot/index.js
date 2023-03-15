@@ -123,7 +123,7 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
-    const message = "Add versioned migration file [skip actions]";
+    const message = "Add " + newVersion + " migration file [skip actions]";
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
     const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
@@ -182,7 +182,7 @@ module.exports = (app) => {
       title: newBranch,
       // body: '',
       state: 'open',
-      labels: [newVersion]
+      labels: [newBranch, newVersion, ...Object.values(jsonBody)]
     });
     consoleLog(thisFile, 'issue update result:', result)
   });
