@@ -113,7 +113,7 @@ module.exports = (app) => {
 
 
     /**
-     * Create a new branch off of main with the sha of main
+     * Create a new branch
      */
     let result = await octokit.git.createRef({
       owner: repoOwner,
@@ -126,13 +126,14 @@ module.exports = (app) => {
     const message = "Add versioned migration file [skip actions]";
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
+    const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
     content += `PRINT(N'Update 6 rows in [SalesLT].[Customer]')
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 1
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 2
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 3
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 4
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 5
-      UPDATE [SalesLT].[Customer] SET [Suffix]='${dateStamp}' WHERE [CustomerID] = 6
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 1
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 2
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 3
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 4
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 5
+      UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 6
     `
     content += "\n-- DEBUG ---\n"
     // let content = "--flybot inserted version gate"
