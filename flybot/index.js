@@ -121,7 +121,7 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
-    const message = `Issue #${payload.issue.number} - ${newBranch} [skip actions]`
+    const message = `Issue #${payload.issue.number} - Create ${newMigration}.sql file - [skip actions]`
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
     const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
