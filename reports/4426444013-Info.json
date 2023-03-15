@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "001.20230224120276",
+  "schemaName": "salesLT, dbo",
+  "migrations": [
+    {
+      "category": "",
+      "version": "001.20230224120276",
+      "description": "<< Flyway Baseline >>",
+      "type": "BASELINE",
+      "installedOnUTC": "2023-03-15T00:44:26.150Z",
+      "state": "Baseline",
+      "undoable": "No",
+      "filepath": "",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 0
+    }
+  ],
+  "allSchemasEmpty": false,
+  "flywayVersion": "9.15.1",
+  "database": "AdvWorksComm",
+  "warnings": [],
+  "operation": "info"
+}
