@@ -91,7 +91,7 @@ module.exports = (app) => {
     /**
      * In order to create a new branch off of main, we first have to get the sha of mergeBranch
      */
-    const mergeBranch = await octokit.request(repo.branches_url, { branch: 'dev' + semver.major(currentVersion) })
+    const mergeBranch = await octokit.request(repo.branches_url, { branch: repo.default_branch })
     consoleLog(thisFile, 'mergeBranch:', mergeBranch)
 
     /* DEBUG ADD LIGHT TAG REF */
