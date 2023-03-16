@@ -121,7 +121,11 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
-    const message = `Issue #${payload.issue.number} - Create ${newMigration}.sql file - [skip actions]`
+    /*
+    * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
+    * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
+    */
+    const message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]`
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
     const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
@@ -133,7 +137,7 @@ module.exports = (app) => {
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 5
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 6
     `
-    content += "\n-- DEBUG ---\n"
+    content += "-- DEBUG ---\n\n\n"
     // let content = "--flybot inserted version gate"
     // content += `
     // Declare @version varchar(25);
@@ -178,7 +182,7 @@ module.exports = (app) => {
     commentBody += newBranch
     commentBody += "](https://github.com/MTPenguin/AdvWorksComm/tree/"
     commentBody += newBranch
-    commentBody += ")) has been created for this migration"
+    commentBody += ")) has been created for this migration."
     const issueComment = context.issue({
       body: commentBody,
     });
@@ -190,11 +194,12 @@ module.exports = (app) => {
       issue_number: payload.issue.number,
       title: newBranch,
       // body: '',
-      state: 'open',
+      // state: 'open',
       labels: Object.values(jsonBody),
-      development: {
-        branch: newBranch
-      }
+      // DEBUG try to link branch
+      // development: {
+      //   branch: newBranch
+      // }
     });
     consoleLog(thisFile, 'issue update result:', result)
   });
