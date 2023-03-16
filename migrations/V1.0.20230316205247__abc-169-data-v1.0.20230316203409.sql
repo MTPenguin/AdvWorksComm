@@ -9,4 +9,3 @@ PRINT(N'Update 6 rows in [SalesLT].[Customer]')
       UPDATE [SalesLT].[Customer] SET [Suffix]='031620' WHERE [CustomerID] = 6
     -- DEBUG ---
 
-
