@@ -93,18 +93,18 @@ module.exports = (app) => {
     consoleLog(thisFile, 'mergeBranch:', mergeBranch)
 
     /* DEBUG ADD LIGHT TAG REF */
-    await octokit.git.createRef({
-      owner: repoOwner,
-      repo: repoName,
-      ref: 'refs/tags/v1.0.' + dateStamp,
-      sha: mergeBranch.data.commit.sha
-    })
+    // await octokit.git.createRef({
+    //   owner: repoOwner,
+    //   repo: repoName,
+    //   ref: 'refs/tags/v1.0.' + dateStamp,
+    //   sha: mergeBranch.data.commit.sha
+    // })
 
 
 
 
-
-    const newBranch = jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
+    // GITHUB_ISSUE-JIRA-000-SCOPE-CURRENT_VERSION
+    const newBranch = payload.issue.number + '-' + jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
     const newMigration = newVersion + '__' + newBranch
     consoleLog(thisFile, 'newBranch:', newBranch)
     consoleLog(thisFile, 'newMigration:', newMigration)
@@ -118,6 +118,7 @@ module.exports = (app) => {
       repo: repoName,
       ref: `refs/heads/${newBranch}`,
       sha: mergeBranch.data.commit.sha,
+      key: payload.issue.number
     });
     consoleLog(thisFile, 'branch result:', result)
 
