@@ -73,7 +73,7 @@ jobs:
           #     PRINT 'The database update failed'
           # END
           # GO
-          #  + "`r`n" + $postpend
+          #
 
       - name: Get version information
         id: versions
@@ -100,8 +100,6 @@ jobs:
             END
           "@
           $postpend = @"
-            IF @@ERROR <> 0 SET NOEXEC ON
-            GO
             PRINT N'Creating extended properties'
             GO
             BEGIN TRY
@@ -116,12 +114,10 @@ jobs:
                 SET NOEXEC ON
             END CATCH
             GO
-            COMMIT TRANSACTION
-            GO
             IF @@ERROR <> 0 SET NOEXEC ON
             GO
           "@
-          $content = $prepend + "`r`n" + $content
+          $content = $prepend + "`r`n" + $content + "`r`n" + $postpend
           Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
