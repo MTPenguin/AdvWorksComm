@@ -121,7 +121,7 @@ jobs:
             IF @@ERROR <> 0 SET NOEXEC ON
             GO
           "@
-          $content =  $prepend + "`r`n" + $content
+          $content = $prepend + "`r`n" + $content
           Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
