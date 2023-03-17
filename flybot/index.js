@@ -124,6 +124,7 @@ module.exports = (app) => {
     });
     consoleLog(thisFile, 'branch result:', result)
 
+
     /*
     * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
     * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
@@ -173,15 +174,6 @@ module.exports = (app) => {
     })
     consoleLog(thisFile, 'V file result:', result)
 
-    /**
-     * Create an issue ref ????   NOT WORKING (Trying to connect to 'Development' branch under issue.
-     */
-    result = await octokit.git.createRef({
-      owner: repoOwner,
-      repo: repoName,
-      ref: `refs/issues/${payload.issue.number}`,
-      sha: result.data.commit.sha,
-    });
     consoleLog(thisFile, 'issue ref result:', result)
 
     /**
