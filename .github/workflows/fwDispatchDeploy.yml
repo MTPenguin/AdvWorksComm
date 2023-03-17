@@ -78,7 +78,7 @@ jobs:
             SET NOEXEC ON;
             END
           "@
-          $content =  $prepend + "\n" + $content
+          $content =  $prepend + "`r`n" + $content
           Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
