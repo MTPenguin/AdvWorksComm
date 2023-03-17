@@ -52,43 +52,7 @@ jobs:
           echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
           echo "${{ env.deployment_environment }}"
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses:
-          actions/checkout@v3
-
-          # -- This statement writes to the SQL Server Log so SQL Monitor can show this deployment.
-          # IF HAS_PERMS_BY_NAME(N'sys.xp_logevent', N'OBJECT', N'EXECUTE') = 1
-          # BEGIN
-          #     DECLARE @databaseName AS nvarchar(2048), @eventMessage AS nvarchar(2048)
-          #     SET @databaseName = REPLACE(REPLACE(DB_NAME(), N'\', N'\\'), N'"', N'\"')
-          #     SET @eventMessage = N'Redgate SQL Compare: { "deployment": { "description": "Redgate SQL Compare deployed to ' + @databaseName + N'", "database": "' + @databaseName + N'" }}'
-          #     EXECUTE sys.xp_logevent 55000, @eventMessage
-          # END
-          # GO
-          # DECLARE @Success AS BIT
-          # SET @Success = 1
-          # SET NOEXEC OFF
-          # IF (@Success = 1) PRINT 'The database update succeeded'
-          # ELSE BEGIN
-          #     IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION
-          #     PRINT 'The database update failed'
-          # END
-          # GO
-          #
-          # GO
-          # BEGIN TRY
-          #     EXEC sp_addextendedproperty N'Database_Info', N'[{"Name":"Pubs","Version":"$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )","Description":"The Adventure Works Community Demo","Modified":"$( $versionObj.dateStamp )","by":"${{ github.actor }}"}]', NULL, NULL, NULL, NULL, NULL, NULL
-          # END TRY
-          # BEGIN CATCH
-          #     DECLARE @msg nvarchar(max);
-          #     DECLARE @severity int;
-          #     DECLARE @state int;
-          #   SELECT @msg = ERROR_MESSAGE(), @severity = ERROR_SEVERITY(), @state = ERROR_STATE();
-          #     RAISERROR(@msg, @severity, @state);
-          #     SET NOEXEC ON
-          # END CATCH
-          # GO
-          # IF @@ERROR <> 0 SET NOEXEC ON
-          # GO
+      - uses: actions/checkout@v3
 
       - name: Get version information
         id: versions
@@ -116,6 +80,26 @@ jobs:
           "@
           $postpend = @"
             PRINT N'Creating extended properties'
+            SET NOEXEC off
+            go
+            USE AdvWorksComm
+            DECLARE @DatabaseInfo NVARCHAR(3750), @version NVARCHAR(20)
+            SET @version=N'$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )'
+            SELECT @DatabaseInfo =
+              (
+              SELECT 'AdvWorksComm' AS "Name", @version  AS "Version",
+              'The AdvWorksComm.' AS "Description",
+                GetDate() AS "Modified",
+            SUser_Name() AS "by"
+              FOR JSON PATH
+              );
+            
+            IF not EXISTS
+              (SELECT name, value  FROM fn_listextendedproperty(
+                N'Database_Info',default, default, default, default, default, default) )
+                EXEC sys.sp_addextendedproperty @name=N'Database_Info', @value=@DatabaseInfo
+            ELSE
+              EXEC sys.sp_Updateextendedproperty  @name=N'Database_Info', @value=@DatabaseInfo
           "@
           $content = $prepend + "`r`n" + $content + "`r`n" + $postpend
           Set-Content $filePath $content
