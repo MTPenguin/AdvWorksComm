@@ -22,7 +22,6 @@ on:
       line_limit:
         description: "Max Report Lines"
         default: "50"
-      
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -37,7 +36,7 @@ concurrency:
 jobs:
   comment:
     env:
-      ACTIONS_RUNNER_DEBUG: true 
+      ACTIONS_RUNNER_DEBUG: true
       GH_TOKEN: ${{ github.token }}
     runs-on: self-hosted
     steps:
@@ -45,7 +44,7 @@ jobs:
       - name: Sleep for 5 seconds
         run: Start-Sleep -s 5
         shell: powershell
-      
+
       # - name: Get Output
       #   id: log
       #   run: |
@@ -70,7 +69,3 @@ jobs:
       - name: Comment Pull Request With Log
         run: |
           gh pr comment -R ${{ inputs.repo_name }} ${{ inputs.branch_name }} --body-file outputUTF8.log
-      
-
-
-      
