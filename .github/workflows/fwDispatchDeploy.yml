@@ -52,7 +52,27 @@ jobs:
           echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
           echo "${{ env.deployment_environment }}"
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses:
+          actions/checkout@v3
+
+          # -- This statement writes to the SQL Server Log so SQL Monitor can show this deployment.
+          # IF HAS_PERMS_BY_NAME(N'sys.xp_logevent', N'OBJECT', N'EXECUTE') = 1
+          # BEGIN
+          #     DECLARE @databaseName AS nvarchar(2048), @eventMessage AS nvarchar(2048)
+          #     SET @databaseName = REPLACE(REPLACE(DB_NAME(), N'\', N'\\'), N'"', N'\"')
+          #     SET @eventMessage = N'Redgate SQL Compare: { "deployment": { "description": "Redgate SQL Compare deployed to ' + @databaseName + N'", "database": "' + @databaseName + N'" }}'
+          #     EXECUTE sys.xp_logevent 55000, @eventMessage
+          # END
+          # GO
+          # DECLARE @Success AS BIT
+          # SET @Success = 1
+          # SET NOEXEC OFF
+          # IF (@Success = 1) PRINT 'The database update succeeded'
+          # ELSE BEGIN
+          #     IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION
+          #     PRINT 'The database update failed'
+          # END
+          # GO
 
       - name: Get version information
         id: versions
@@ -98,24 +118,6 @@ jobs:
             COMMIT TRANSACTION
             GO
             IF @@ERROR <> 0 SET NOEXEC ON
-            GO
-            -- This statement writes to the SQL Server Log so SQL Monitor can show this deployment.
-            IF HAS_PERMS_BY_NAME(N'sys.xp_logevent', N'OBJECT', N'EXECUTE') = 1
-            BEGIN
-                DECLARE @databaseName AS nvarchar(2048), @eventMessage AS nvarchar(2048)
-                SET @databaseName = REPLACE(REPLACE(DB_NAME(), N'\', N'\\'), N'"', N'\"')
-                SET @eventMessage = N'Redgate SQL Compare: { "deployment": { "description": "Redgate SQL Compare deployed to ' + @databaseName + N'", "database": "' + @databaseName + N'" }}'
-                EXECUTE sys.xp_logevent 55000, @eventMessage
-            END
-            GO
-            DECLARE @Success AS BIT
-            SET @Success = 1
-            SET NOEXEC OFF
-            IF (@Success = 1) PRINT 'The database update succeeded'
-            ELSE BEGIN
-                IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION
-                PRINT 'The database update failed'
-            END
             GO
           "@
           $content =  $prepend + "`r`n" + $content + "`r`n" + $postpend
