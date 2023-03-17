@@ -141,20 +141,6 @@ module.exports = (app) => {
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 6
     `
     content += "-- DEBUG ---\n\n\n"
-    // let content = "--flybot inserted version gate"
-    // content += `
-    // Declare @version varchar(25);
-    // SELECT @version= Coalesce(Json_Value(
-    //   (SELECT Convert(NVARCHAR(3760), value) 
-    //    FROM sys.extended_properties AS EP
-    //    WHERE major_id = 0 AND minor_id = 0 
-    //     AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
-    // IF @version <> \${flyway:expectedVersion}
-    // BEGIN
-    // RAISERROR ('The Target was at version %s, not the correct version (\${flyway:expectedVersion})',16,1,@version)
-    // SET NOEXEC ON;
-    // END`
-    // content += "\n--flybot inserted version gate"
 
     result = await octokit.repos.createOrUpdateFileContents({
       owner: repoOwner,
