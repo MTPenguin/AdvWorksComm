@@ -183,7 +183,7 @@ module.exports = (app) => {
       branch: newBranch,
       path: 'V.json',
       message,
-      content: encode(content)
+      content: encode(JSON.stringify(content))
     })
     consoleLog(thisFile, 'V file result:', result)
 
