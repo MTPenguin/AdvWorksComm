@@ -61,9 +61,9 @@ jobs:
           cat V.json
           echo "currentVersion=$( $versionObj.currentVersion )" > $env:GITHUB_OUTPUT
           echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
-          $fileName = "$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
-          echo "fileName:$( $fileName )"
-          $content = Get-Content "migrations/$( $fileName )" -Raw
+          $filePath = "migrations/$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
+          echo "filePath:$( $filePath )"
+          $content = Get-Content $filePath -Raw
           $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).0"
           $prepend = @"
             Declare @version varchar(25);
@@ -79,7 +79,7 @@ jobs:
             END
           "@
           $content =  $prepend + $content
-          Set-Content $file $content
+          Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
         run: |
