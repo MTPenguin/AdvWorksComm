@@ -153,6 +153,13 @@ module.exports = (app) => {
     })
     consoleLog(thisFile, 'migration file result:', result)
 
+    result = await octokit.repos.getContent({
+      owner: repoOwner,
+      repo: repoName,
+      path: 'V.json',
+    })
+    consoleLog(thisFile, 'V content result:', result)
+
     message = `Store V.json for CI`
     content = { ...jsonBody } // By value
     content.issue = payload.issue.number
@@ -161,20 +168,22 @@ module.exports = (app) => {
       currentVersion,
       currentMajor,
       currentMinor,
+      dateStamp,
+      epocStamp: dateNow.valueOf(),
       newVersion
     }
+    consoleLog(thisFile, 'content:', content)
 
     result = await octokit.repos.createOrUpdateFileContents({
       owner: repoOwner,
       repo: repoName,
       branch: newBranch,
       path: 'V.json',
+      sha: result.data.sha,
       message,
       content: encode(JSON.stringify(content))
     })
     consoleLog(thisFile, 'V file result:', result)
-
-    consoleLog(thisFile, 'issue ref result:', result)
 
     /**
       * Create a new issue comment
