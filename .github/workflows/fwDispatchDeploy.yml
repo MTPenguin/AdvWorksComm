@@ -78,7 +78,47 @@ jobs:
             SET NOEXEC ON;
             END
           "@
-          $content =  $prepend + "`r`n" + $content
+          $postpend = @"
+            IF @@ERROR <> 0 SET NOEXEC ON
+            GO
+            PRINT N'Creating extended properties'
+            GO
+            BEGIN TRY
+                EXEC sp_addextendedproperty N'Database_Info', N'[{"Name":"Pubs","Version":"$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )","Description":"The Adventure Works Community Demo","Modified":"$( $versionObj.dateStamp )","by":"${{ github.actor }}"}]', NULL, NULL, NULL, NULL, NULL, NULL
+            END TRY
+            BEGIN CATCH
+                DECLARE @msg nvarchar(max);
+                DECLARE @severity int;
+                DECLARE @state int;
+              SELECT @msg = ERROR_MESSAGE(), @severity = ERROR_SEVERITY(), @state = ERROR_STATE();
+                RAISERROR(@msg, @severity, @state);
+                SET NOEXEC ON
+            END CATCH
+            GO
+            COMMIT TRANSACTION
+            GO
+            IF @@ERROR <> 0 SET NOEXEC ON
+            GO
+            -- This statement writes to the SQL Server Log so SQL Monitor can show this deployment.
+            IF HAS_PERMS_BY_NAME(N'sys.xp_logevent', N'OBJECT', N'EXECUTE') = 1
+            BEGIN
+                DECLARE @databaseName AS nvarchar(2048), @eventMessage AS nvarchar(2048)
+                SET @databaseName = REPLACE(REPLACE(DB_NAME(), N'\', N'\\'), N'"', N'\"')
+                SET @eventMessage = N'Redgate SQL Compare: { "deployment": { "description": "Redgate SQL Compare deployed to ' + @databaseName + N'", "database": "' + @databaseName + N'" }}'
+                EXECUTE sys.xp_logevent 55000, @eventMessage
+            END
+            GO
+            DECLARE @Success AS BIT
+            SET @Success = 1
+            SET NOEXEC OFF
+            IF (@Success = 1) PRINT 'The database update succeeded'
+            ELSE BEGIN
+                IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION
+                PRINT 'The database update failed'
+            END
+            GO
+          "@
+          $content =  $prepend + "`r`n" + $content + "`r`n" + $postpend
           Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
