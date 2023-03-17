@@ -8,7 +8,10 @@ on:
   # Triggers the workflow on pull request review.  And then filtered later for approval.
   pull_request_review:
     types: [submitted]
-    branch: task**
+    branches:
+      - "[0-9]+-[a-zA-Z]+-[0-9]+-data-**"
+      - "[0-9]+-[a-zA-Z]+-[0-9]+-refData-**"
+      - "[0-9]+-[a-zA-Z]+-[0-9]+-schema-**"
 
 env:
   # Enable this for additional debug logging
