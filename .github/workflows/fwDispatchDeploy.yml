@@ -74,6 +74,21 @@ jobs:
           # END
           # GO
           #
+          # GO
+          # BEGIN TRY
+          #     EXEC sp_addextendedproperty N'Database_Info', N'[{"Name":"Pubs","Version":"$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )","Description":"The Adventure Works Community Demo","Modified":"$( $versionObj.dateStamp )","by":"${{ github.actor }}"}]', NULL, NULL, NULL, NULL, NULL, NULL
+          # END TRY
+          # BEGIN CATCH
+          #     DECLARE @msg nvarchar(max);
+          #     DECLARE @severity int;
+          #     DECLARE @state int;
+          #   SELECT @msg = ERROR_MESSAGE(), @severity = ERROR_SEVERITY(), @state = ERROR_STATE();
+          #     RAISERROR(@msg, @severity, @state);
+          #     SET NOEXEC ON
+          # END CATCH
+          # GO
+          # IF @@ERROR <> 0 SET NOEXEC ON
+          # GO
 
       - name: Get version information
         id: versions
@@ -101,21 +116,6 @@ jobs:
           "@
           $postpend = @"
             PRINT N'Creating extended properties'
-            GO
-            BEGIN TRY
-                EXEC sp_addextendedproperty N'Database_Info', N'[{"Name":"Pubs","Version":"$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )","Description":"The Adventure Works Community Demo","Modified":"$( $versionObj.dateStamp )","by":"${{ github.actor }}"}]', NULL, NULL, NULL, NULL, NULL, NULL
-            END TRY
-            BEGIN CATCH
-                DECLARE @msg nvarchar(max);
-                DECLARE @severity int;
-                DECLARE @state int;
-              SELECT @msg = ERROR_MESSAGE(), @severity = ERROR_SEVERITY(), @state = ERROR_STATE();
-                RAISERROR(@msg, @severity, @state);
-                SET NOEXEC ON
-            END CATCH
-            GO
-            IF @@ERROR <> 0 SET NOEXEC ON
-            GO
           "@
           $content = $prepend + "`r`n" + $content + "`r`n" + $postpend
           Set-Content $filePath $content
