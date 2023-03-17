@@ -54,6 +54,33 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: Get version information
+        id: versions
+        run: |
+          $versionObj = Get-Content -Raw -Path V.json | ConvertFrom-Json
+          cat V.json
+          echo "currentVersion=$( $versionObj.currentVersion )" > $env:GITHUB_OUTPUT
+          echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
+          $file = "$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
+          echo "file:$( $file )"
+          $content = Get-Content $file -Raw
+          $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).0"
+          $prepend = @"
+            Declare @version varchar(25);
+            SELECT @version= Coalesce(Json_Value(
+              (SELECT Convert(NVARCHAR(3760), value) 
+              FROM sys.extended_properties AS EP
+              WHERE major_id = 0 AND minor_id = 0 
+                AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
+            IF @version <> $( $expectedVersion )
+            BEGIN
+            RAISERROR ('The Target was at version %s, not the correct version (\${flyway:expectedVersion})',16,1,@version)
+            SET NOEXEC ON;
+            END
+          "@
+          $content =  $prepend + $content
+          Set-Content $file $content
+
       - name: Comment Pull Request Pre Deploy
         run: |
           gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "Starting Flyway migration of ${{ github.event.pull_request.head.ref }} to ${{ env.deployment_environment }}"

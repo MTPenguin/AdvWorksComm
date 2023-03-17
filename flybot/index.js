@@ -70,10 +70,12 @@ module.exports = (app) => {
 
     let level
     let newVersion
+    const currentMajor = semver.major(currentVersion)
+    const currentMinor = semver.minor(currentVersion)
     switch (jsonBody.scope) {
       case 'data':
         level = 'patch'
-        newVersion = 'V' + semver.major(currentVersion) + '.' + semver.minor(currentVersion) + '.' + dateStamp
+        newVersion = 'V' + currentMajor + '.' + currentMinor + '.' + dateStamp
         break
       case 'refData':
         level = 'minor'
@@ -126,7 +128,7 @@ module.exports = (app) => {
     * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
     * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
     */
-    const message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]`
+    let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]`
     let content = "--flybot created " + newMigration
     content += "\n-- DEBUG ---\n"
     const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
@@ -162,7 +164,28 @@ module.exports = (app) => {
       message,
       content: encode(content)
     })
-    consoleLog(thisFile, 'file result:', result)
+    consoleLog(thisFile, 'migration file result:', result)
+
+    message = `Store V.json for CI`
+    content = { ...jsonBody } // By value
+    content.issue = payload.issue.number
+    content = {
+      ...content,
+      currentVersion,
+      currentMajor,
+      currentMinor,
+      newVersion
+    }
+
+    result = await octokit.repos.createOrUpdateFileContents({
+      owner: repoOwner,
+      repo: repoName,
+      branch: newBranch,
+      path: 'V.json',
+      message,
+      content: encode(content)
+    })
+    consoleLog(thisFile, 'V file result:', result)
 
     /**
      * Create an issue ref ????   NOT WORKING (Trying to connect to 'Development' branch under issue.
@@ -178,7 +201,7 @@ module.exports = (app) => {
     /**
       * Create a new issue comment
       */
-    let commentBody = "Thanks for opening this issue!\n\n\n"
+    let commentBody = `Thanks for opening issue #${payload.issue.number} for ${jsonBody.jira}!\n\n\n`
     commentBody += "A new branch (["
     commentBody += newBranch
     commentBody += "](https://github.com/MTPenguin/AdvWorksComm/tree/"
