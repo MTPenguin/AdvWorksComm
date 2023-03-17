@@ -1,9 +1,1 @@
-{
-  "jira": "abc-173",
-  "scope": "data",
-  "issue": 96,
-  "currentVersion": "v1.0.20230316211119",
-  "currentMajor": 1,
-  "currentMinor": 0,
-  "newVersion": "V1.0.20230317143624"
-}
+{"jira":"abc-174","scope":"data","issue":100,"currentVersion":"v1.0.20230316211119","currentMajor":1,"currentMinor":0,"newVersion":"V1.0.20230317163741"}
