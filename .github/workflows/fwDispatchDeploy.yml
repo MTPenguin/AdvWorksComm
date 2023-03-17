@@ -73,7 +73,7 @@ jobs:
           #     PRINT 'The database update failed'
           # END
           # GO
-          # + "`r`n" + $postpend
+          #  + "`r`n" + $postpend
 
       - name: Get version information
         id: versions
@@ -121,11 +121,7 @@ jobs:
             IF @@ERROR <> 0 SET NOEXEC ON
             GO
           "@
-<<<<<<< HEAD
-          $content =  $prepend + "`r`n" + $content 
-=======
-          $content =  $prepend + "`r`n" + $content
->>>>>>> dev1
+          $content = $prepend + "`r`n" + $content
           Set-Content $filePath $content
 
       - name: Comment Pull Request Pre Deploy
