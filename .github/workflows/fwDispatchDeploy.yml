@@ -64,7 +64,7 @@ jobs:
           $filePath = "migrations/$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
-          $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).0"
+          $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).$( $versionObj.dateStamp )"
           echo "expectedVersion:$( $expectedVersion )"
           $prepend = @"
             Declare @version varchar(25);
