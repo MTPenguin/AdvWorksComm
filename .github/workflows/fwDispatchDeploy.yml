@@ -65,7 +65,7 @@ jobs:
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
           $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).0"
-          PRINT N'Expected version === ' + @expectedVersion
+          echo "expectedVersion:$( $expectedVersion )"
           $prepend = @"
             Declare @version varchar(25);
             SELECT @version= Coalesce(Json_Value(
