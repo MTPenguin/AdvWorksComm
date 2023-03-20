@@ -85,7 +85,7 @@ jobs:
             go
             USE AdvWorksComm
             DECLARE @DatabaseInfo NVARCHAR(3750), @version NVARCHAR(20)
-            SET @version=N'$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )'
+            SET @version=N'$( $versionObj.newVersion )'
             PRINT N'New version === ' + @version
             SELECT @DatabaseInfo =
               (
