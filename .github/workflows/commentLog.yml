@@ -41,8 +41,8 @@ jobs:
     runs-on: self-hosted
     steps:
       # Set Output After Delay For Trigger Workflow To Finish
-      - name: Sleep for 5 seconds
-        run: Start-Sleep -s 5
+      - name: Sleep for 10 seconds
+        run: Start-Sleep -s 10
         shell: powershell
 
       # - name: Get Output
