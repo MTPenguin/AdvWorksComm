@@ -65,6 +65,7 @@ jobs:
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
           $expectedVersion = "$( $versionObj.currentMajor ).$( $versionObj.currentMinor ).0"
+          PRINT N'Expected version === ' + @expectedVersion
           $prepend = @"
             Declare @version varchar(25);
             SELECT @version= Coalesce(Json_Value(
@@ -85,6 +86,7 @@ jobs:
             USE AdvWorksComm
             DECLARE @DatabaseInfo NVARCHAR(3750), @version NVARCHAR(20)
             SET @version=N'$( $versionObj.newVersion.substring(1, $versionObj.newVersion.length - 1) )'
+            PRINT N'New version === ' + @version
             SELECT @DatabaseInfo =
               (
               SELECT 'AdvWorksComm' AS "Name", @version  AS "Version",
