@@ -60,7 +60,7 @@ jobs:
           $versionObj = Get-Content -Raw -Path V.json | ConvertFrom-Json
           cat V.json
           echo "currentVersion=$( $versionObj.currentVersion )" > $env:GITHUB_OUTPUT
-          echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
+          echo "newVersion=$( $versionObj.newVersion )" >> $env:GITHUB_OUTPUT
           $filePath = "migrations/$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
@@ -130,4 +130,6 @@ jobs:
         if: ${{ success() }}
         continue-on-error: true
         run: |
+          git tag "${{ steps.versions.output.newVersion }}"
+          git push origin "${{ steps.versions.output.newVersion }}"
           gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "${{ github.event.pull_request.head.ref }} Successfully Migrated"
