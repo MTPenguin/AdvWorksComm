@@ -1,0 +1,12 @@
+FLYWAY migration information:
+```
+
+version            description                          state   filepath
+-------            -----------                          -----   --------
+1.0.20230224120276 baseline                             Pending C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\Adv
+                                                                WorksComm\migrations\V1_0_20230224120276__baseline.sql
+1.0.20230320190231 130-abc-190-data-v1.0.20230320175437 Pending C:\Users\BMac\actions-runner-comm\_work\AdvWorksComm\Adv
+                                                                WorksComm\migrations\V1.0.20230320190231__130-abc-190-da
+                                                                ta-v1.0.20230320175437.sql
+
+```
