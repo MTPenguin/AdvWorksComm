@@ -75,15 +75,15 @@ module.exports = (app) => {
     switch (jsonBody.scope) {
       case 'data':
         level = 'patch'
-        newVersion = 'V' + currentMajor + '.' + currentMinor + '.' + dateStamp
+        newVersion = currentMajor + '.' + currentMinor + '.' + dateStamp
         break
       case 'refData':
         level = 'minor'
-        newVersion = 'V' + semver.inc(currentVersion, level)
+        newVersion = semver.inc(currentVersion, level)
         break
       case 'schema':
         level = 'major'
-        newVersion = 'V' + semver.inc(currentVersion, level)
+        newVersion = semver.inc(currentVersion, level)
     }
     consoleLog(thisFile, 'level:', level)
     consoleLog(thisFile, 'newVersion:', newVersion)
@@ -107,7 +107,7 @@ module.exports = (app) => {
 
     // GITHUB_ISSUE-JIRA-000-SCOPE-CURRENT_VERSION
     const newBranch = payload.issue.number + '-' + jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
-    const newMigration = newVersion + '__' + newBranch
+    const newMigration = 'V' + newVersion + '__' + newBranch
     consoleLog(thisFile, 'newBranch:', newBranch)
     consoleLog(thisFile, 'newMigration:', newMigration)
 
@@ -169,7 +169,6 @@ module.exports = (app) => {
       currentMajor,
       currentMinor,
       dateStamp,
-      epocStamp: dateNow.valueOf(),
       newVersion
     }
     consoleLog(thisFile, 'content:', content)
