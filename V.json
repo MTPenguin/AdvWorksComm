@@ -1,11 +1,1 @@
-{
-  "jira": "abc-177",
-  "scope": "data",
-  "issue": 106,
-  "currentVersion": "v1.0.20230317182756",
-  "currentMajor": 1,
-  "currentMinor": 0,
-  "dateStamp": "20230320130706",
-  "epocStamp": 1679317626555,
-  "newVersion": "1.0.20230320130706"
-}
+{"jira":"abc-179","scope":"data","issue":110,"currentVersion":"v1.0.20230317182756","currentMajor":1,"currentMinor":0,"dateStamp":"20230320160052","newVersion":"1.0.20230320160052"}
