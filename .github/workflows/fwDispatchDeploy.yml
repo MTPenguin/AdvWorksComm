@@ -132,4 +132,4 @@ jobs:
         run: |
           git tag "v${{ steps.versions.outputs.newVersion }}"
           git push origin "v${{ steps.versions.outputs.newVersion }}"
-          gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "${{ github.event.pull_request.head.ref }} Successfully Migrated"
+          gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "${{ github.event.pull_request.head.ref }} Successfully Migrated to v${{ steps.versions.outputs.newVersion }}"
