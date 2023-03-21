@@ -187,7 +187,7 @@ module.exports = (app) => {
     /**
       * Create a new issue comment
       */
-    let commentBody = `${payload.issue.user.login} has created issue #${payload.issue.number} for [${jsonBody.jira}](https://phmig.atlassian.net/browse/${jsonBody.jira})!\n\n\n`
+    let commentBody = `Thank you ${payload.issue.user.login} for creating issue #${payload.issue.number}, Jira:[${jsonBody.jira}](https://phmig.atlassian.net/browse/${jsonBody.jira})!\n\n\n`
     commentBody += "A new branch (["
     commentBody += newBranch
     commentBody += "](https://github.com/MTPenguin/AdvWorksComm/tree/"
