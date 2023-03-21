@@ -73,7 +73,7 @@ jobs:
               FROM sys.extended_properties AS EP
               WHERE major_id = 0 AND minor_id = 0 
                 AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
-            IF @version <> '$( $expectedVersion )'
+            IF cast( @version as hierarchyid )  <>  cast ( '$( $expectedVersion )' as hierarchyid )
             BEGIN
             RAISERROR ('The Target was at version %s, not the correct version ($( $expectedVersion ))',16,1,@version)
             SET NOEXEC ON;
