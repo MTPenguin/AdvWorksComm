@@ -68,7 +68,7 @@ jobs:
           $bodyEnd = $issueBodyKV.body.lastIndexOf('```')
           $issueBodyV = $issueBodyKV.body.Substring($bodyStart, $bodyEnd - 3)
           echo "issueBodyV:$( $issueBodyV )"
-          $issueBodyJson = $issueBodyV | ConvertFrom-Json
+          $issueBodyJson = $issueBodyV | ConvertFrom-Json | ConvertTo-Json
           echo "bodyJson:$( $issueBodyJson )"
           echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
           echo "$( $issueBodyJson )" > V.json
