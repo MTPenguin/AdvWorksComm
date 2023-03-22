@@ -127,6 +127,13 @@ jobs:
         run: |
           gh workflow run commentLog.yml -r ${{ github.event.pull_request.head.ref }} -f run_id="${{ github.run_id }}" -f repo_name="${{ github.event.repository.full_name }}" -f branch_name="${{ github.event.pull_request.head.ref }}"
 
+      - name: Remove V.json # Avoids merge conflicts
+        if: ${{ success() }}
+        run: |
+          git rm V.json
+          git commit -am 'Remove V.json'
+          git push
+
       - name: Comment Pull Request Post Deploy
         if: ${{ success() }}
         continue-on-error: true
