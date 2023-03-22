@@ -74,7 +74,9 @@ jobs:
           echo "issueBodyJson2:$( $issueBodyJson2 )"
           echo "bodyJson:$( $issueBodyJson )"
           echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
-          echo "bodyJson2:$( $issueBodyJso2n )"
+          echo "issueBodyJson2:$( $issueBodyJson2 )"
+          echo "bodyJson2:$( $issueBodyJson2 )"
+          echo "issueBodyJson2:$( $issueBodyJson2 )"
           echo "bodyJson2=$( $issueBodyJson2 )" >> $env:GITHUB_OUTPUT
 
       - name: Get version information
