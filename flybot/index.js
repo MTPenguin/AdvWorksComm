@@ -153,10 +153,9 @@ module.exports = (app) => {
     })
     consoleLog(thisFile, 'migration file result:', result)
 
-    content = { ...jsonBody } // By value
     content = {
+      ...jsonBody,
       newBranch,
-      ...content,
       currentVersion,
       currentMajor,
       currentMinor,
@@ -179,14 +178,16 @@ module.exports = (app) => {
     });
     result = await octokit.issues.createComment(issueComment);
     consoleLog(thisFile, 'issue comment result:', result)
+    const body = `\`\`\`${JSON.stringify(content)}\`\`\``
+    consoleLog(thisFile, 'body:', body)
     result = await octokit.issues.update({
       owner: repoOwner,
       repo: repoName,
       issue_number: payload.issue.number,
       title: newBranch,
-      body: `\`\`\`${JSON.stringify(content)}\`\`\``,
+      body,
       // state: 'open',
-      labels: Object.values(jsonBody),
+      labels: [jsonBody.jira, jsonBody.scope],
       // DEBUG try to link branch
       // development: {
       //   branch: newBranch
