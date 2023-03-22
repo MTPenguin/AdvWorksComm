@@ -66,23 +66,15 @@ jobs:
           $issueBodyKV = gh issue view $( $issueNum ) --json body | ConvertFrom-Json
           $bodyStart = $issueBodyKV.body.indexOf('```') + 3
           $bodyEnd = $issueBodyKV.body.lastIndexOf('```')
-          $issueBodyV = $issueBodyKV.body.Substring($bodyStart, $bodyEnd - 3)
-          echo "issueBodyV:$( $issueBodyV )"
-          $issueBodyJson = $issueBodyV | ConvertFrom-Json
-          echo "issueBodyJson:$( $issueBodyJson )"
-          $issueBodyJson2 = $issueBodyJson | ConvertTo-Json
-          echo "issueBodyJson2:$( $issueBodyJson2 )"
-          echo "bodyJson:$( $issueBodyJson )"
-          echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
-          echo "issueBodyJson2:$( $issueBodyJson2 )"
-          echo "bodyJson2:$( $issueBodyJson2 )"
-          echo "issueBodyJson2:$( $issueBodyJson2 )"
-          echo "bodyJson2=$( $issueBodyJson2 )" >> $env:GITHUB_OUTPUT
+          $issueBodyValue = $issueBodyKV.body.Substring($bodyStart, $bodyEnd - 3)
+          echo "issueBodyValue:$( $issueBodyValue | ConvertFrom-Json )"
+          echo "bodyJson:$( $issueBodyValue )"
+          echo "bodyJson=$( $issueBodyValue )" >> $env:GITHUB_OUTPUT
 
       - name: Get version information
         id: versions
         run: |
-          $versionObj = "${{ steps.issue.outputs.bodyJson }}"
+          $versionObj = "${{ steps.issue.outputs.bodyJson }}"  | ConvertFrom-Json
           echo "versionObj:$( $versionObj )"
           echo "versionObj.newVersion:$( $versionObj.newVersion )"
           echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
