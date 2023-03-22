@@ -74,7 +74,7 @@ jobs:
       - name: Get version information
         id: versions
         run: |
-          $versionObj = "${{ steps.issue.outputs.bodyJson }}"  | ConvertFrom-Json
+          $versionObj = ${{ steps.issue.outputs.bodyJson }} | ConvertFrom-Json
           echo "versionObj:$( $versionObj )"
           echo "versionObj.newVersion:$( $versionObj.newVersion )"
           echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
