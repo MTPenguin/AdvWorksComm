@@ -153,9 +153,10 @@ module.exports = (app) => {
     })
     consoleLog(thisFile, 'migration file result:', result)
 
+    content = { ...jsonBody } // By value
     content = {
       newBranch,
-      ...jsonBody,
+      ...content,
       currentVersion,
       currentMajor,
       currentMinor,
