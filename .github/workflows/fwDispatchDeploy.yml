@@ -71,7 +71,6 @@ jobs:
           $issueBodyJson = $issueBodyV | ConvertFrom-Json | ConvertTo-Json
           echo "bodyJson:$( $issueBodyJson )"
           echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
-          echo "$( $issueBodyJson )" > V.json
 
       - name: Get version information
         id: versions
