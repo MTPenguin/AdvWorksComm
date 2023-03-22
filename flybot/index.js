@@ -204,7 +204,7 @@ module.exports = (app) => {
       repo: repoName,
       issue_number: payload.issue.number,
       title: newBranch,
-      body: `\`\`\`${content}\`\`\``,
+      body: `\`\`\`${JSON.stringify(content)}\`\`\``,
       // state: 'open',
       labels: Object.values(jsonBody),
       // DEBUG try to link branch
