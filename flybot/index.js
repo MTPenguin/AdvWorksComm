@@ -173,20 +173,21 @@ module.exports = (app) => {
     }
     consoleLog(thisFile, 'content:', content)
 
-    result = await octokit.repos.createOrUpdateFileContents({
-      owner: repoOwner,
-      repo: repoName,
-      branch: newBranch,
-      path: 'V.json',
-      sha: result.data.sha,
-      message,
-      content: encode(JSON.stringify(content))
-    })
-    consoleLog(thisFile, 'V file result:', result)
+    // Put content in issue body instead
+    // result = await octokit.repos.createOrUpdateFileContents({
+    //   owner: repoOwner,
+    //   repo: repoName,
+    //   branch: newBranch,
+    //   path: 'V.json',
+    //   sha: result.data.sha,
+    //   message,
+    //   content: encode(JSON.stringify(content))
+    // })
+    // consoleLog(thisFile, 'V file result:', result)
 
     /**
-      * Create a new issue comment
-      */
+    * Create a new issue comment
+    */
     let commentBody = `Thank you ${payload.issue.user.login} for creating issue #${payload.issue.number}, Jira:[${jsonBody.jira}](${process.env.JIRA_BROWSE_URL}/${jsonBody.jira})!\n\n\n`
     commentBody += "A new branch (["
     commentBody += newBranch
@@ -203,7 +204,7 @@ module.exports = (app) => {
       repo: repoName,
       issue_number: payload.issue.number,
       title: newBranch,
-      // body: '',
+      body: `\`\`\`${content}\`\`\``,
       // state: 'open',
       labels: Object.values(jsonBody),
       // DEBUG try to link branch
