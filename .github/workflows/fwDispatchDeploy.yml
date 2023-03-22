@@ -77,6 +77,7 @@ jobs:
         run: |
           $versionObj = "${{ steps.issue.outputs.bodyJson }}"
           echo "versionObj:$( $versionObj )"
+          echo "versionObj.newVersion:$( $versionObj.newVersion )"
           echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
           echo "newVersion=$( $versionObj.newVersion )" >> $env:GITHUB_OUTPUT
           $filePath = "migrations/V$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
