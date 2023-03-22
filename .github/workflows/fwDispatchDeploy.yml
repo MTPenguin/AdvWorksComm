@@ -66,7 +66,9 @@ jobs:
           $issueBodyKV = gh issue view $( $issueNum ) --json body | ConvertFrom-Json
           $bodyStart = $issueBodyKV.body.indexOf('```') + 3
           $bodyEnd = $issueBodyKV.body.lastIndexOf('```')
-          $issueBodyJson = $issueBodyKV.body.Substring($bodyStart, $bodyEnd - 3) | ConvertFrom-Json
+          $issueBodyV = $issueBodyKV.body.Substring($bodyStart, $bodyEnd - 3)
+          echo "issueBodyV:$( $issueBodyV )"
+          $issueBodyJson = $issueBodyV | ConvertFrom-Json
           echo "bodyJson:$( $issueBodyJson )"
           echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
           echo "$( $issueBodyJson )" > V.json
