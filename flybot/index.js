@@ -161,10 +161,9 @@ module.exports = (app) => {
     consoleLog(thisFile, 'V content result:', result)
 
     message = `Store V.json for CI`
-    content = { ...jsonBody } // By value
-    content.issue = payload.issue.number
     content = {
-      ...content,
+      branch: newBranch,
+      ...jsonBody, // By value
       currentVersion,
       currentMajor,
       currentMinor,
