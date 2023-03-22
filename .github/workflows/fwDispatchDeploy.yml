@@ -76,8 +76,7 @@ jobs:
       - name: Get version information
         id: versions
         run: |
-          $versionObj = Get-Content -Raw -Path V.json | ConvertFrom-Json
-          cat V.json
+          $versionObj = ${{ steps.issue.outputs.bodyJson }}
           echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
           echo "newVersion=$( $versionObj.newVersion )" >> $env:GITHUB_OUTPUT
           $filePath = "migrations/V$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
