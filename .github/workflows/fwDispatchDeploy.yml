@@ -56,12 +56,27 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Get issue number
+        id: issue
+        run: |
+          $branchName = "${{ github.event.pull_request.head.ref }}"
+          $issueNum = $branchName.Substring(0, $branchName.indexOf('-'))
+          echo "number:$( $issueNum )"
+          echo "number=$( $issueNum )" >> $env:GITHUB_OUTPUT
+          $issueBodyKV = gh issue view $( $issueNum ) --json body | ConvertFrom-Json
+          $bodyStart = $issueBodyKV.body.indexOf('```') + 3
+          $bodyEnd = $issueBodyKV.body.indexOf($bodyStart, '```')
+          $issueBodyJson = $issueBodyKV.body.Substring($bodyStart, $bodyEnd) | ConvertFrom-Json
+          echo "bodyJson:$( $issueBodyJson )"
+          echo "bodyJson=$( $issueBodyJson )" >> $env:GITHUB_OUTPUT
+          echo "$( $issueBodyJson )" > V.json
+
       - name: Get version information
         id: versions
         run: |
           $versionObj = Get-Content -Raw -Path V.json | ConvertFrom-Json
           cat V.json
-          echo "currentVersion=$( $versionObj.currentVersion )" > $env:GITHUB_OUTPUT
+          echo "currentVersion=$( $versionObj.currentVersion )" >> $env:GITHUB_OUTPUT
           echo "newVersion=$( $versionObj.newVersion )" >> $env:GITHUB_OUTPUT
           $filePath = "migrations/V$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
           echo "filePath:$( $filePath )"
