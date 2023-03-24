@@ -1,0 +1,11 @@
+/* Add CSS styles here! */
+body {
+  font-family: sans-serif;
+}
+
+div.error-message {
+  margin: 0px 25px;
+  font-size: 90%;
+  color: red;
+  min-height: 8px;
+}
