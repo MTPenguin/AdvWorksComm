@@ -4,13 +4,170 @@
  */
 const { encode } = require('js-base64')
 const semver = require('semver')
+const bodyParser = require('body-parser');
 const thisFile = 'index.js'
 
-module.exports = (app) => {
+module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
   const consoleLog = console.log
   consoleLog(thisFile, "Yay, the app was loaded!");
 
+  const flyBotURI = '/flybot'
+
+  const router = getRouter(flyBotURI)
+  router.use(bodyParser.urlencoded({ extended: true }));
+  router.use(bodyParser.json());
+  router.use(bodyParser.raw());
+
+  // router.post('/', async (req, res) => {
+  //   const { body, params: { owner, repo } } = req
+  //   consoleLog(thisFile, '/ body test owner, repo:', owner, repo)
+  //   consoleLog(thisFile, '/ body test body:', body)
+  //   res.json({ got: 'it' })
+  // })
+
+  router.post('/:owner/:repo/createIssue', async (req, res) => {
+    const { body, params: { owner, repo } } = req
+    consoleLog(thisFile, '/createIssue owner, repo:', owner, repo)
+    consoleLog(thisFile, '/createIssue body:', body)
+    const octokit = await app.auth()
+    let raw
+    const { data: authData } = raw = await octokit.apps.getAuthenticated()
+    // consoleLog(thisFile, '/createIssue raw:', raw)
+    consoleLog(thisFile, '/createIssue authData:', authData)
+
+
+    const { data: { id } } = raw = await octokit.apps.getRepoInstallation({
+      owner,
+      repo,
+    });
+    // consoleLog(thisFile, '/createIssue raw:', raw)
+    consoleLog(thisFile, '/createIssue id:', id)
+
+    const installationOctokit = await app.auth(id)
+
+    result = await installationOctokit.rest.issues.create({
+      owner,
+      repo,
+      title: 'Issue created by UI',
+      body: `Issue Body \`\`\`${JSON.stringify(body)}\`\`\``
+    });
+    consoleLog(thisFile, 'issue create result:', result)
+  })
+
+  router.get('/whoami', async (req, res) => {
+    const octokit = await app.auth()
+    const { data } = await octokit.apps.getAuthenticated()
+    res.json(data)
+  })
+
+  // Add a new route
+  router.get("/", (req, res) => {
+    res.send(`
+    <body>
+        <script src="https://unpkg.com/mithril/mithril.js"></script>
+        <script>
+        console.log('Hello World! You did it! Welcome to Snowpack :D');
+
+let UserNameInput = {
+  error: '',
+  value: '',
+  validate: () => {
+    UserNameInput.error = !UserNameInput.value ? 'Please enter user name' : '';
+  },
+  isValid: () => {
+    return UserNameInput.error ? false : true;
+  },
+  view: () => {
+    return [
+      m('input', {
+        className: UserNameInput.error ? 'error' : '',
+        placeholder: 'User Name',
+        value: UserNameInput.value,
+        type: 'text',
+        oninput: e => {
+          UserNameInput.value = e.target.value;
+          UserNameInput.error && UserNameInput.validate()
+        }
+      }),
+      UserNameInput.error && m('div.error-message', UserNameInput.error)
+    ];
+  }
+};
+
+let PasswordInput = {
+  error: '',
+  value: '',
+  validate: () => {
+    PasswordInput.error = !PasswordInput.value ? 'Please enter password' : '';
+  },
+  isValid: () => {
+    return PasswordInput.error ? false : true;
+  },
+  view: () => {
+    return [
+      m('input', {
+        className: PasswordInput.error ? 'error' : '',
+        placeholder: 'Password',
+        value: PasswordInput.value,
+        type: 'password',
+        oninput: e => {
+          PasswordInput.value = e.target.value;
+          PasswordInput.error && PasswordInput.validate()
+        }
+      }),
+      PasswordInput.error && m('div.error-message', PasswordInput.error)
+    ];
+  }
+};
+
+let LoginForm = {
+  isValid() {
+    UserNameInput.validate();
+    PasswordInput.validate();
+    if (UserNameInput.isValid() && PasswordInput.isValid()) {
+      return true;
+    }
+    return false;
+  },
+  view() {
+    return m('form', [
+      m('h1',
+        'Login'
+      ),
+      // Passing component
+      m(UserNameInput),
+      m(PasswordInput),
+      m('button', {
+        class: 'pure-button pure-button-primary',
+        id: 'loginBtn',
+        type: 'button',
+        onclick() {
+          const url = "http://localhost:3000/flybot/:owner/:repo/createIssue"
+          console.log('url:', url)
+          if (LoginForm.isValid()) {
+            m.request({
+              method: "PUT",
+              url,
+              params: { owner: 'MTPenguin', repo: 'AdvWorksComm' },
+              body: { name: "test" }
+            })
+              .then(function (result) {
+                console.log(result)
+              })
+          }
+        }
+      },
+        'Login'
+      )
+    ])
+  }
+}
+
+m.mount(document.body, LoginForm)
+        </script>
+    </body>`);
+  });
 
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
