@@ -19,7 +19,7 @@ env:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "fwDeploy"
+  group: "fwDeploy_${{ github.event.pull_request.head.ref }}"
   cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
