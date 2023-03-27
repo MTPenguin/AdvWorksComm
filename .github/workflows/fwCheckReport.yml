@@ -36,7 +36,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: "pages_${{ inputs.title }}"
   cancel-in-progress: true
 
 jobs:
