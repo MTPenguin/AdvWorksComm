@@ -1,16 +1,42 @@
 import m from 'mithril'
 
 const gui = () => {
-  /* Add JavaScript code here! */
-  console.log('Hello World! You did it! Welcome to Snowpack :D');
+  const jiraParts = (s) => {
+    const sep = s.indexOf('-')
+    const empty = []
+    if (!~sep) return empty
+    const alphaChars = s.substring(0, sep).toUpperCase()
+    const numChars = s.substring(sep + 1)
+    const num = parseInt(numChars)
+    if (isNaN(num)) return [alphaChars, numChars]
+    return [alphaChars, String(num).padStart(numChars.length, '0')]
+  }
 
-  let JiraInput = {
-    error: '',
+  const Message = {
     value: '',
-    validate: () => {
-      const regEx = /[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]/
+    view: () => {
+      return [
+        m('h2', { className: 'message' }, Message.value)]
+    }
+  }
+
+  const jiraDefault = String()
+  const JiraInput = {
+    error: '',
+    wasValid: false, // Once valid, errors stick until corrected.  Errors will not show until valid once.
+    value: jiraDefault,
+    validate: (store = true) => {
+      const [alphaStr, numStr] = jiraParts(JiraInput.value)
+      console.log('validate alphaStr, numStr:', alphaStr, numStr)
+      const regEx = /^[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]$/
       const goodFormat = regEx.test(JiraInput.value)
-      JiraInput.error = !(JiraInput.value && goodFormat) ? 'Please enter Jira issue with format (XXX-000)  X = Alpha, 0 = Numeric' : '';
+      const parsedNum = parseInt(numStr)
+      const goodNum = !isNaN(parsedNum) && parsedNum > 0
+      const error = !(JiraInput.value && goodFormat && goodNum) ? 'Please enter Jira issue with format (XXX-000)  X = Alpha, 0 = Numeric' : '';
+      store && (JiraInput.error = error)
+      JiraInput.wasValid = !error
+
+      return error
     },
     isValid: () => {
       return JiraInput.error ? false : true;
@@ -20,11 +46,17 @@ const gui = () => {
         m('label', 'Jira issue'),
         m('input', {
           className: JiraInput.error ? 'error' : '',
-          placeholder: '(XXX-000)',
+          placeholder: 'XXX-000',
           value: JiraInput.value,
           type: 'text',
           oninput: e => {
-            JiraInput.value = e.target.value;
+            const [alphaStr, numStr] = jiraParts(e.target.value)
+            console.log('alphaStr, numStr:', alphaStr, numStr)
+            if (alphaStr && !isNaN(numStr)) {
+              JiraInput.value = alphaStr + '-' + numStr;
+            } else {
+              JiraInput.value = e.target.value;
+            }
             JiraInput.error && JiraInput.validate()
           }
         }),
@@ -33,9 +65,10 @@ const gui = () => {
     }
   };
 
-  let ScopeInput = {
+  const scopeDefault = 'data'
+  const ScopeInput = {
     error: '',
-    value: 'data',
+    value: scopeDefault,
     validate: () => {
       ScopeInput.error = !ScopeInput.value ? 'Please select issue scope' : '';
     },
@@ -53,7 +86,7 @@ const gui = () => {
           },
           value: ScopeInput.value
         },
-          ['data', 'refData', 'schema'].map(x =>
+          [scopeDefault, 'refData', 'schema'].map(x =>
             m('option', x)
           )
         ),
@@ -62,7 +95,7 @@ const gui = () => {
     }
   };
 
-  let IssueForm = {
+  const IssueForm = {
     isValid() {
       JiraInput.validate();
       ScopeInput.validate();
@@ -83,12 +116,12 @@ const gui = () => {
           class: 'pure-button pure-button-primary',
           id: 'loginBtn',
           type: 'button',
-          disabled: !(JiraInput.value && ScopeInput.value),
+          disabled: JiraInput.validate(JiraInput.wasValid || JiraInput.value.length > 6) || !(JiraInput.value && ScopeInput.value) || (JiraInput.error || ScopeInput.error),
           onclick() {
             const url = "/flybot/:owner/:repo/createIssue"
             console.log('url:', url)
             if (IssueForm.isValid()) {
-              console.log('**** FIRE REQUEST ?:', JiraInput.value)
+              console.log('**** FIRE REQUEST JiraInput.value:', JiraInput.value)
               m.request({
                 method: "POST",
                 url,
@@ -96,13 +129,19 @@ const gui = () => {
                 body: { jira: JiraInput.value, scope: ScopeInput.value }
               })
                 .then(function (result) {
-                  console.log(result)
+                  const message = JiraInput.value + ' Created'
+                  console.log('POST message:', message)
+                  console.log('POST response:', result)
+                  Message.value = message
+                  JiraInput.value = jiraDefault
+                  ScopeInput.value = scopeDefault
                 })
             }
           }
         },
           'Create Issue'
-        )
+        ),
+        m(Message)
       ])
     }
   }

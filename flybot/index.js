@@ -53,6 +53,7 @@ module.exports = (app, { getRouter }) => {
       body: `Issue Body \`\`\`${JSON.stringify(body)}\`\`\``
     });
     consoleLog(thisFile, 'issue create result:', result)
+    res.json(result)
   })
 
   router.get('/whoami', async (req, res) => {
