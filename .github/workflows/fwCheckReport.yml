@@ -34,11 +34,6 @@ permissions:
   pull-requests: write
   id-token: write
 
-# Allow one concurrent deployment
-concurrency:
-  group: "pages_${{ inputs.title }}"
-  cancel-in-progress: true
-
 jobs:
   # Single deploy job since we're just deploying
   deploy:
