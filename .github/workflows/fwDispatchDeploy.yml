@@ -82,7 +82,7 @@ jobs:
           $filePath = "migrations/V$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
-          $expectedVersion = "$( $versionObj.currentVersion.substring(1, $versionObj.currentVersion.length - 1) )"
+          $expectedVersion = "$( $versionObj.overrideVersion ? $versionObj.overrideVersion.substring(1, $versionObj.overrideVersion.length - 1) : $versionObj.currentVersion.substring(1, $versionObj.currentVersion.length - 1) )"
           echo "expectedVersion:$( $expectedVersion )"
           $prepend = @"
             Declare @version varchar(25);
@@ -92,7 +92,7 @@ jobs:
               WHERE major_id = 0 AND minor_id = 0 
                 AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
             -- PARSENAME USED TO ONLY COMPARE MAJOR AND MINOR
-            IF PARSENAME(@version, 2) + PARSENAME(@version, 3)  <> PARSENAME('$( $expectedVersion )', 2) + PARSENAME('$( $expectedVersion )', 3)
+            IF PARSENAME(@version, 3) + PARSENAME(@version, 2)  <> PARSENAME('$( $expectedVersion )', 3) + PARSENAME('$( $expectedVersion )', 2)
             BEGIN
             RAISERROR ('The Target was at version %s, not the correct version ($( $expectedVersion ))',16,1,@version)
             SET NOEXEC ON;

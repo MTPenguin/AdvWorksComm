@@ -134,6 +134,7 @@ const gui = () => {
                   console.log('POST response:', result)
                   Message.value = message
                   JiraInput.value = jiraDefault
+                  JiraInput.wasValid = false
                   ScopeInput.value = scopeDefault
                 })
             }
