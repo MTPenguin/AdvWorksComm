@@ -6,7 +6,7 @@ const gui = () => {
 
   let JiraInput = {
     error: '',
-    value: 'ABC-000',
+    value: '',
     validate: () => {
       const regEx = /[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]/
       const goodFormat = regEx.test(JiraInput.value)
