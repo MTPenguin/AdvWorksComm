@@ -76,7 +76,7 @@ jobs:
       - name: Dump runner name
         env:
           RUNNER_NAME: ${{ toJson(runner.name) }}
-        run: echo "runner name $env:RUNNER_NAME"
+        run: echo "runner name json $env:RUNNER_NAME"
 
       - name: Get/Set deployment environment
         run: |

@@ -37,13 +37,13 @@ permissions:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    runs-on: self-hosted
     name: Deploy Flyway Check Report To Github Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     env:
       GITHUB_TOKEN: ${{ github.token }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
