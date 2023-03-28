@@ -54,9 +54,9 @@ jobs:
         run: |
           echo "output: $env:output"
 
-      - name: View variable variable
+      - name: View variable JDBC_MTPADVWORKSCOMM
         run: |
-          echo "vars[output]: ${{ vars.JDBC_ADVWORKSCOMM }}"
+          echo "vars[output]: ${{ vars.JDBC_MTPADVWORKSCOMM }}"
 
       - name: View variable variable
         run: |
