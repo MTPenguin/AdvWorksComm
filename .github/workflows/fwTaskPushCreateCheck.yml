@@ -66,7 +66,7 @@ jobs:
       - name: Dump runner context
         env:
           RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "runner name ${{ env:RUNNER_CONTEXT }}"
+        run: echo "runner name ${{ RUNNER_CONTEXT }}"
 
       - name: Dump runner context
         env:
@@ -76,7 +76,7 @@ jobs:
       - name: Dump runner name
         env:
           RUNNER_NAME: ${{ runner.name }}
-        run: echo "runner name $RUNNER_NAME"
+        run: echo "runner name $env:RUNNER_NAME"
 
       - name: Get/Set deployment environment
         run: |
