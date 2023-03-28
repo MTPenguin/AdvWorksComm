@@ -162,11 +162,19 @@ jobs:
 
       - name: Set JDBC
         run: |
+          echo "NAME=${{ runner.name }}" >> $env:GITHUB_ENV
+
+      - name: View NAME
+        run: |
+          echo "NAME: ${{ env.NAME }}"
+
+      - name: Set JDBC
+        run: |
           echo "JDBC=${{ vars[format('JDBC_{0}', runner.name )] }}" >> $env:GITHUB_ENV
 
       - name: View JDBC
         run: |
-          echo "JDBC: ${{ env.JDBC_RUNNER }}"
+          echo "JDBC: ${{ env.JDBC }}"
 
       # Runs the Flyway Clean command against the Build database
       - name: Clean build db
