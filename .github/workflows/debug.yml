@@ -47,16 +47,8 @@ jobs:
 
     runs-on: self-hosted
     steps:
-      - name: Variable substitution
-        run: |
-          echo "output=JDBC_${{ runner.name }}" >> $env:GITHUB_ENV
-      - name: View substitution
-        run: |
-          echo "output: $env:output"
-
-      - name: View variable JDBC_MTPADVWORKSCOMM
-        run: |
-          echo "vars.JDBC_MTPADVWORKSCOMM: ${{ vars.JDBC_MTPADVWORKSCOMM }}"
+      - name: View env
+        run: env
 
       - name: View variable BASELINE_VERSION
         run: |
