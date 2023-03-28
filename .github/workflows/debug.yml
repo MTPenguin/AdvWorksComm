@@ -56,7 +56,11 @@ jobs:
 
       - name: View variable JDBC_MTPADVWORKSCOMM
         run: |
-          echo "vars[output]: ${{ vars.JDBC_MTPADVWORKSCOMM }}"
+          echo "vars.JDBC_MTPADVWORKSCOMM: ${{ vars.JDBC_MTPADVWORKSCOMM }}"
+
+      - name: View variable BASELINE_VERSION
+        run: |
+          echo "vars.BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}"
 
       - name: View variable variable
         run: |
