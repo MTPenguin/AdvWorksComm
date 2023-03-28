@@ -168,6 +168,14 @@ jobs:
         run: |
           echo "JDBC_RUNNER: ${{ env.JDBC_RUNNER }}"
 
+      - name: Set JDBC_RUNNER2
+        run: |
+          echo "JDBC_RUNNER2=${{ vars.JDBC_MTPAdvWorksComm }}" >> $env:GITHUB_ENV
+
+      - name: View JDBC_RUNNER2
+        run: |
+          echo "JDBC_RUNNER2: ${{ env.JDBC_RUNNER2 }}"
+
       # Runs the Flyway Clean command against the Build database
       - name: Clean build db
         if: env.executeBuild == 'true'
