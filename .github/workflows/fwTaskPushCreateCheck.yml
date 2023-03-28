@@ -77,7 +77,7 @@ jobs:
         id: checkStates
         run:
           | # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-          echo 'runner json:\n${{ toJSON(runner) }}'
+          echo 'runner name:\n${{ toJSON(runner).name }}'
           md -Force ${{ env.REPORT_PATH }}
           flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
           $infoObj = Get-Content -Raw -Path ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json | ConvertFrom-Json
