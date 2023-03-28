@@ -126,7 +126,7 @@ const gui = () => {
               console.log('**** FIRE REQUEST JiraInput.value:', JiraInput.value)
               m.request({
                 method: "POST",
-                url: 'biff',
+                url,
                 params: { owner: 'MTPenguin', repo: 'AdvWorksComm' },
                 body: { jira: JiraInput.value, scope: ScopeInput.value }
               })
