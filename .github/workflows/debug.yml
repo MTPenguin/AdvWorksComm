@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Variable substitution
         run: |
-          echo "output=myNameWith${{ vars.substitution }}" >> $env:GITHUB_ENV
+          echo "output=myNameWith${{ runner.name }}" >> $env:GITHUB_ENV
       - name: View substitution
         run: |
           echo "output: $env:output"
