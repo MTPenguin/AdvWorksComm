@@ -49,10 +49,14 @@ jobs:
     steps:
       - name: Variable substitution
         run: |
-          echo "output=myNameWith${{ runner.name }}" >> $env:GITHUB_ENV
+          echo "output=JDBC_${{ runner.name }}" >> $env:GITHUB_ENV
       - name: View substitution
         run: |
           echo "output: $env:output"
+
+      - name: View variable variable
+        run: |
+          echo "vars[output]: ${{ vars[$env:output] }}"
 
       # - name: Echo Contexts
       #   run: |
