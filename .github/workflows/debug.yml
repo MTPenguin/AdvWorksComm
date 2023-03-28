@@ -60,7 +60,7 @@ jobs:
 
       - name: View variable BASELINE_VERSION
         run: |
-          echo "vars.BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}"
+          echo "vars.BASELINE_VERSION: ${{ vars[format('BASELINE_VERSION')] }}"
 
       - name: View variable variable
         run: |
