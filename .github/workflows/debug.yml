@@ -6,7 +6,7 @@ on:
   # Triggers the workflow on push or pull request events but only for branches beginning with 'task' that have changes in the migrations folder.
   push:
     branches:
-      - 'debug**'
+      - "debug**"
 
   # Allows you to run this workflow manually from the Actions tab AND from other actions (fwTaskPushCreateCheck)
   workflow_dispatch:
@@ -37,100 +37,102 @@ jobs:
   job1:
     environment: DEBUG_ENVIRONMENT
     env:
-      ACTIONS_RUNNER_DEBUG: true 
+      ACTIONS_RUNNER_DEBUG: true
       GH_TOKEN: ${{ github.token }}
       GITHUB_CONTEXT: ${{ toJson(github) }}
-      SECRETS_CONTEXT: ${{ toJson(secrets) }}	
+      SECRETS_CONTEXT: ${{ toJson(secrets) }}
       STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-      MATRIX_CONTEXT: ${{ toJson(matrix) }}	
+      MATRIX_CONTEXT: ${{ toJson(matrix) }}
       NEEDS_CONTEXT: ${{ toJson(needs) }}
-      
+
     runs-on: self-hosted
     steps:
-      - name: Echo Contexts
+      - name: Variable substitution
         run: |
-          echo "$env:GITHUB_CONTEXT"
-          echo "$env:SECRETS_CONTEXT"
-          echo "$env:STRATEGY_CONTEXT"
-          echo "$env:MATRIX_CONTEXT"
-          echo "$env:NEEDS_CONTEXT"
-      
-      
-      - name: Get/Set deployment environment
+          echo "output=myNameWith${{ var.sub }}" >> $env:GITHUB_ENV
+      - name: View substitution
         run: |
-          $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
-          echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
-      - name: View deployment environment
-        run: |
-          echo "$env:deployment_environment"
-      
-      
-      - name: Set the value
-        id: step_one
-        run: |
-          echo "action_state=yellow" >> $env:GITHUB_ENV
-      - name: Use the value
-        id: step_two
-        run: |
-          echo "${{ env.action_state }}" # This will output 'yellow'
-      
-      # Test Context
-      - name: Echo Context
-        id: echo_context
-        run: |
-          echo "${{ env.deployment_environment }}"
-      
-      # Test setting env
-      - name: Set Env
-        run: |
-          echo "dir_exists=$(Test-Path ${{ env.deployment_environment }})" >> $env:GITHUB_ENV
-      - name: Set Env 2
-        run: |
-          echo "dir_2=2" >> $env:GITHUB_ENV
-      
-      # Read env 2
-      - name: Read env.dir_2
-        run: |
-          echo ${{ env.dir_2 }}
-      
-      # Read env
-      - name: Read Env
-        run: |
-          echo ${{ env }}
-      
-      # Read env dir_exists
-      - name: Read env.dir_exists
-        run: |
-          echo ${{ env.dir_exists }}
-      
-      - name: Checkout
-        uses: actions/checkout@v3
+          echo "output: $env:output"
 
-      - name: Comment Pull Request Start
-        run: |
-          gh pr comment --body "DEBUG START"
+      # - name: Echo Contexts
+      #   run: |
+      #     echo "$env:GITHUB_CONTEXT"
+      #     echo "$env:SECRETS_CONTEXT"
+      #     echo "$env:STRATEGY_CONTEXT"
+      #     echo "$env:MATRIX_CONTEXT"
+      #     echo "$env:NEEDS_CONTEXT"
 
-      # Test output
-      - name: Echo Commands
-        id: echo
-        run: |
-          echo "Test" > output.txt
-          echo "TEST=test" >> $env:GITHUB_OUTPUT
-          echo "TEST1=$(cat output.txt)" >> $env:GITHUB_OUTPUT
-      
-      - name: Test Echo
-        run: |
-          echo "test=${{ steps.echo.outputs.TEST }}"
-          echo "test1=${{ steps.echo.outputs.TEST1 }}"
+      # - name: Get/Set deployment environment
+      #   run: |
+      #     $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
+      #     echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
+      # - name: View deployment environment
+      #   run: |
+      #     echo "$env:deployment_environment"
 
-      # - name: Comment Pull Request End
+      # - name: Set the value
+      #   id: step_one
+      #   run: |
+      #     echo "action_state=yellow" >> $env:GITHUB_ENV
+      # - name: Use the value
+      #   id: step_two
+      #   run: |
+      #     echo "${{ env.action_state }}" # This will output 'yellow'
+
+      # # Test Context
+      # - name: Echo Context
+      #   id: echo_context
+      #   run: |
+      #     echo "${{ env.deployment_environment }}"
+
+      # # Test setting env
+      # - name: Set Env
+      #   run: |
+      #     echo "dir_exists=$(Test-Path ${{ env.deployment_environment }})" >> $env:GITHUB_ENV
+      # - name: Set Env 2
+      #   run: |
+      #     echo "dir_2=2" >> $env:GITHUB_ENV
+
+      # # Read env 2
+      # - name: Read env.dir_2
+      #   run: |
+      #     echo ${{ env.dir_2 }}
+
+      # # Read env
+      # - name: Read Env
+      #   run: |
+      #     echo ${{ env }}
+
+      # # Read env dir_exists
+      # - name: Read env.dir_exists
+      #   run: |
+      #     echo ${{ env.dir_exists }}
+
+      # - name: Checkout
+      #   uses: actions/checkout@v3
+
+      # - name: Comment Pull Request Start
+      #   run: |
+      #     gh pr comment --body "DEBUG START"
+
+      # # Test output
+      # - name: Echo Commands
+      #   id: echo
+      #   run: |
+      #     echo "Test" > output.txt
+      #     echo "TEST=test" >> $env:GITHUB_OUTPUT
+      #     echo "TEST1=$(cat output.txt)" >> $env:GITHUB_OUTPUT
+
+      # - name: Test Echo
       #   run: |
       #     echo "test=${{ steps.echo.outputs.TEST }}"
-      #     gh pr comment --body "DEBUG END"- name: Comment Pull Request End
+      #     echo "test1=${{ steps.echo.outputs.TEST1 }}"
 
-      - name: Trigger Run Log Comment On Pull Request
-        run: |
-          gh workflow run commentLog.yml -r ${{ github.ref }} -f run_id="${{ github.run_id }}"
-      
+      # # - name: Comment Pull Request End
+      # #   run: |
+      # #     echo "test=${{ steps.echo.outputs.TEST }}"
+      # #     gh pr comment --body "DEBUG END"- name: Comment Pull Request End
 
-      
+      # - name: Trigger Run Log Comment On Pull Request
+      #   run: |
+      #     gh workflow run commentLog.yml -r ${{ github.ref }} -f run_id="${{ github.run_id }}"

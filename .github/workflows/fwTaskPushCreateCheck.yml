@@ -68,16 +68,6 @@ jobs:
           RUNNER_CONTEXT: ${{ toJson(runner) }}
         run: echo "runner context ${{ env.RUNNER_CONTEXT }}"
 
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "$env:RUNNER_CONTEXT"
-
-      - name: Dump runner name
-        env:
-          RUNNER_NAME: ${{ toJson(runner.name) }}
-        run: echo "runner name json $env:RUNNER_NAME"
-
       - name: Get/Set deployment environment
         run: |
           $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
