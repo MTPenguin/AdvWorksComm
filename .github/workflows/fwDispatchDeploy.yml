@@ -82,7 +82,7 @@ jobs:
           $filePath = "migrations/V$( $versionObj.newVersion )__${{ github.event.pull_request.head.ref }}.sql"
           echo "filePath:$( $filePath )"
           $content = Get-Content $filePath -Raw
-          $expectedVersion = "$( $versionObj.overrideVersion ? $versionObj.overrideVersion : $versionObj.currentVersion.substring(1, $versionObj.currentVersion.length - 1) )"
+          $expectedVersion = "$( $versionObj.expectedVersion ? $versionObj.expectedVersion : $versionObj.currentVersion.substring(1, $versionObj.currentVersion.length - 1) )"
           echo "expectedVersion:$( $expectedVersion )"
           $prepend = @"
             Declare @version varchar(25);
@@ -104,7 +104,7 @@ jobs:
             go
             USE AdvWorksComm
             DECLARE @DatabaseInfo NVARCHAR(3750), @version NVARCHAR(20)
-            SET @version=N'$( $versionObj.overrideVersion ? $versionObj.overrideVersion : $versionObj.newVersion )'
+            SET @version=N'$( $versionObj.newVersion )'
             PRINT N'New version === ' + @version
             SELECT @DatabaseInfo =
               (
