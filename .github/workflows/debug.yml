@@ -66,7 +66,7 @@ jobs:
         run: |
           echo "vars[output]: ${{ vars[format('JDBC_{0}', runner.name)] }}"
 
-      # - name: Echo Contexts
+      # - name: Echo ContextsHY
       #   run: |
       #     echo "$env:GITHUB_CONTEXT"
       #     echo "$env:SECRETS_CONTEXT"
