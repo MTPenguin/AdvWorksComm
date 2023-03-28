@@ -56,7 +56,7 @@ jobs:
 
       - name: View variable variable
         run: |
-          echo "vars[output]: ${{ vars[$env:output] }}"
+          echo "vars[output]: ${{ vars[format('{0}', $env:output)] }}"
 
       # - name: Echo Contexts
       #   run: |
