@@ -96,6 +96,7 @@ const gui = () => {
   };
 
   const IssueForm = {
+    clicked: false,
     isValid() {
       JiraInput.validate();
       ScopeInput.validate();
@@ -107,7 +108,7 @@ const gui = () => {
     view() {
       return m('form', [
         m('h1',
-          'Create Jira Issue'
+          'Create GitHub Issue'
         ),
         // Passing component
         m(JiraInput),
@@ -116,26 +117,33 @@ const gui = () => {
           class: 'pure-button pure-button-primary',
           id: 'loginBtn',
           type: 'button',
-          disabled: JiraInput.validate(JiraInput.wasValid || JiraInput.value.length > 6) || !(JiraInput.value && ScopeInput.value) || (JiraInput.error || ScopeInput.error),
+          disabled: IssueForm.clicked || JiraInput.validate(JiraInput.wasValid || JiraInput.value.length > 6) || !(JiraInput.value && ScopeInput.value) || (JiraInput.error || ScopeInput.error),
           onclick() {
             const url = "/flybot/:owner/:repo/createIssue"
             console.log('url:', url)
+            IssueForm.clicked = true
             if (IssueForm.isValid()) {
               console.log('**** FIRE REQUEST JiraInput.value:', JiraInput.value)
               m.request({
                 method: "POST",
-                url,
+                url: 'biff',
                 params: { owner: 'MTPenguin', repo: 'AdvWorksComm' },
                 body: { jira: JiraInput.value, scope: ScopeInput.value }
               })
                 .then(function (result) {
-                  const message = JiraInput.value + ' Created'
+                  const message = 'GitHub issue:' + result.data.number + ' created for Jira issue:' + JiraInput.value + ' with ' + ScopeInput.value + ' scope'
                   console.log('POST message:', message)
                   console.log('POST response:', result)
                   Message.value = message
                   JiraInput.value = jiraDefault
                   JiraInput.wasValid = false
                   ScopeInput.value = scopeDefault
+                  IssueForm.clicked = false
+                })
+                .catch(function (error) {
+                  console.error(error.message, error)
+                  IssueForm.clicked = false
+                  Message.value = error.message === 'null' ? "Oops, something went wrong..." : error.message
                 })
             }
           }
