@@ -123,8 +123,7 @@ const gui = () => {
             console.log('url:', url)
             IssueForm.clicked = true
             if (IssueForm.isValid()) {
-              console.log('**** FIRE REQUEST JiraInput.value:', JiraInput.value)
-              Message.value = ''
+              Message.value = '**** FIRE REQUEST JiraInput.value:' + JiraInput.value
               m.request({
                 method: "POST",
                 url,
