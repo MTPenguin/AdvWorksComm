@@ -179,11 +179,13 @@ module.exports = (app, { getRouter }) => {
     * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
     * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
     */
-    let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]`
+    const DEBUG = jsonBody.debug ?? false
+    let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - ${DEBUG ? 'DEBUG' : '[skip actions]'}`
     let content = "--flybot created " + newMigration
-    content += "\n-- DEBUG ---\n"
-    const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
-    content += `PRINT(N'Update 6 rows in [SalesLT].[Customer]')
+    if (DEBUG) {
+      content += "\n-- DEBUG ---\n"
+      const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
+      content += `PRINT(N'Update 6 rows in [SalesLT].[Customer]')
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 1
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 2
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 3
@@ -191,7 +193,8 @@ module.exports = (app, { getRouter }) => {
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 5
       UPDATE [SalesLT].[Customer] SET [Suffix]='${debugVal}' WHERE [CustomerID] = 6
     `
-    content += "-- DEBUG ---\n\n\n"
+      content += "-- DEBUG ---\n\n\n"
+    }
 
     result = await octokit.repos.createOrUpdateFileContents({
       owner: repoOwner,
