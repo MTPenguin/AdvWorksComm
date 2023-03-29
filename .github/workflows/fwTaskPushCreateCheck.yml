@@ -162,6 +162,7 @@ jobs:
 
       - name: Set JDBC
         run: |
+          echo "runner:${{ runner.name }}"
           echo "JDBC=${{ vars[format('JDBC_{0}', runner.name )] }}" >> $env:GITHUB_ENV
 
       - name: View JDBC

@@ -28,11 +28,6 @@ permissions:
   contents: read
   pull-requests: write
 
-# Allow one concurrent deployment
-concurrency:
-  group: "commentLog"
-  cancel-in-progress: true
-
 jobs:
   comment:
     env:
