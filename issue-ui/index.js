@@ -128,7 +128,7 @@ const gui = () => {
                 method: "POST",
                 url,
                 params: { owner: 'MTPenguin', repo: 'AdvWorksComm' },
-                body: { jira: JiraInput.value, scope: ScopeInput.value }
+                body: { jira: JiraInput.value, scope: ScopeInput.value, debug: true }
               })
                 .then(function (result) {
                   const message = 'GitHub issue:' + result.data.number + ' created for Jira issue:' + JiraInput.value + ' with ' + ScopeInput.value + ' scope'

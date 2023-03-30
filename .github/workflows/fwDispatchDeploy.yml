@@ -149,6 +149,8 @@ jobs:
         if: ${{ success() }}
         continue-on-error: true
         run: |
+          git pull
+          git commit -am 'Add version pre and post work to migration file'
           git tag "v${{ steps.versions.outputs.newVersion }}"
           git push origin "v${{ steps.versions.outputs.newVersion }}"
           gh pr comment -R ${{ github.event.repository.full_name }} ${{ github.event.pull_request.head.ref }} --body "${{ github.event.pull_request.head.ref }} Successfully Migrated to v${{ steps.versions.outputs.newVersion }}"
