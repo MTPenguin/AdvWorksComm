@@ -129,8 +129,8 @@ module.exports = (app, { getRouter }) => {
         req.session.loggedIn = true
         req.session.user = user
         req.session.token = token
-        // Redirect after login
-        return res.redirect(flybotURI)
+        // Redirect after login '/:owner/:repo/createIssue'
+        return res.redirect(flybotURI + `/${req.cookies.owner}/${req.cookies.repo}/createIssue`)
       })
       .catch(error => {
         console.error(error.message, error)
@@ -140,6 +140,8 @@ module.exports = (app, { getRouter }) => {
 
   router.post('/:owner/:repo/createIssue', async (req, res) => {
     const { body, params: { owner, repo } } = req
+    consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
+    consoleLog(thisFile, '/createIssue req.query:', req.query)
     consoleLog(thisFile, '/createIssue owner, repo:', owner, repo)
     consoleLog(thisFile, '/createIssue body:', body)
     const octokit = await app.auth()
@@ -158,13 +160,33 @@ module.exports = (app, { getRouter }) => {
 
     const installationOctokit = await app.auth(id)
 
+
+    const o = owner || req.cookies.owner
+    const r = repo || req.cookies.repo
+    const b = (body && JSON.stringify(body)) || req.cookies.body
+    if (!(o && r)) {
+      return res.status(404).send("Need both owner and repo params")
+    } else {
+      res.cookie(`owner`, o)
+      res.cookie(`repo`, r)
+      res.cookie('body', b)
+    }
+    // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
+    // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
+    // if (!req.session.loggedIn) {
+    //   consoleLog(thisFile, '/createIssue !loggedIn body:', body)
+    //   consoleLog(thisFile, '/createIssue req.session:', req.session)
+    //   consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
+    //   return res.redirect(flybotURI + '/login')
+    // }
+
     result = await installationOctokit.rest.issues.create({
       owner,
       repo,
       title: 'Issue created by UI',
-      body: `Issue Body \`\`\`${JSON.stringify(body)}\`\`\``
+      body: `Issue Body \`\`\`${b}\`\`\``
     });
-    consoleLog(thisFile, 'issue create result:', result)
+    consoleLog(thisFile, '/createIssue issue create result:', result)
     res.json(result)
   })
 
@@ -210,7 +232,7 @@ module.exports = (app, { getRouter }) => {
       throw new Error('No JSON body')
     }
 
-    if (!(jsonBody.jira && jsonBody.scope)) throw new Error('Missing parameter(s) jsonBody.jira && jsonBody.scope')
+    if (!(jsonBody.jira && jsonBody.scope)) throw new Error('Missing parameter(s) jsonBody.jira && jsonBody.scope ' + JSON.stringify(jsonBody))
 
     /**
      * Get current version

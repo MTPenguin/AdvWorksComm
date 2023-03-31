@@ -1,5 +1,7 @@
 import m from 'mithril'
 
+const flybotURI = 'http://72.250.142.109:3000/flybot'
+
 const gui = () => {
   const jiraParts = (s) => {
     const sep = s.indexOf('-')

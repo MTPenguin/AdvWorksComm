@@ -17,7 +17,7 @@ export default {
       dest: (req, res) => {
 
         return proxy.web(req, res, {
-          hostname: 'localhost',
+          hostname: '72.250.142.109',
           port: 3000,
         });
       },
