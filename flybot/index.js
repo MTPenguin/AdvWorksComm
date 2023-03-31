@@ -5,6 +5,7 @@
 const { encode } = require('js-base64')
 const semver = require('semver')
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
 const { Octokit } = require('octokit')
 const session = require('express-session')
 const fetch = require('node-fetch')
@@ -26,28 +27,31 @@ module.exports = (app, { getRouter }) => {
   router.use(bodyParser.urlencoded({ extended: true }));
   router.use(bodyParser.json());
   router.use(bodyParser.raw());
+  router.use(cookieParser())
 
   router.get('/', async (req, res) => {
     const { body, query: { owner, repo } } = req
+    consoleLog(thisFile, '/ req.cookies:', req.cookies)
     consoleLog(thisFile, '/ req.query:', req.query)
     consoleLog(thisFile, '/ owner, repo:', owner, repo)
-    const o = owner || req.session.owner
-    const r = repo || req.session.repo
+    const o = owner || req.cookies.owner
+    const r = repo || req.cookies.repo
     if (!(o && r)) {
       res.status(404).send("Need both owner and repo params")
       return
+    } else {
+      res.cookie(`owner`, o);
+      res.cookie(`repo`, r);
     }
-    // http://localhost:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
-    // http://localhost:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
+    // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
+    // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
     if (req.session.loggedIn)
       res.json({ loggedIn: req.session.loggedIn })
     else {
       consoleLog(thisFile, '/ !loggedIn body:', body)
       consoleLog(thisFile, '/ req.session:', req.session)
-      consoleLog(thisFile, '/ req.session:', req.session)
-      const search = new URLSearchParams({ owner: o, repo: r })
-      // res.status(401).send('Not authorized');
-      res.redirect(flybotURI + '/login?' + search.toString())
+      consoleLog(thisFile, '/ req.cookies:', req.cookies)
+      res.redirect(flybotURI + '/login')
     }
   })
 
@@ -70,13 +74,11 @@ module.exports = (app, { getRouter }) => {
   // }
 
   router.get('/login', async (req, res) => {
-    consoleLog(thisFile, '/login')
+    consoleLog(thisFile, '/login cookies:', req.cookies)
 
     const searchParams = new URLSearchParams({
       client_id: process.env.CLIENT_ID
     });
-
-    Object.assign(req.session, { ...req.query })
 
     const url = `https://github.com/login/oauth/authorize?${searchParams.toString()}`
     res.redirect(url)
@@ -88,15 +90,14 @@ module.exports = (app, { getRouter }) => {
     req.session.destroy(() => {
       consoleLog(thisFile, '/logout POST destroy req.session:', req.session)
 
-      const searchParams = new URLSearchParams({ owner: req.query.owner, repo: req.query.repo })
-
-      res.redirect('https://github.com/logout?redirect_url=localhost:3000')
+      res.redirect('https://github.com/logout')
     })
   })
 
   router.get('/login/cb', async (req, res) => {
     consoleLog(thisFile, '/login/cb req.query.code:', req.query.code)
     consoleLog(thisFile, '/login/cb req.query:', req.query)
+    consoleLog(thisFile, '/login/cb req.cookies:', req.cookies)
 
     // Exchange our "code" and credentials for a real token
     fetch('https://github.com/login/oauth/access_token', {
@@ -124,12 +125,12 @@ module.exports = (app, { getRouter }) => {
         // Get the currently authenticated user
         const user = await octokit.rest.users.getAuthenticated()
         consoleLog(thisFile, '***********   user.data.login:', user.data.login) // <-- This is what we want!
-        consoleLog(thisFile, '***********   req.session:', req.session) // <-- This is what we want!
+        consoleLog(thisFile, '***********   req.cookies:', req.cookies) // <-- This is what we want!
         req.session.loggedIn = true
         req.session.user = user
         req.session.token = token
         // Redirect after login
-        res.redirect(flybotURI)
+        return res.redirect(flybotURI)
       })
       .catch(error => {
         console.error(error.message, error)
