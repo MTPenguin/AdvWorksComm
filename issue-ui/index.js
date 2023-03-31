@@ -31,7 +31,7 @@ const gui = () => {
       const regEx = /^[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]$/
       const goodFormat = regEx.test(JiraInput.value)
       const parsedNum = parseInt(numStr)
-      const goodNum = !isNaN(parsedNum) && parsedNum > 0
+      const goodNum = !isNaN(parsedNum) && parsedNum
       const error = !(JiraInput.value && goodFormat && goodNum) ? 'Please enter Jira issue with format (XXX-000)  X = Alpha, 0 = Numeric' : '';
       store && (JiraInput.error = error)
       JiraInput.wasValid = !error

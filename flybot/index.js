@@ -28,58 +28,77 @@ module.exports = (app, { getRouter }) => {
   router.use(bodyParser.raw());
 
   router.get('/', async (req, res) => {
-    const { body, params: { owner, repo } } = req
-    consoleLog(thisFile, '/ body test owner, repo:', owner, repo)
-    consoleLog(thisFile, '/ body test body:', body)
-    if (await userHasAccess(req.session?.token, owner, repo))
-      res.json({ got: 'it' })
+    const { body, query: { owner, repo } } = req
+    consoleLog(thisFile, '/ req.query:', req.query)
+    consoleLog(thisFile, '/ owner, repo:', owner, repo)
+    const o = owner || req.session.owner
+    const r = repo || req.session.repo
+    if (!(o && r)) {
+      res.status(404).send("Need both owner and repo params")
+      return
+    }
+    // http://localhost:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
+    // http://localhost:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
+    if (req.session.loggedIn)
+      res.json({ loggedIn: req.session.loggedIn })
     else {
+      consoleLog(thisFile, '/ !loggedIn body:', body)
+      consoleLog(thisFile, '/ req.session:', req.session)
+      consoleLog(thisFile, '/ req.session:', req.session)
+      const search = new URLSearchParams({ owner: o, repo: r })
       // res.status(401).send('Not authorized');
-      res.redirect(flybotURI + '/login')
+      res.redirect(flybotURI + '/login?' + search.toString())
     }
   })
 
-  async function userHasAccess(token, owner, repo) {
-    consoleLog(thisFile, 'userHasAccess token:', token)
-    // Authenticate a new Octokit client with the user's token
-    const octokit = new Octokit({ auth: token })
+  // async function userHasAccess(token, owner, repo) {
+  //   consoleLog(thisFile, 'userHasAccess token:', token)
+  //   // Authenticate a new Octokit client with the user's token
+  //   const octokit = new Octokit({ auth: token || "INVALID" }) // falsey value keeps current
 
-    try {
-      // If this doesn't throw, they can see the repo
-      await octokit.repos.get({ owner, repo })
-      consoleLog(thisFile, 'userHasAccess true')
-      return true
-    } catch (err) {
-      // It threw an error so they can't see the repo
-      consoleLog(thisFile, 'userHasAccess false')
-      return false
-    }
-  }
+  //   try {
+  //     // If this doesn't throw, they can see the repo
+  //     const repos = await octokit.rest.repos.get({ owner, repo })
+  //     consoleLog(thisFile, 'userHasAccess true repos:', repos)
+  //     return true
+  //   } catch (err) {
+  //     // It threw an error so they can't see the repo
+  //     console.error(err.message)
+  //     consoleLog(thisFile, 'userHasAccess false')
+  //     return false
+  //   }
+  // }
 
   router.get('/login', async (req, res) => {
     consoleLog(thisFile, '/login')
-    // GitHub needs us to tell it where to redirect users after they've authenticated
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol
-    const host = req.headers['x-forwarded-host'] || req.get('host')
 
     const searchParams = new URLSearchParams({
-      client_id: process.env.CLIENT_ID,
-      // redirect_uri: `${protocol}://${host + flybotURI}/login/cb`
+      client_id: process.env.CLIENT_ID
     });
+
+    Object.assign(req.session, { ...req.query })
 
     const url = `https://github.com/login/oauth/authorize?${searchParams.toString()}`
     res.redirect(url)
   })
 
+  router.get('/logout', async (req, res) => {
+    consoleLog(thisFile, '/logout req.session:', req.session)
+
+    req.session.destroy(() => {
+      consoleLog(thisFile, '/logout POST destroy req.session:', req.session)
+
+      const searchParams = new URLSearchParams({ owner: req.query.owner, repo: req.query.repo })
+
+      res.redirect('https://github.com/logout?redirect_url=localhost:3000')
+    })
+  })
+
   router.get('/login/cb', async (req, res) => {
     consoleLog(thisFile, '/login/cb req.query.code:', req.query.code)
     consoleLog(thisFile, '/login/cb req.query:', req.query)
+
     // Exchange our "code" and credentials for a real token
-    // const tokenRes = await request.post({
-    //   url: 'https://github.com/login/oauth/access_token',
-    //   // Use our app's OAuth credentials and the code that GitHub gave us
-    //   form: { client_id, client_secret, code: req.query.code }
-    // })
     fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: {
@@ -105,10 +124,12 @@ module.exports = (app, { getRouter }) => {
         // Get the currently authenticated user
         const user = await octokit.rest.users.getAuthenticated()
         consoleLog(thisFile, '***********   user.data.login:', user.data.login) // <-- This is what we want!
+        consoleLog(thisFile, '***********   req.session:', req.session) // <-- This is what we want!
         req.session.loggedIn = true
         req.session.user = user
+        req.session.token = token
         // Redirect after login
-        res.redirect('/')
+        res.redirect(flybotURI)
       })
       .catch(error => {
         console.error(error.message, error)
