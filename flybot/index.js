@@ -37,21 +37,24 @@ module.exports = (app, { getRouter }) => {
     const o = owner || req.cookies.owner
     const r = repo || req.cookies.repo
     if (!(o && r)) {
-      res.status(404).send("Need both owner and repo params")
-      return
+      return res.status(404).send("Need both owner and repo params")
     } else {
       res.cookie(`owner`, o);
       res.cookie(`repo`, r);
     }
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
     // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
-    if (req.session.loggedIn)
-      res.json({ loggedIn: req.session.loggedIn })
+    if (req.session.loggedIn) {
+      // const path = path.join(__dirname, '/flybot.html')
+      // consoleLog(thisFile, 'path:', path)
+      // return res.sendFile(path);
+      return res.json({ loggedIn: req.session.loggedIn })
+    }
     else {
       consoleLog(thisFile, '/ !loggedIn body:', body)
       consoleLog(thisFile, '/ req.session:', req.session)
       consoleLog(thisFile, '/ req.cookies:', req.cookies)
-      res.redirect(flybotURI + '/login')
+      return res.redirect(flybotURI + '/login')
     }
   })
 
@@ -130,7 +133,8 @@ module.exports = (app, { getRouter }) => {
         req.session.user = user
         req.session.token = token
         // Redirect after login '/:owner/:repo/createIssue'
-        return res.redirect(flybotURI + `/${req.cookies.owner}/${req.cookies.repo}/createIssue`)
+        return res.redirect(flybotURI)
+        // return res.redirect(flybotURI + `/${req.cookies.owner}/${req.cookies.repo}/createIssue`)
       })
       .catch(error => {
         console.error(error.message, error)
@@ -273,7 +277,7 @@ module.exports = (app, { getRouter }) => {
     consoleLog(thisFile, 'newVersion:', newVersion)
 
     /**
-     * In order to create a new branch off of main, we first have to get the sha of mergeBranch
+     * In order to create a new branch off of default, we first have to get the sha of mergeBranch
      */
     const mergeBranch = await octokit.request(repo.branches_url, { branch: repo.default_branch })
     consoleLog(thisFile, 'mergeBranch:', mergeBranch)
@@ -365,6 +369,10 @@ module.exports = (app, { getRouter }) => {
     });
     result = await octokit.issues.createComment(issueComment);
     consoleLog(thisFile, 'issue comment result:', result)
+
+    /**
+    * Update issue JSON
+    */
     const body = `\`\`\`${JSON.stringify(content)}\`\`\``
     consoleLog(thisFile, 'body:', body)
     result = await octokit.issues.update({
