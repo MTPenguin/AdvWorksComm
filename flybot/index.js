@@ -322,7 +322,7 @@ module.exports = (app, { getRouter }) => {
     * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
     */
     const DEBUG = jsonBody.debug ?? false
-    let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - ${DEBUG ? 'DEBUG' : '[skip actions]'}`
+    let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]}`
     let content = "--flybot created " + newMigration
     if (DEBUG) {
       content += "\n-- DEBUG ---\n"
