@@ -56,7 +56,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Get issue number
+      - name: Get issue JSON
         id: issue
         run: |
           $branchName = "${{ github.event.pull_request.head.ref }}"

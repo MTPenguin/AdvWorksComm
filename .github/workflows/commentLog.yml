@@ -1,5 +1,5 @@
 # Simple workflow for putting runner logs in Pull Request comments
-name: Comment Runner Log
+name: LOG Runner Output As PR Comment
 run-name: Commenting ${{ (inputs.failed_only == true && 'FAILED Run' || '') }} On ${{ inputs.branch_name }} Pull Request
 
 on:

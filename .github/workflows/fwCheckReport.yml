@@ -52,7 +52,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          # Upload entire repository
+          # Upload entire report folder
           path: ${{ env.REPORT_PATH }}
       - name: Deploy to GitHub Pages
         id: deployment
