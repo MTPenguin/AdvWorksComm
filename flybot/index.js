@@ -162,16 +162,6 @@ module.exports = (app, { getRouter }) => {
     consoleLog(thisFile, '/createIssue authData:', authData)
 
 
-    const { data: { id } } = raw = await octokit.apps.getRepoInstallation({
-      owner,
-      repo,
-    });
-    // consoleLog(thisFile, '/createIssue raw:', raw)
-    consoleLog(thisFile, '/createIssue id:', id)
-
-    const installationOctokit = await app.auth(id)
-
-
     const o = owner || req.cookies.owner
     const r = repo || req.cookies.repo
     const b = (body && JSON.stringify(Object.assign({}, body, { user: req.session.user.data.login }))) || req.cookies.body
@@ -184,6 +174,18 @@ module.exports = (app, { getRouter }) => {
     }
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
     // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
+
+    // installationId option is required for installation authentication.
+    // To create issue from external event
+    const { data: { id } } = raw = await octokit.apps.getRepoInstallation({
+      owner,
+      repo,
+    });
+    // consoleLog(thisFile, '/createIssue raw:', raw)
+    consoleLog(thisFile, '/createIssue id:', id)
+
+    const installationOctokit = await app.auth(id)
+
 
     result = await installationOctokit.rest.issues.create({
       owner,

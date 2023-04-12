@@ -47,7 +47,7 @@ jobs:
   info:
     name: Migration Info
     # The type of runner that the job will run on
-    runs-on: self-hosted
+    runs-on: self-hosted, ${{ github.actor }}
     environment: "prod" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
     outputs:
       pendingMigrations: ${{ steps.checkStates.outputs.pendingMigrations }}
