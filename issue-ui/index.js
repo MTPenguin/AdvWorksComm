@@ -25,7 +25,7 @@ const gui = () => {
     value: jiraDefault,
     validate: (store = true) => {
       const [alphaStr, numStr] = jiraParts(JiraInput.value)
-      console.log('validate alphaStr, numStr:', alphaStr, numStr)
+      // console.log('validate alphaStr, numStr:', alphaStr, numStr)
       const regEx = /^[a-zA-Z][a-zA-Z][a-zA-Z]-[0-9][0-9][0-9]$/
       const goodFormat = regEx.test(JiraInput.value)
       const parsedNum = parseInt(numStr)
@@ -49,7 +49,7 @@ const gui = () => {
           type: 'text',
           oninput: e => {
             const [alphaStr, numStr] = jiraParts(e.target.value)
-            console.log('alphaStr, numStr:', alphaStr, numStr)
+            // console.log('alphaStr, numStr:', alphaStr, numStr)
             if (alphaStr && !isNaN(numStr)) {
               JiraInput.value = alphaStr + '-' + numStr;
             } else {

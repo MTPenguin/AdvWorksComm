@@ -146,6 +146,15 @@ module.exports = (app, { getRouter }) => {
     consoleLog(thisFile, '/createIssue req.query:', req.query)
     consoleLog(thisFile, '/createIssue owner, repo:', owner, repo)
     consoleLog(thisFile, '/createIssue body:', body)
+
+    if (!req.session.loggedIn) {
+      consoleLog(thisFile, '/createIssue !loggedIn body:', body)
+      consoleLog(thisFile, '/createIssue req.session:', req.session)
+      consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
+      return res.redirect(flybotURI + '/login')
+    }
+
+    // Probot / GH App octokit
     const octokit = await app.auth()
     let raw
     const { data: authData } = raw = await octokit.apps.getAuthenticated()
@@ -165,7 +174,7 @@ module.exports = (app, { getRouter }) => {
 
     const o = owner || req.cookies.owner
     const r = repo || req.cookies.repo
-    const b = (body && JSON.stringify(body)) || req.cookies.body
+    const b = (body && JSON.stringify(Object.assign({}, body, { user: req.session.user.data.login }))) || req.cookies.body
     if (!(o && r)) {
       return res.status(404).send("Need both owner and repo params")
     } else {
@@ -175,12 +184,6 @@ module.exports = (app, { getRouter }) => {
     }
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
     // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
-    if (!req.session.loggedIn) {
-      consoleLog(thisFile, '/createIssue !loggedIn body:', body)
-      consoleLog(thisFile, '/createIssue req.session:', req.session)
-      consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
-      return res.redirect(flybotURI + '/login')
-    }
 
     result = await installationOctokit.rest.issues.create({
       owner,
@@ -206,13 +209,14 @@ module.exports = (app, { getRouter }) => {
     const repoOwner = repo.owner.login
     const repoName = repo.name
 
-    consoleLog(thisFile
-      , `\npayload:`, payload
-      // , `\nrepo:`, repo
-      , `\nissueBody:`, issueBody
-      , `\nrepoOwner:`, repoOwner
-      , `\nrepoName:`, repoName
-    )
+    // consoleLog(thisFile
+    //   , `\npayload:`, payload
+    //   // , `\nrepo:`, repo
+    //   , `\nissueBody:`, issueBody
+    //   , `\nrepoOwner:`, repoOwner
+    //   , `\nrepoName:`, repoName
+    // )
+
     /**
      * Does issue body contain valid json?
      */
