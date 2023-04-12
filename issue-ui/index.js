@@ -1,7 +1,3 @@
-import m from 'mithril'
-
-const flybotURI = 'http://72.250.142.109:3000/flybot'
-
 const gui = () => {
   const jiraParts = (s) => {
     const sep = s.indexOf('-')
@@ -117,7 +113,7 @@ const gui = () => {
         m(ScopeInput),
         m('button', {
           class: 'pure-button pure-button-primary',
-          id: 'loginBtn',
+          id: 'createIssueBtn',
           type: 'button',
           disabled: IssueForm.clicked || JiraInput.validate(JiraInput.wasValid || JiraInput.value.length > 6) || !(JiraInput.value && ScopeInput.value) || (JiraInput.error || ScopeInput.error),
           onclick() {
@@ -153,7 +149,19 @@ const gui = () => {
           'Create Issue'
         ),
         m(Message)
-      ])
+      ],
+        m('button', {
+          class: 'pure-button pure-button-primary',
+          id: 'logoutBtn',
+          type: 'button',
+          onclick() {
+            const url = 'https://github.com/logout'
+            console.log('url:', url)
+            window.location.href = 'https://github.com/logout'
+          }
+        },
+          'LOG OUT'
+        ))
     }
   }
 
@@ -161,5 +169,3 @@ const gui = () => {
 }
 
 gui()
-
-export default gui

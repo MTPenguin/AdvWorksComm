@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser')
 const { Octokit } = require('octokit')
 const session = require('express-session')
 const fetch = require('node-fetch')
+const path = require('path')
 const thisFile = 'index.js'
 
 module.exports = (app, { getRouter }) => {
@@ -29,6 +30,23 @@ module.exports = (app, { getRouter }) => {
   router.use(bodyParser.raw());
   router.use(cookieParser())
 
+  router.get('/test.js', async (req, res) => {
+    const scriptFile = path.join(__dirname, '../issue-ui/test.js')
+    consoleLog(thisFile, 'scriptFile:', scriptFile)
+    return res.sendFile(scriptFile);
+  })
+
+  router.get('/issue-ui/index.js', async (req, res) => {
+    if (req.session.loggedIn) {
+      const scriptFile = path.join(__dirname, '../issue-ui/index.js')
+      consoleLog(thisFile, 'scriptFile:', scriptFile)
+      return res.sendFile(scriptFile);
+    }
+    else {
+      return res.redirect(flybotURI + '/login')
+    }
+  })
+
   router.get('/', async (req, res) => {
     const { body, query: { owner, repo } } = req
     consoleLog(thisFile, '/ req.cookies:', req.cookies)
@@ -45,10 +63,10 @@ module.exports = (app, { getRouter }) => {
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
     // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
     if (req.session.loggedIn) {
-      // const path = path.join(__dirname, '/flybot.html')
-      // consoleLog(thisFile, 'path:', path)
-      // return res.sendFile(path);
-      return res.json({ loggedIn: req.session.loggedIn })
+      const flybotPath = path.join(__dirname, '/flybot.html')
+      consoleLog(thisFile, 'flybotPath:', flybotPath)
+      return res.sendFile(flybotPath);
+      // return res.json({ loggedIn: req.session.loggedIn })
     }
     else {
       consoleLog(thisFile, '/ !loggedIn body:', body)
@@ -57,24 +75,6 @@ module.exports = (app, { getRouter }) => {
       return res.redirect(flybotURI + '/login')
     }
   })
-
-  // async function userHasAccess(token, owner, repo) {
-  //   consoleLog(thisFile, 'userHasAccess token:', token)
-  //   // Authenticate a new Octokit client with the user's token
-  //   const octokit = new Octokit({ auth: token || "INVALID" }) // falsey value keeps current
-
-  //   try {
-  //     // If this doesn't throw, they can see the repo
-  //     const repos = await octokit.rest.repos.get({ owner, repo })
-  //     consoleLog(thisFile, 'userHasAccess true repos:', repos)
-  //     return true
-  //   } catch (err) {
-  //     // It threw an error so they can't see the repo
-  //     console.error(err.message)
-  //     consoleLog(thisFile, 'userHasAccess false')
-  //     return false
-  //   }
-  // }
 
   router.get('/login', async (req, res) => {
     consoleLog(thisFile, '/login cookies:', req.cookies)
@@ -132,9 +132,7 @@ module.exports = (app, { getRouter }) => {
         req.session.loggedIn = true
         req.session.user = user
         req.session.token = token
-        // Redirect after login '/:owner/:repo/createIssue'
         return res.redirect(flybotURI)
-        // return res.redirect(flybotURI + `/${req.cookies.owner}/${req.cookies.repo}/createIssue`)
       })
       .catch(error => {
         console.error(error.message, error)
@@ -177,12 +175,12 @@ module.exports = (app, { getRouter }) => {
     }
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
     // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
-    // if (!req.session.loggedIn) {
-    //   consoleLog(thisFile, '/createIssue !loggedIn body:', body)
-    //   consoleLog(thisFile, '/createIssue req.session:', req.session)
-    //   consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
-    //   return res.redirect(flybotURI + '/login')
-    // }
+    if (!req.session.loggedIn) {
+      consoleLog(thisFile, '/createIssue !loggedIn body:', body)
+      consoleLog(thisFile, '/createIssue req.session:', req.session)
+      consoleLog(thisFile, '/createIssue req.cookies:', req.cookies)
+      return res.redirect(flybotURI + '/login')
+    }
 
     result = await installationOctokit.rest.issues.create({
       owner,
