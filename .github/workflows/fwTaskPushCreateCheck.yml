@@ -47,7 +47,7 @@ jobs:
   info:
     name: Migration Info
     # Only run on users own self hosted
-    runs-on: [self-hosted, "${{ github.actor }}"]
+    runs-on: [self-hosted] # Add "${{ github.actor }}" to make it specific to the dev machine
     environment: "prod" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
     outputs:
       pendingMigrations: ${{ steps.checkStates.outputs.pendingMigrations }}

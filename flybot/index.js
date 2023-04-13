@@ -47,6 +47,17 @@ module.exports = (app, { getRouter }) => {
     }
   })
 
+  router.get('/issue-ui/index.css', async (req, res) => {
+    if (req.session.loggedIn) {
+      const scriptFile = path.join(__dirname, '../issue-ui/index.css')
+      consoleLog(thisFile, 'scriptFile:', scriptFile)
+      return res.sendFile(scriptFile);
+    }
+    else {
+      return res.redirect(flybotURI + '/login')
+    }
+  })
+
   router.get('/', async (req, res) => {
     const { body, query: { owner, repo } } = req
     consoleLog(thisFile, '/ req.cookies:', req.cookies)
@@ -55,13 +66,13 @@ module.exports = (app, { getRouter }) => {
     const o = owner || req.cookies.owner
     const r = repo || req.cookies.repo
     if (!(o && r)) {
-      return res.status(404).send("Need both owner and repo params")
+      return res.status(404).send("Need both owner and repo params.  E.g. flybot?owner=MTPenguin&repo=AdvWorksComm")
     } else {
       res.cookie(`owner`, o);
       res.cookie(`repo`, r);
     }
     // http://72.250.142.109:3000/flybot?owner=MTPenguin&repo=AdvWorksComm
-    // http://72.250.142.109:3000/flybot/logout?owner=MTPenguin&repo=AdvWorksComm
+    // http://72.250.142.109:3000/flybot/logout
     if (req.session.loggedIn) {
       const flybotPath = path.join(__dirname, '/flybot.html')
       consoleLog(thisFile, 'flybotPath:', flybotPath)
@@ -295,9 +306,7 @@ module.exports = (app, { getRouter }) => {
     // })
 
 
-
-
-    // GITHUB_ISSUE-JIRA-000-SCOPE-CURRENT_VERSION
+    // GITHUB_ISSUE-JIR-000-SCOPE-CURRENT_VERSION
     const newBranch = payload.issue.number + '-' + jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
     const newMigration = 'V' + newVersion + '__' + newBranch
     consoleLog(thisFile, 'newBranch:', newBranch)

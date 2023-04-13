@@ -41,7 +41,7 @@ const gui = () => {
     },
     view: () => {
       return [
-        m('label', 'Jira issue'),
+        m('label', 'Jira issue:'),
         m('input', {
           className: JiraInput.error ? 'error' : '',
           placeholder: 'XXX-000',
@@ -75,7 +75,7 @@ const gui = () => {
     },
     view: () => {
       return [
-        m('label', 'Scope'),
+        m('label', 'Scope:'),
         m('select', {
           className: ScopeInput.error ? 'error' : '',
           onchange: e => {

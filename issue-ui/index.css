@@ -4,8 +4,13 @@ body {
 }
 
 div.error-message {
-  margin: 0px 25px;
+  margin: 5px;
   font-size: 90%;
   color: red;
   min-height: 8px;
+}
+
+label,
+button {
+  margin: 10px
 }
