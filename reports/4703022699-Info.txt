@@ -1,0 +1,24 @@
+FLYWAY migration information:
+```
+
+version            description                            state              filepath
+-------            -----------                            -----              --------
+2.0.0              << Flyway Baseline >>                  Baseline           
+2.0.20230414154603 362-ABC-123-data-v2.0.20230328210325   Success            C:\Users\BMac\actions-runner-comm\_work\Adv
+                                                                             WorksComm\AdvWorksComm\migrations\V2.0.2023
+                                                                             0414154603__362-ABC-123-data-v2.0.202303282
+                                                                             10325.sql
+2.0.20230414144928 360-BAS-001-data-v2.0.20230328210325   Out of Order       C:\Users\BMac\actions-runner-comm\_work\Adv
+                                                                             WorksComm\AdvWorksComm\migrations\V2.0.2023
+                                                                             0414144928__360-BAS-001-data-v2.0.202303282
+                                                                             10325.sql
+3.0.0              366-SCH-001-schema-v2.0.20230414154603 Future             
+2.0.0              baseline                               Ignored (Baseline) C:\Users\BMac\actions-runner-comm\_work\Adv
+                                                                             WorksComm\AdvWorksComm\migrations\V2.0.0__b
+                                                                             aseline.sql
+2.0.20230414181533 367-DAT-001-data-v2.0.20230414154603   Pending            C:\Users\BMac\actions-runner-comm\_work\Adv
+                                                                             WorksComm\AdvWorksComm\migrations\V2.0.2023
+                                                                             0414181533__367-DAT-001-data-v2.0.202304141
+                                                                             54603.sql
+
+```
