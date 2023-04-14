@@ -1336,8 +1336,3 @@ EXEC sp_addextendedproperty N'MS_Description', N'AdventureWorksLT 2012 Sample OL
 GO
 
 
-
-
-
-
-
