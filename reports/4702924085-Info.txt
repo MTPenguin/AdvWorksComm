@@ -1,0 +1,26 @@
+FLYWAY migration information:
+```
+
+version            description                          state              filepath
+-------            -----------                          -----              --------
+1.0.20230224120276 baseline                             Below Baseline     C:\Users\BMac\actions-runner-comm2\_work\AdvW
+                                                                           orksComm\AdvWorksComm\migrations\V1_0_2023022
+                                                                           4120276__baseline.sql
+2.0.0              << Flyway Baseline >>                Baseline           
+2.0.20230414154603 362-ABC-123-data-v2.0.20230328210325 Success            C:\Users\BMac\actions-runner-comm2\_work\AdvW
+                                                                           orksComm\AdvWorksComm\migrations\V2.0.2023041
+                                                                           4154603__362-ABC-123-data-v2.0.20230328210325
+                                                                           .sql
+2.0.20230414144928 360-BAS-001-data-v2.0.20230328210325 Out of Order       C:\Users\BMac\actions-runner-comm2\_work\AdvW
+                                                                           orksComm\AdvWorksComm\migrations\V2.0.2023041
+                                                                           4144928__360-BAS-001-data-v2.0.20230328210325
+                                                                           .sql
+2.0.0              baseline                             Ignored (Baseline) C:\Users\BMac\actions-runner-comm2\_work\AdvW
+                                                                           orksComm\AdvWorksComm\migrations\V2.0.0__base
+                                                                           line.sql
+2.0.20230414182803 368-TES-001-data-v2.0.20230414154603 Pending            C:\Users\BMac\actions-runner-comm2\_work\AdvW
+                                                                           orksComm\AdvWorksComm\migrations\V2.0.2023041
+                                                                           4182803__368-TES-001-data-v2.0.20230414154603
+                                                                           .sql
+
+```

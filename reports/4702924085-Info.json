@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "2.0.20230414154603",
+  "schemaName": "salesLT, dbo",
+  "migrations": [
+    {
+      "category": "Versioned",
+      "version": "1.0.20230224120276",
+      "description": "baseline",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Below Baseline",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm2\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V1_0_20230224120276__baseline.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    },
+    {
+      "category": "",
+      "version": "2.0.0",
+      "description": "<< Flyway Baseline >>",
+      "type": "BASELINE",
+      "installedOnUTC": "2023-04-14T20:59:30.253Z",
+      "state": "Baseline",
+      "undoable": "No",
+      "filepath": "",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 0
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.20230414154603",
+      "description": "362-ABC-123-data-v2.0.20230328210325",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-14T22:27:00.157Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm2\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V2.0.20230414154603__362-ABC-123-data-v2.0.20230328210325.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 47
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.20230414144928",
+      "description": "360-BAS-001-data-v2.0.20230328210325",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-14T23:59:38.917Z",
+      "state": "Out of Order",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm2\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V2.0.20230414144928__360-BAS-001-data-v2.0.20230328210325.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 51
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.0",
+      "description": "baseline",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Ignored (Baseline)",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm2\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V2.0.0__baseline.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.20230414182803",
+      "description": "368-TES-001-data-v2.0.20230414154603",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Pending",
+      "undoable": "No",
+      "filepath": "C:\\Users\\BMac\\actions-runner-comm2\\_work\\AdvWorksComm\\AdvWorksComm\\migrations\\V2.0.20230414182803__368-TES-001-data-v2.0.20230414154603.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    }
+  ],
+  "allSchemasEmpty": false,
+  "flywayVersion": "9.15.1",
+  "database": "AdvWorksComm",
+  "warnings": [],
+  "operation": "info"
+}
