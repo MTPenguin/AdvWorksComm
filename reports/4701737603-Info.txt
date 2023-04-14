@@ -1,0 +1,15 @@
+FLYWAY migration information:
+```
+
+version            description                          state              filepath
+-------            -----------                          -----              --------
+2.0.0              << Flyway Baseline >>                Baseline           
+2.0.0              baseline                             Ignored (Baseline) C:\Users\BMac\actions-runner-comm\_work\AdvWo
+                                                                           rksComm\AdvWorksComm\migrations\V2.0.0__basel
+                                                                           ine.sql
+2.0.20230414154603 362-ABC-123-data-v2.0.20230328210325 Pending            C:\Users\BMac\actions-runner-comm\_work\AdvWo
+                                                                           rksComm\AdvWorksComm\migrations\V2.0.20230414
+                                                                           154603__362-ABC-123-data-v2.0.20230328210325.
+                                                                           sql
+
+```
