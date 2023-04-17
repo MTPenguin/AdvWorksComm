@@ -412,6 +412,6 @@ module.exports = (app, { getRouter }) => {
   });
 
   app.on('push', async (context) => {
-    consoleLog(thisFile, 'Push event')
+    consoleLog(thisFile, 'Push event context:', context)
   })
 };
