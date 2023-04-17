@@ -418,5 +418,7 @@ module.exports = (app, { getRouter }) => {
 
   app.onAny(async (context) => {
     consoleLog(thisFile, 'onAny:', { event: context.name, action: context.payload.action });
+    app.log.info(thisFile, 'onAny:', { event: context.name, action: context.payload.action });
+
   });
 };
