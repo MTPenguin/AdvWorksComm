@@ -414,4 +414,8 @@ module.exports = (app, { getRouter }) => {
   app.on('push', async (context) => {
     consoleLog(thisFile, 'Push event context:', context)
   })
+
+  app.onAny(async (context) => {
+    consoleLog(thisFile, 'onAny:', { event: context.name, action: context.payload.action });
+  });
 };
