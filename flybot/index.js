@@ -17,6 +17,9 @@ module.exports = (app, { getRouter }) => {
   const consoleLog = console.log
   consoleLog(thisFile, "Yay, the app was loaded!");
 
+  /************************************************************************************************************************
+    API & GUI routes
+  *************************************************************************************************************************/
   const flybotURI = '/flybot'
 
   const router = getRouter(flybotURI)
@@ -214,6 +217,11 @@ module.exports = (app, { getRouter }) => {
     res.json(data)
   })
 
+
+
+  /************************************************************************************************************************************
+  Event handlers
+  ************************************************************************************************************************************/
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
     const payload = context.payload
@@ -403,4 +411,8 @@ module.exports = (app, { getRouter }) => {
     });
     consoleLog(thisFile, 'issue update result:', result)
   });
+
+  app.on('push', async (context) => {
+    consoleLog(thisFile, 'Push event')
+  })
 };
