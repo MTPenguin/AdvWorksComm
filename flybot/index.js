@@ -15,7 +15,7 @@ const thisFile = 'index.js'
 module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
   const consoleLog = console.log
-  consoleLog(thisFile, "Yay, the app was loaded!");
+  consoleLog(thisFile, "Yay, the app was loaded!  But...");
 
   /************************************************************************************************************************
     API & GUI routes
