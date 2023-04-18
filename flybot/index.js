@@ -624,7 +624,6 @@ module.exports = (app, { getRouter }) => {
 
         const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password="${process.env.DB_PASSWORD}" -configFiles="flyway.conf" -locations="filesystem:migrations" info -url="${process.env.DB_JDBC}" -outputType=json > ../reports/${branch}.json`
 
-        // run the `ls` command using exec
         exec(fwCmd, (err, output) => {
           // once the command has completed, the callback function is called
           if (err) {
