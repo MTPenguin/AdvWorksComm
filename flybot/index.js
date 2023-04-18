@@ -598,7 +598,7 @@ module.exports = (app, { getRouter }) => {
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     consoleLog(thisFile, 'branch:', branch)
 
-    if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data-**/)) {
+    if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data-/)) {
       consoleLog(thisFile, 'TEST GOOD')
     }
 
