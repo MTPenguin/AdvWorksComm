@@ -628,7 +628,7 @@ module.exports = (app, { getRouter }) => {
           // once the command has completed, the callback function is called
           if (err) {
             // log and return if we encounter an error
-            console.error("could not execute command: ", err)
+            console.error("err:", err)
             return
           }
           // log the output received from the command
