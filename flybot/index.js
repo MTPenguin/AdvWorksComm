@@ -551,7 +551,7 @@ module.exports = (app, { getRouter }) => {
   //     }
   //   }
   app.on('push', async (context) => {
-    consoleLog(thisFile, 'Push event context:', context)
+    consoleLog(thisFile, 'Push event context.payload:', context.payload)
 
     const branches = await context.octokit.request(context.payload.repository.branches_url)
     consoleLog(thisFile, 'branches:', branches)
