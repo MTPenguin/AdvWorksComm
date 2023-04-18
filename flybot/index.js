@@ -608,13 +608,16 @@ module.exports = (app, { getRouter }) => {
         if (matchedFile) break
         for (const mod of commit.modified) {
           if (mod.match(/^V/)) {
-            matchedFile = true
+            matchedFile = mod
             break
           } else DEBUG && consoleLog(thisFile, 'NON matched file:', mod)
         }
       }
     } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
 
+    if (matchedFile) {
+      DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
+    }
 
 
     // name: CHK Pipeline (Self-Hosted)
