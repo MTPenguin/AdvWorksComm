@@ -620,10 +620,12 @@ module.exports = (app, { getRouter }) => {
         // MIGRATION DETECTED
         // 
         // Check with Flyway
+        // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
 
+        const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}}" -password="${process.env.DB_PASSWORD}" -configFiles="flyway.conf" -locations="filesystem:migrations" info -url="${process.env.DB_JDBC}" -outputType=json > reports/${branch}.json`
 
         // run the `ls` command using exec
-        exec('ls ./', (err, output) => {
+        exec(fwCmd, (err, output) => {
           // once the command has completed, the callback function is called
           if (err) {
             // log and return if we encounter an error
@@ -631,7 +633,7 @@ module.exports = (app, { getRouter }) => {
             return
           }
           // log the output received from the command
-          consoleLog(thisFile, "Output: \n", output)
+          consoleLog(thisFile, "exec Output: \n", output)
         })
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
     } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
