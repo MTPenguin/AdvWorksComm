@@ -603,7 +603,6 @@ module.exports = (app, { getRouter }) => {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
-      let matchedFile = false
       for (const commit of commits) {
         if (matchedFile) break
         for (const mod of commit.modified) {
@@ -613,11 +612,11 @@ module.exports = (app, { getRouter }) => {
           } else DEBUG && consoleLog(thisFile, 'NON matched file:', mod)
         }
       }
-    } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
+      if (matchedFile) {
+        DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
+      }
 
-    if (matchedFile) {
-      DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
-    }
+    } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
 
 
     // name: CHK Pipeline (Self-Hosted)
