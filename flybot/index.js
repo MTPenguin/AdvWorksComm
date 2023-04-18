@@ -595,11 +595,11 @@ module.exports = (app, { getRouter }) => {
     consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const repo = context.payload.repository
 
-    const branch = context.payload.ref.substring(String('refs/heads').length)
+    const branch = context.payload.ref.substring(String('refs/heads/').length)
     consoleLog(thisFile, 'branch:', branch)
 
-    const regEx = '[0-9]+-[a-zA-Z]+-[0-9]+-data-**'
-    if (branch.test(regEx)) {
+    const r = new regEx('[0-9]+-[a-zA-Z]+-[0-9]+-data-**')
+    if (branch.match(r)) {
       consoleLog(thisFile, 'TEST GOOD')
     }
 
