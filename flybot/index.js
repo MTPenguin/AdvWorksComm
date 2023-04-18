@@ -599,7 +599,7 @@ module.exports = (app, { getRouter }) => {
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
 
-    if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
+    if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/) || (DEBUG && branch == 'dev1')) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
