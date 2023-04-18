@@ -1,0 +1,7 @@
+{
+  "error": {
+    "errorCode": "DB_CONNECTION",
+    "message": "Unable to obtain connection from database (jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true) for user 'sa': The TCP/IP connection to the host 10.211.55.2, port 1433 has failed. Error: \"Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.\".\n-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\nSQL State  : 08S01\nError Code : 0\nMessage    : The TCP/IP connection to the host 10.211.55.2, port 1433 has failed. Error: \"Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.\".\n",
+    "stackTrace": null
+  }
+}
