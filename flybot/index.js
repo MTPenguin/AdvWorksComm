@@ -592,14 +592,18 @@ module.exports = (app, { getRouter }) => {
   //   }
   // }
   app.on('push', async (context) => {
-    consoleLog(thisFile, 'Push event context.payload:', context.payload)
-    const repo = context.payload.repository
+    const DEBUG = true
+    DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
+    const commits = context.payload.commits
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
-    consoleLog(thisFile, 'branch:', branch)
+    DEBUG && consoleLog(thisFile, 'branch:', branch)
 
     if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
-      consoleLog(thisFile, 'TEST GOOD')
+      DEBUG && consoleLog(thisFile, 'Matched branch')
+      // Look for migration file changes
+      DEBUG && consoleLog(thisFile, 'commits:', commits)
+
     }
 
 
