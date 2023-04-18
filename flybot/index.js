@@ -11,6 +11,7 @@ const session = require('express-session')
 const fetch = require('node-fetch')
 const path = require('path')
 const thisFile = 'index.js'
+const { exec } = require('child_process')
 
 module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
@@ -615,8 +616,24 @@ module.exports = (app, { getRouter }) => {
       }
       if (matchedFile) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
-      } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
+        // 
+        // MIGRATION DETECTED
+        // 
+        // Check with Flyway
 
+
+        // run the `ls` command using exec
+        exec('ls ./', (err, output) => {
+          // once the command has completed, the callback function is called
+          if (err) {
+            // log and return if we encounter an error
+            console.error("could not execute command: ", err)
+            return
+          }
+          // log the output received from the command
+          consoleLog(thisFile, "Output: \n", output)
+        })
+      } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
     } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
 
 
