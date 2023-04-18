@@ -1,7 +1,117 @@
 {
-  "error": {
-    "errorCode": "DB_CONNECTION",
-    "message": "Unable to obtain connection from database (jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true) for user 'sa': The TCP/IP connection to the host 10.211.55.2, port 1433 has failed. Error: \"Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.\".\n-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\nSQL State  : 08S01\nError Code : 0\nMessage    : The TCP/IP connection to the host 10.211.55.2, port 1433 has failed. Error: \"Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.\".\n",
-    "stackTrace": null
-  }
+  "schemaVersion": "3.0.20230414181533",
+  "schemaName": "salesLT, dbo",
+  "migrations": [
+    {
+      "category": "Versioned",
+      "version": "1.0.20230224120276",
+      "description": "baseline",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Below Baseline",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V1_0_20230224120276__baseline.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    },
+    {
+      "category": "",
+      "version": "2.0.0",
+      "description": "<< Flyway Baseline >>",
+      "type": "BASELINE",
+      "installedOnUTC": "2023-04-14T20:59:30.253Z",
+      "state": "Baseline",
+      "undoable": "No",
+      "filepath": "",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 0
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.20230414154603",
+      "description": "362-ABC-123-data-v2.0.20230328210325",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-14T22:27:00.157Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V2.0.20230414154603__362-ABC-123-data-v2.0.20230328210325.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 47
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.20230414144928",
+      "description": "360-BAS-001-data-v2.0.20230328210325",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-14T23:59:38.917Z",
+      "state": "Out of Order",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V2.0.20230414144928__360-BAS-001-data-v2.0.20230328210325.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 51
+    },
+    {
+      "category": "Versioned",
+      "version": "3.0.0",
+      "description": "366-SCH-001-schema-v2.0.20230414154603",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-15T00:58:50.993Z",
+      "state": "Deleted",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V3.0.0__366-SCH-001-schema-v2.0.20230414154603.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 35
+    },
+    {
+      "category": "Versioned",
+      "version": "3.0.20230414181533",
+      "description": "367-DAT-001-data-v2.0.20230414154603",
+      "type": "SQL",
+      "installedOnUTC": "2023-04-15T02:03:16.293Z",
+      "state": "Success",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V3.0.20230414181533__367-DAT-001-data-v2.0.20230414154603.sql",
+      "undoFilepath": "",
+      "installedBy": "sa",
+      "executionTime": 42
+    },
+    {
+      "category": "Versioned",
+      "version": "2.0.0",
+      "description": "baseline",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Ignored (Baseline)",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V2.0.0__baseline.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    },
+    {
+      "category": "Versioned",
+      "version": "3.0.0",
+      "description": "366-SCH-001-schema-v2.0.20230414154603",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Pending",
+      "undoable": "No",
+      "filepath": "/Users/BMac/projects/phmic/Flyway_Demo/AdvWorksComm/flybot/../migrations/V3.0.0__366-SCH-001-schema-v2.0.20230414154603.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    }
+  ],
+  "allSchemasEmpty": false,
+  "flywayVersion": "9.16.3",
+  "database": "AdvWorksComm",
+  "warnings": [],
+  "operation": "info",
+  "jsonReport": "report.html.json",
+  "htmlReport": "report.html.html"
 }
