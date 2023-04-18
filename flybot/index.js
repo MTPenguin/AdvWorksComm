@@ -230,6 +230,8 @@ module.exports = (app, { getRouter }) => {
     const repoOwner = repo.owner.login
     const repoName = repo.name
 
+    const DEBUG = false
+
     // consoleLog(thisFile
     //   , `\npayload:`, payload
     //   // , `\nrepo:`, repo
@@ -247,15 +249,15 @@ module.exports = (app, { getRouter }) => {
     if (~firstT && ~lastT) {
       try {
         jsonBody = issueBody.substr(firstT + 3, (lastT - firstT) - 3)
-        consoleLog(thisFile, 'jsonBody:', jsonBody)
+        DEBUG && consoleLog(thisFile, 'jsonBody:', jsonBody)
         jsonBody = JSON.parse(jsonBody)
       } catch (error) {
         console.error('Throwing:', error.message)
         throw error
       }
-      consoleLog(thisFile, 'jsonBody:', jsonBody)
+      DEBUG && consoleLog(thisFile, 'jsonBody:', jsonBody)
     } else {
-      consoleLog(thisFile, 'firstT:', firstT, 'lastT:', lastT)
+      DEBUG && consoleLog(thisFile, 'firstT:', firstT, 'lastT:', lastT)
       throw new Error('No JSON body')
     }
 
@@ -265,11 +267,11 @@ module.exports = (app, { getRouter }) => {
      * Get current version
      */
     const tags = await octokit.request(repo.tags_url)
-    consoleLog(thisFile, 'tags:', tags)
+    DEBUG && consoleLog(thisFile, 'tags:', tags)
     const tagsSorted = semver.rsort(tags.data.map(d => d.name))
-    consoleLog(thisFile, 'tagsSorted:', tagsSorted)
+    DEBUG && consoleLog(thisFile, 'tagsSorted:', tagsSorted)
     const currentVersion = tagsSorted[0]
-    consoleLog(thisFile, 'currentVersion:', currentVersion)
+    DEBUG && consoleLog(thisFile, 'currentVersion:', currentVersion)
 
     /**
     * Flyway Date Stamp yyyy-MM-dd HH:mm:ss
@@ -277,7 +279,7 @@ module.exports = (app, { getRouter }) => {
     const dateNow = new Date()
     const dateStamp = dateNow.getUTCFullYear() + String(dateNow.getUTCMonth() + 1).padStart(2, '0') + String(dateNow.getUTCDate()).padStart(2, '0')
       + String(dateNow.getUTCHours()).padStart(2, '0') + String(dateNow.getUTCMinutes()).padStart(2, '0') + String(dateNow.getUTCSeconds()).padStart(2, '0')
-    consoleLog(thisFile, 'dateStamp:', dateStamp)
+    DEBUG && consoleLog(thisFile, 'dateStamp:', dateStamp)
 
     let level
     let newVersion
@@ -296,14 +298,14 @@ module.exports = (app, { getRouter }) => {
         level = 'major'
         newVersion = semver.inc(currentVersion, level)
     }
-    consoleLog(thisFile, 'level:', level)
-    consoleLog(thisFile, 'newVersion:', newVersion)
+    DEBUG && consoleLog(thisFile, 'level:', level)
+    DEBUG && consoleLog(thisFile, 'newVersion:', newVersion)
 
     /**
      * In order to create a new branch off of default, we first have to get the sha of mergeBranch
      */
     const mergeBranch = await octokit.request(repo.branches_url, { branch: repo.default_branch })
-    consoleLog(thisFile, 'mergeBranch:', mergeBranch)
+    DEBUG && consoleLog(thisFile, 'mergeBranch:', mergeBranch)
 
     /* DEBUG ADD LIGHT TAG REF */
     // await octokit.git.createRef({
@@ -317,8 +319,8 @@ module.exports = (app, { getRouter }) => {
     // GITHUB_ISSUE-JIR-000-SCOPE-CURRENT_VERSION
     const newBranch = payload.issue.number + '-' + jsonBody.jira + '-' + jsonBody.scope + '-' + currentVersion
     const newMigration = 'V' + newVersion + '__' + newBranch
-    consoleLog(thisFile, 'newBranch:', newBranch)
-    consoleLog(thisFile, 'newMigration:', newMigration)
+    DEBUG && consoleLog(thisFile, 'newBranch:', newBranch)
+    DEBUG && consoleLog(thisFile, 'newMigration:', newMigration)
 
 
     /**
@@ -331,17 +333,16 @@ module.exports = (app, { getRouter }) => {
       sha: mergeBranch.data.commit.sha,
       key: payload.issue.number
     });
-    consoleLog(thisFile, 'branch result:', result)
+    DEBUG && consoleLog(thisFile, 'branch result:', result)
 
 
     /*
     * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
     * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
     */
-    const DEBUG = jsonBody.debug ?? false
     let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]}`
     let content = "--flybot created " + newMigration
-    if (DEBUG) {
+    if (jsonBody.debug ?? false) {
       content += "\n-- DEBUG ---\n"
       const debugVal = dateStamp.substring(dateStamp.length - 10, 10)
       content += `PRINT(N'Update 6 rows in [SalesLT].[Customer]')
@@ -363,7 +364,7 @@ module.exports = (app, { getRouter }) => {
       message,
       content: encode(content)
     })
-    consoleLog(thisFile, 'migration file result:', result)
+    DEBUG && consoleLog(thisFile, 'migration file result:', result)
 
     content = {
       ...jsonBody,
@@ -374,7 +375,7 @@ module.exports = (app, { getRouter }) => {
       dateStamp,
       newVersion
     }
-    consoleLog(thisFile, 'content:', content)
+    DEBUG && consoleLog(thisFile, 'content:', content)
 
     /**
     * Create a new issue comment
@@ -389,13 +390,13 @@ module.exports = (app, { getRouter }) => {
       body: commentBody,
     });
     result = await octokit.issues.createComment(issueComment);
-    consoleLog(thisFile, 'issue comment result:', result)
+    DEBUG && consoleLog(thisFile, 'issue comment result:', result)
 
     /**
     * Update issue JSON
     */
     const body = `\`\`\`${JSON.stringify(content)}\`\`\``
-    consoleLog(thisFile, 'body:', body)
+    DEBUG && consoleLog(thisFile, 'body:', body)
     result = await octokit.issues.update({
       owner: repoOwner,
       repo: repoName,
@@ -409,7 +410,7 @@ module.exports = (app, { getRouter }) => {
       //   branch: newBranch
       // }
     });
-    consoleLog(thisFile, 'issue update result:', result)
+    DEBUG && consoleLog(thisFile, 'issue update result:', result)
   });
 
   // index.js Push event context: Context {
