@@ -626,19 +626,15 @@ module.exports = (app, { getRouter }) => {
 
         const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
 
-        const { stdout, stderr } = await exec(fwCmd);
-        DEBUG && consoleLog(thisFile, 'stdout:', stdout);
-        console.error(thisFile, 'stderr:', stderr);
-        // exec(fwCmd, (err, output) => {
-        //   // once the command has completed, the callback function is called
-        //   if (err) {
-        //     // log and return if we encounter an error
-        //     console.error("err:", err)
-        //     return
-        //   }
-        //   // log the output received from the command
-        //   consoleLog(thisFile, "exec Output: \n", output)
-        // })
+        let migrations
+        try {
+          const { stdout, stderr } = await exec(fwCmd);
+          DEBUG && consoleLog(thisFile, 'stdout:', stdout);
+          DEBUG && console.error(thisFile, 'stderr:', stderr);
+          migrations = JSON.parse(stdout)
+        } catch (error) {
+          throw error
+        }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
     } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
 
