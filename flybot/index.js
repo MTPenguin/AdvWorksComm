@@ -609,12 +609,12 @@ module.exports = (app, { getRouter }) => {
           if (mod.match(/^V/)) {
             matchedFile = mod
             break
-          } else DEBUG && consoleLog(thisFile, 'NON matched file:', mod)
+          }
         }
       }
       if (matchedFile) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
-      }
+      } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
 
     } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
 
