@@ -553,7 +553,7 @@ module.exports = (app, { getRouter }) => {
   app.on('push', async (context) => {
     consoleLog(thisFile, 'Push event context:', context)
 
-    const branches = await octokit.request(context.repository.branches_url)
+    const branches = await context.octokit.request(context.repository.branches_url)
     consoleLog(thisFile, 'branches:', branches)
 
 
@@ -845,5 +845,6 @@ module.exports = (app, { getRouter }) => {
 
     // app.onAny(async (context) => {
     //   consoleLog(thisFile, 'onAny:', { event: context.name, action: context.payload.action })
-    // });
-  };
+  });
+}
+
