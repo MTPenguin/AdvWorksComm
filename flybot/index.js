@@ -630,8 +630,8 @@ module.exports = (app, { getRouter }) => {
           const { stdout, stderr } = await exec(fwCmd);
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
-          const migrations = JSON.parse(stdout)
-          const pending = migrations.findIndex(m => m.state === 'Pending')
+          const info = JSON.parse(stdout)
+          const pending = info.migrations.findIndex(m => m.state === 'Pending')
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
