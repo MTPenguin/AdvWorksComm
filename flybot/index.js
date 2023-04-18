@@ -614,7 +614,7 @@ module.exports = (app, { getRouter }) => {
           }
         }
       }
-      if (matchedFile) {
+      if (matchedFile || DEBUG) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
         // 
         // MIGRATION DETECTED
