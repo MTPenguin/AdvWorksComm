@@ -603,6 +603,7 @@ module.exports = (app, { getRouter }) => {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
+      let matchedFile = false
       for (const commit of commits) {
         if (matchedFile) break
         for (const mod of commit.modified) {
