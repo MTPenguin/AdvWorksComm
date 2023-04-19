@@ -627,7 +627,7 @@ module.exports = (app, { getRouter }) => {
 
         let stdout, stderr
         try {
-          ({ stdout, stderr }) = await exec(fwCmd);
+          ({ stdout, stderr } = await exec(fwCmd))
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
