@@ -598,6 +598,7 @@ module.exports = (app, { getRouter }) => {
     const commits = context.payload.commits
     const { $ } = await import('execa')
 
+    // https://github.com/sindresorhus/execa#readme
     const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
@@ -623,24 +624,18 @@ module.exports = (app, { getRouter }) => {
         // MIGRATION FILE CHANGE DETECTED
         // 
         // Check with Flyway
-        // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-        // const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
-        const fwCmd = `flyway` // -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
-        // const fwCmd = `ls -la` // > ../reports/${branch}.json`
-
         try {
-          // https://github.com/sindresorhus/execa#readme
-          // const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
-          // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
-
-          const result = await fwCmdLn('info')
-          // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
-          // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
-          DEBUG && consoleLog(thisFile, 'result:', result);
-          const info = JSON.parse(result.stdout)
-          const pending = info.migrations.findIndex(m => m.state === 'Pending')
+          const infoResult = await fwCmdLn('info')
+          DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
+          const infoJson = JSON.parse(infoResult.stdout)
+          const pending = infoJson.migrations.findIndex(m => m.state === 'Pending')
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
+            // Now check if we can clean and build
+            const cleanResult = await fwCmdLn('info')
+            DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
+            const cleanJson = JSON.parse(cleanResult.stdout)
+
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           // console.error(thisFile, 'FW:', error)
