@@ -221,8 +221,10 @@ module.exports = (app, { getRouter }) => {
 
 
   /************************************************************************************************************************************
-  Event handlers
+  *            Event handlers
   ************************************************************************************************************************************/
+
+  /*******************                  ON ISSUES OPENED                  *******************/
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
     const payload = context.payload
@@ -324,9 +326,7 @@ module.exports = (app, { getRouter }) => {
     DEBUG && consoleLog(thisFile, 'newMigration:', newMigration)
 
 
-    /**
-     * Create a new branch
-     */
+    // Create a new branch
     let result = await octokit.git.createRef({
       owner: repoOwner,
       repo: repoName,
@@ -337,10 +337,8 @@ module.exports = (app, { getRouter }) => {
     DEBUG && consoleLog(thisFile, 'branch result:', result)
 
 
-    /*
-    * [ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
-    * TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
-    */
+    //[ Resolves #<issue_number> ] links the commit to the issue.  When the commit is merged, it should close the issue.
+    // TODO Trying to get the linked branch to show up under 'Development' in the GitHub Issue UI
     let message = `Resolves #${payload.issue.number} - Created ${newMigration}.sql file - [skip actions]}`
     let content = "--flybot created " + newMigration
     if (jsonBody.debug ?? false) {
@@ -378,9 +376,7 @@ module.exports = (app, { getRouter }) => {
     }
     DEBUG && consoleLog(thisFile, 'content:', content)
 
-    /**
-    * Create a new issue comment
-    */
+    // Create a new issue comment
     let commentBody = `Thank you ${payload.issue.user.login} for creating issue #${payload.issue.number}, Jira:[${jsonBody.jira}](${process.env.JIRA_BROWSE_URL}/${jsonBody.jira})!\n\n\n`
     commentBody += "A new branch (["
     commentBody += newBranch
@@ -393,9 +389,8 @@ module.exports = (app, { getRouter }) => {
     result = await octokit.issues.createComment(issueComment);
     DEBUG && consoleLog(thisFile, 'issue comment result:', result)
 
-    /**
-    * Update issue JSON
-    */
+
+    // Update issue JSON
     const body = `\`\`\`${JSON.stringify(content)}\`\`\``
     DEBUG && consoleLog(thisFile, 'body:', body)
     result = await octokit.issues.update({
@@ -592,11 +587,18 @@ module.exports = (app, { getRouter }) => {
   //     modified: [ 'flyway.conf' ]
   //   }
   // }
+  /*******************                  ON PUSH                  *******************/
   app.on('push', async (context) => {
-    const DEBUG = true
-    DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const commits = context.payload.commits
+    const octokit = context.octokit
+    const payload = context.payload
+    const repo = payload.repository
+    const repoOwner = repo.owner.login
+    const repoName = repo.name
     const { $ } = await import('execa')
+
+    const DEBUG = true
+    DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
 
     // https://github.com/sindresorhus/execa#readme
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
@@ -633,16 +635,26 @@ module.exports = (app, { getRouter }) => {
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
-            DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
-            const cleanJson = JSON.parse(cleanResult.stdout)
-            const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
-            DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
-            const buildJson = JSON.parse(buildResult.stdout)
+            // const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
+            // DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
+            // const cleanJson = JSON.parse(cleanResult.stdout)
+            // const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
+            // DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
+            // const buildJson = JSON.parse(buildResult.stdout)
 
-            DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
+            // DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
 
-
+            // And create PR
+            const result = await octokit.pulls.create({
+              owner: repoOwner,
+              repo: repoName,
+              head: payload.ref,
+              base: repo.default_branch,
+              title: 'Pull request title',
+              body: 'Pull request description'
+            })
+            consoleLog(thisFile, 'PR result:', result)
+            consoleLog(`Pull request created: ${result.data.html_url}`)
 
 
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
