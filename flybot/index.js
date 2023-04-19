@@ -636,6 +636,7 @@ module.exports = (app, { getRouter }) => {
             DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
             const cleanJson = JSON.parse(cleanResult.stdout)
 
+
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           // console.error(thisFile, 'FW:', error)
