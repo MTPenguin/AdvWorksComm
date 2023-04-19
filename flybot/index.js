@@ -656,8 +656,8 @@ module.exports = (app, { getRouter }) => {
               repo: repoName,
               head: payload.ref,
               base: repo.default_branch,
-              title: 'Pull request title',
-              body: 'Pull request description'
+              title: `Merge ${payload.ref.substring(String('refs/heads/').length)} into ${repo.default_branch}`,
+              body: 'Pull request created by Flybot Github application.\n\nInfo:\n```\n' + JSON.stringify(infoJson, null, 4) + '\n```'
             })
             consoleLog(thisFile, 'PR result:', result)
             consoleLog(`Pull request created: ${result.data.html_url}`)
