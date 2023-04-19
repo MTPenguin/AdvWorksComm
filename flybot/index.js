@@ -625,8 +625,9 @@ module.exports = (app, { getRouter }) => {
         // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
         const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
 
+        let stdout, stderr
         try {
-          const { stdout, stderr } = await exec(fwCmd);
+          ({ stdout, stderr }) = await exec(fwCmd);
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
@@ -635,6 +636,7 @@ module.exports = (app, { getRouter }) => {
             consoleLog(thisFile, 'Pending Migrations')
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
+          console.error(thisFile, 'FW stderr:', stderr)
           console.error(thisFile, 'FW Info:', error.message)
           throw error
         }
