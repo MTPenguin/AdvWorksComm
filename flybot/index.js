@@ -627,8 +627,9 @@ module.exports = (app, { getRouter }) => {
         // const fwCmd = `ls -la` // > ../reports/${branch}.json`
 
         try {
-          const $$ = await $({ user: `${process.env.DB_USERNAME}`, password: `${process.env.DB_PASSWORD}`, url: `${process.env.DB_JDBC}` })
-          const stdout = await $$`flyway -community info`
+          // const $$ = await $({ user: `${process.env.DB_USERNAME}`, password: `${process.env.DB_PASSWORD}`, url: `${process.env.DB_JDBC}` })
+          // const stdout = await $$`flyway -community info`
+          const stdout = await $`flyway -community -user=${process.env.DB_USERNAME} password:=${process.env.DB_PASSWORD} url=${process.env.DB_JDBC} info`
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           const info = JSON.parse(stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
