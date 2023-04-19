@@ -643,6 +643,7 @@ module.exports = (app, { getRouter }) => {
             DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
 
 
+
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           // console.error(thisFile, 'FW:', error)
