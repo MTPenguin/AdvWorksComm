@@ -600,6 +600,12 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = true
     DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
 
+    // SKIP IF
+    if (payload.head_commit.message.includes('[skip actions]')) {
+      consoleLog(thisFile, 'SKIP action')
+      return
+    }
+
     // https://github.com/sindresorhus/execa#readme
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
     const fwCmdLn = jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${jdbc} -outputType=json`
@@ -635,14 +641,14 @@ module.exports = (app, { getRouter }) => {
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            // const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
-            // DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
-            // const cleanJson = JSON.parse(cleanResult.stdout)
-            // const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
-            // DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
-            // const buildJson = JSON.parse(buildResult.stdout)
+            const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
+            DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
+            const cleanJson = JSON.parse(cleanResult.stdout)
+            const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
+            DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
+            const buildJson = JSON.parse(buildResult.stdout)
 
-            // DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
+            DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
 
             // And create PR
             const result = await octokit.pulls.create({
