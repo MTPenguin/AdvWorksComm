@@ -648,8 +648,8 @@ module.exports = (app, { getRouter }) => {
             const result = octokit.pulls.create({
               owner: repoOwner,
               repo: repoName,
-              head,
-              base,
+              head: payload.ref,
+              base: repo.default_branch,
               title: 'Pull request title',
               body: 'Pull request description'
             })
