@@ -633,9 +633,9 @@ module.exports = (app, { getRouter }) => {
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            // const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
-            // DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
-            // const cleanJson = JSON.parse(cleanResult.stdout)
+            const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
+            DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
+            const cleanJson = JSON.parse(cleanResult.stdout)
             const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
             DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
             const buildJson = JSON.parse(buildResult.stdout)
