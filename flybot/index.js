@@ -635,6 +635,7 @@ module.exports = (app, { getRouter }) => {
             consoleLog(thisFile, 'Pending Migrations')
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
+          console.error(thisFile, 'FW Info:', error.message)
           throw error
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
