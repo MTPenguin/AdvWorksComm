@@ -596,7 +596,7 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = true
     DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const commits = context.payload.commits
-    const { execa } = await import('execa')
+    const { $, execa } = await import('execa')
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
@@ -626,7 +626,7 @@ module.exports = (app, { getRouter }) => {
         const fwCmd = `ls -la` // > ../reports/${branch}.json`
 
         try {
-          const { stdout, stderr } = await execa(fwCmd, ['*'])
+          const { stdout, stderr } = await $`${fwCmd}`
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
