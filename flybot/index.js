@@ -627,7 +627,8 @@ module.exports = (app, { getRouter }) => {
         // const fwCmd = `ls -la` // > ../reports/${branch}.json`
 
         try {
-          const stdout = await $`${fwCmd}`
+          const $$ = await $`{user:"${process.env.DB_USERNAME}" }`
+          const stdout = await $$`flyway -community info`
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           const info = JSON.parse(stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
