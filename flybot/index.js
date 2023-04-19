@@ -623,10 +623,10 @@ module.exports = (app, { getRouter }) => {
         // Check with Flyway
         // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
         // const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
-        const fwCmd = `ls -la *` // > ../reports/${branch}.json`
+        const fwCmd = `ls` // > ../reports/${branch}.json`
 
         try {
-          const { stdout, stderr } = await execa(fwCmd)
+          const { stdout, stderr } = await execa(fwCmd, ['-la', '*'])
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
