@@ -636,7 +636,7 @@ module.exports = (app, { getRouter }) => {
             const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
             DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
             const cleanJson = JSON.parse(cleanResult.stdout)
-            const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('build')
+            const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('migrate')
             DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
             const buildJson = JSON.parse(buildResult.stdout)
 
