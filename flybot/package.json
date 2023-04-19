@@ -14,7 +14,8 @@
   "scripts": {
     "node": "probot run ./index.js",
     "start": "nodemon --ignore 'report.html**' ./main.js",
-    "test": "jest"
+    "test": "jest",
+    "port": "lsof -i tcp:3000"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
