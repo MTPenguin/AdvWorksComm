@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "node": "probot run ./index.js",
-    "start": "nodemon ./main.js",
+    "start": "nodemon --ignore 'report.html*' ./main.js",
     "test": "jest"
   },
   "dependencies": {
