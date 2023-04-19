@@ -596,6 +596,7 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = true
     DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const commits = context.payload.commits
+    const octokit = context.octokit
     const { $ } = await import('execa')
 
     // https://github.com/sindresorhus/execa#readme
@@ -643,7 +644,8 @@ module.exports = (app, { getRouter }) => {
             DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
 
             // And create PR
-
+            const result = octokit.pulls
+            consoleLog(thisFile, 'PR result:', result)
 
 
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
