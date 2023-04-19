@@ -653,7 +653,7 @@ module.exports = (app, { getRouter }) => {
               title: 'Pull request title',
               body: 'Pull request description'
             })
-            console.log(`Pull request created: ${response.data.html_url}`)
+            console.log(`Pull request created: ${result.data.html_url}`)
             consoleLog(thisFile, 'PR result:', result)
 
 
