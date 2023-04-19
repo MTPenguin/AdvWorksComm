@@ -657,7 +657,6 @@ module.exports = (app, { getRouter }) => {
             consoleLog(`Pull request created: ${result.data.html_url}`)
 
 
-
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           console.error(thisFile, 'FW:', error.message)
