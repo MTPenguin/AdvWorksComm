@@ -637,6 +637,7 @@ module.exports = (app, { getRouter }) => {
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           console.error(thisFile, 'FW stderr:', stderr)
+          console.error(thisFile, 'FW stdout:', stdout)
           console.error(thisFile, 'FW Info:', error.message)
           throw error
         }
