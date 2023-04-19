@@ -599,7 +599,7 @@ module.exports = (app, { getRouter }) => {
     const { $ } = await import('execa')
 
     // const cmdLn = exec => async options => await $`${'flyway -community -user=' + process.env.DB_USERNAME + ' -password=' + process.env.DB_PASSWORD + ' -configFiles=../flyway.conf -locations=filesystem:../migrations'} info -url=${process.env.DB_JDBC} -outputType=json`
-    const cmdLn = exec => async options => await $`${'flyway'} -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
+    const cmdLn = exec => async options => await $`${'flyway -community'} -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
