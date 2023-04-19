@@ -598,7 +598,7 @@ module.exports = (app, { getRouter }) => {
     const commits = context.payload.commits
     const { $ } = await import('execa')
 
-    const cmdLn = exec => pre => post => async cmds => exec`${pre} ${cmds} ${post}`
+    const cmdLn = exec => pre => post => async cmds => $`${pre} ${cmds} ${post}`
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
