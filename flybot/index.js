@@ -599,7 +599,8 @@ module.exports = (app, { getRouter }) => {
     const { $ } = await import('execa')
 
     // https://github.com/sindresorhus/execa#readme
-    const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
+    // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
+    const fwCmdLn = jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${jdbc} -outputType=json`
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
@@ -625,17 +626,17 @@ module.exports = (app, { getRouter }) => {
         // 
         // Check with Flyway
         try {
-          const infoResult = await fwCmdLn('info')
+          const infoResult = await fwCmdLn(process.env.DB_JDBC)('info')
           DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
           const infoJson = JSON.parse(infoResult.stdout)
           const pending = infoJson.migrations.findIndex(m => m.state === 'Pending')
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            const cleanResult = await fwCmdLn('clean')
+            const cleanResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('clean')
             DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
             const cleanJson = JSON.parse(cleanResult.stdout)
-            const buildResult = await fwCmdLn('build')
+            const buildResult = await fwCmdLn(process.env.DB_BUILD_JDBC)('build')
             DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
             const buildJson = JSON.parse(buildResult.stdout)
 
