@@ -630,9 +630,11 @@ module.exports = (app, { getRouter }) => {
 
         try {
           // https://github.com/sindresorhus/execa#readme
-          // const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
-          const result = await cmdLn($)(`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations`)(`-url=${process.env.DB_JDBC} -outputType=json`)('info')
+          const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
 
+
+          // const result = await cmdLn($)(`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations`)(`-url=${process.env.DB_JDBC} -outputType=json`)('info')
+          // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
           DEBUG && consoleLog(thisFile, 'result:', result);
           const info = JSON.parse(result.stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
