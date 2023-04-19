@@ -629,7 +629,8 @@ module.exports = (app, { getRouter }) => {
         try {
           // const $$ = await $({ user: `${process.env.DB_USERNAME}`, password: `${process.env.DB_PASSWORD}`, url: `${process.env.DB_JDBC}` })
           // const stdout = await $$`flyway -community info`
-          const stdout = await $`flyway -community -user=${process.env.DB_USERNAME} password:=${process.env.DB_PASSWORD} url=${process.env.DB_JDBC} info`
+          // const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
+          const stdout = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles="../flyway.conf" url=${process.env.DB_JDBC} info`
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           const info = JSON.parse(stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
@@ -637,9 +638,9 @@ module.exports = (app, { getRouter }) => {
             consoleLog(thisFile, 'Pending Migrations')
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
-          console.error(thisFile, 'FW stderr:', error.stderr)
-          console.error(thisFile, 'FW message:', error.message)
-          console.error(thisFile, 'FW error:', error)
+          // console.error(thisFile, 'FW stderr:', error.stderr)
+          // console.error(thisFile, 'FW message:', error.message)
+          // console.error(thisFile, 'FW error:', error)
           throw error
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
