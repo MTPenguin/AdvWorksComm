@@ -626,7 +626,7 @@ module.exports = (app, { getRouter }) => {
         const fwCmd = `ls` // > ../reports/${branch}.json`
 
         try {
-          const { stdout, stderr } = await execa(fwCmd)
+          const { stdout, stderr } = await execa(fwCmd, [''])
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
