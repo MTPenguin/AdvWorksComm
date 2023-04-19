@@ -627,7 +627,7 @@ module.exports = (app, { getRouter }) => {
         // const fwCmd = `ls -la` // > ../reports/${branch}.json`
 
         try {
-          const $$ = await $({ user: "${process.env.DB_USERNAME}" })
+          const $$ = await $({ user: `${process.env.DB_USERNAME}` })
           const stdout = await $$`flyway -community info`
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           const info = JSON.parse(stdout)
