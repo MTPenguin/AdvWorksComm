@@ -632,7 +632,7 @@ module.exports = (app, { getRouter }) => {
           if (~pending) {
             consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            const cleanResult = await fwCmdLn('info')
+            const cleanResult = await fwCmdLn('clean')
             DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
             const cleanJson = JSON.parse(cleanResult.stdout)
 
