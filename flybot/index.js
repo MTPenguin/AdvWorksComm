@@ -11,7 +11,7 @@ const session = require('express-session')
 const fetch = require('node-fetch')
 const path = require('path')
 const thisFile = 'flybot/index.js'
-const { execa } = require('execa')
+
 
 module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
@@ -596,6 +596,7 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = true
     DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const commits = context.payload.commits
+    const { execa } = await import('execa')
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)

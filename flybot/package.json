@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "esm": "^3.2.25",
     "execa": "^7.1.1",
     "express-session": "^1.17.3",
     "js-base64": "^3.7.5",
