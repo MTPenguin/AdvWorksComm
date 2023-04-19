@@ -631,7 +631,7 @@ module.exports = (app, { getRouter }) => {
           // const stdout = await $$`flyway -community info`
           // const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
           const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
-          DEBUG && consoleLog(thisFile, 'stdout:', stdout);
+          DEBUG && consoleLog(thisFile, 'result:', result);
           const info = JSON.parse(result.stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
           if (~pending) {
