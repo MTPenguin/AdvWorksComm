@@ -633,7 +633,7 @@ module.exports = (app, { getRouter }) => {
           // const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
           // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
 
-          const result = await cmdLn($)({ pre: `flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations`, post: `-url=${process.env.DB_JDBC} -outputType=json`, cmd: 'info' })
+          const result = await cmdLn($)({ pre: `flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations`, post: `-url=${process.env.DB_JDBC} -outputType=json`, cmds: 'info' })
           // flyway -community -user=sa -password=saPass11 -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=jdbc:sqlserver://10.211.55.2;authentication=sqlPassword;databaseName=AdvWorksComm;encrypt=true;integratedSecurity=false;trustServerCertificate=true -outputType=json
           DEBUG && consoleLog(thisFile, 'result:', result);
           const info = JSON.parse(result.stdout)
