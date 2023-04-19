@@ -11,9 +11,7 @@ const session = require('express-session')
 const fetch = require('node-fetch')
 const path = require('path')
 const thisFile = 'flybot/index.js'
-// const { exec } = require('child_process')
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const { execa } = require('execa')
 
 module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
@@ -626,7 +624,7 @@ module.exports = (app, { getRouter }) => {
         const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
 
         try {
-          const { stdout, stderr } = await exec(fwCmd)
+          const { stdout, stderr } = await execa(fwCmd)
           DEBUG && consoleLog(thisFile, 'stdout:', stdout);
           DEBUG && stderr && console.error(thisFile, 'stderr:', stderr);
           const info = JSON.parse(stdout)
@@ -636,7 +634,8 @@ module.exports = (app, { getRouter }) => {
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           console.error(thisFile, 'FW stderr:', error.stderr)
-          console.error(thisFile, 'FW Info:', error.message)
+          console.error(thisFile, 'FW message:', error.message)
+          console.error(thisFile, 'FW error:', error)
           throw error
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
