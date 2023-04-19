@@ -596,7 +596,9 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = true
     DEBUG && consoleLog(thisFile, 'Push event context.payload:', context.payload)
     const commits = context.payload.commits
-    const { $, execa } = await import('execa')
+    const { $ } = await import('execa')
+
+    const cmdLn = exec => pre => post => async cmds => exec`${pre} ${cmds} ${post}`
 
     const branch = context.payload.ref.substring(String('refs/heads/').length)
     DEBUG && consoleLog(thisFile, 'branch:', branch)
@@ -618,7 +620,7 @@ module.exports = (app, { getRouter }) => {
       if (matchedFile || DEBUG) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
         // 
-        // MIGRATION DETECTED
+        // MIGRATION FILE CHANGE DETECTED
         // 
         // Check with Flyway
         // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
@@ -627,10 +629,10 @@ module.exports = (app, { getRouter }) => {
         // const fwCmd = `ls -la` // > ../reports/${branch}.json`
 
         try {
-          // const $$ = await $({ user: `${process.env.DB_USERNAME}`, password: `${process.env.DB_PASSWORD}`, url: `${process.env.DB_JDBC}` })
-          // const stdout = await $$`flyway -community info`
-          // const fwCmd = `flyway -community -user="${process.env.DB_USERNAME}" -password='${process.env.DB_PASSWORD}' -configFiles="../flyway.conf" -locations="filesystem:../migrations" info -url="${process.env.DB_JDBC}" -outputType=json` // > ../reports/${branch}.json`
-          const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
+          // https://github.com/sindresorhus/execa#readme
+          // const result = await $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations info -url=${process.env.DB_JDBC} -outputType=json`
+          const result = await cmdLn($)(`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations`)(`-url=${process.env.DB_JDBC} -outputType=json`)('info')
+
           DEBUG && consoleLog(thisFile, 'result:', result);
           const info = JSON.parse(result.stdout)
           const pending = info.migrations.findIndex(m => m.state === 'Pending')
@@ -638,9 +640,7 @@ module.exports = (app, { getRouter }) => {
             consoleLog(thisFile, 'Pending Migrations')
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
-          // console.error(thisFile, 'FW stderr:', error.stderr)
-          // console.error(thisFile, 'FW message:', error.message)
-          // console.error(thisFile, 'FW error:', error)
+          // console.error(thisFile, 'FW:', error)
           throw error
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
