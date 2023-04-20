@@ -634,11 +634,11 @@ module.exports = (app, { getRouter }) => {
         try {
           // Get migration files
           const dir = `./_work/${branchName}`
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          } else {
+          if (fs.existsSync(dir)) {
             fs.rmSync(dir, { recursive: true })
           }
+          fs.mkdirSync(dir, { recursive: true });
+
           const { data: migrations } = await octokit.repos.getContent({
             owner: repoOwner,
             repo: repoName,
