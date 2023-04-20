@@ -642,12 +642,13 @@ module.exports = (app, { getRouter }) => {
           const { data: migrations } = await octokit.repos.getContent({
             owner: repoOwner,
             repo: repoName,
+            ref: payload.ref,
             path: 'migrations',
           });
-          consoleLog(thisFile, 'migrations:', migrations)
+          DEBUG && consoleLog(thisFile, 'migrations:', migrations)
           for (const m of migrations) {
             const content = await octokit.request(m.download_url)
-            consoleLog(thisFile, 'm:', m, '\ncontent:', content)
+            // DEBUG && consoleLog(thisFile, 'm:', m, '\ncontent:', content)
             fs.writeFileSync(`${dir}/${m.name}`, content.data);
           }
           // Check with Flyway
