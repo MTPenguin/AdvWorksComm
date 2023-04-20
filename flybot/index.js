@@ -600,7 +600,7 @@ module.exports = (app, { getRouter }) => {
     const { $ } = await import('execa')
 
     const DEBUG = true
-    DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
+    // DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
 
     // SKIP IF
     if (payload.head_commit.message.includes('[skip actions]')) {
@@ -612,7 +612,7 @@ module.exports = (app, { getRouter }) => {
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
     const fwCmdLn = jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${jdbc} -outputType=json`
 
-    if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
+    if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/) || DEBUG) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
@@ -626,13 +626,24 @@ module.exports = (app, { getRouter }) => {
           }
         }
       }
-      if (matchedFile) {
+      if (matchedFile || DEBUG) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
         // 
         // MIGRATION FILE CHANGE DETECTED
         // 
-        // Check with Flyway
         try {
+          // Get migration files
+          const dir = `./_work/${branchName}`
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          const migrations = octokit.repos.getContent({
+            owner: repoOwner,
+            repo: repoName,
+            path: 'migrations',
+          });
+          consoleLog(thisFile, 'migrations:', migrations)
+          // Check with Flyway
           const infoResult = await fwCmdLn(process.env.DB_JDBC)('info')
           DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
           const infoJson = JSON.parse(infoResult.stdout)
