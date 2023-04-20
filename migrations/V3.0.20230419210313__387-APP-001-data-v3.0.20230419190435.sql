@@ -12,3 +12,4 @@ PRINT(N'Update 6 rows in [SalesLT].[Customer]')
 
 
 
+
