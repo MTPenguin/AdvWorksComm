@@ -668,7 +668,7 @@ module.exports = (app, { getRouter }) => {
           throw error
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
-    } else DEBUG && consoleLog(thisFile, 'NON matched branch:', branch)
+    } else DEBUG && consoleLog(thisFile, 'NON matched branchName:', branchName)
 
 
 
