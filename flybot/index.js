@@ -610,7 +610,7 @@ module.exports = (app, { getRouter }) => {
 
     // https://github.com/sindresorhus/execa#readme
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
-    const fwCmdLn = jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${jdbc} -outputType=json`
+    const fwCmdLn = mDir => jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:${mDir} ${cmds} -url=${jdbc} -outputType=json`
 
     if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/) || DEBUG) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
