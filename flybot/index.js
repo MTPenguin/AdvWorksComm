@@ -11,6 +11,7 @@ const session = require('express-session')
 const fetch = require('node-fetch')
 const path = require('path')
 const thisFile = 'flybot/index.js'
+const fs = require('fs')
 
 
 module.exports = (app, { getRouter }) => {
@@ -595,6 +596,7 @@ module.exports = (app, { getRouter }) => {
     const repo = payload.repository
     const repoOwner = repo.owner.login
     const repoName = repo.name
+    const branchName = payload.ref.substring(String('refs/heads/').length)
     const { $ } = await import('execa')
 
     const DEBUG = true
@@ -610,10 +612,7 @@ module.exports = (app, { getRouter }) => {
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
     const fwCmdLn = jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${jdbc} -outputType=json`
 
-    const branch = context.payload.ref.substring(String('refs/heads/').length)
-    DEBUG && consoleLog(thisFile, 'branch:', branch)
-
-    if (branch.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/) || (DEBUG && branch == 'dev1')) {
+    if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
@@ -627,7 +626,7 @@ module.exports = (app, { getRouter }) => {
           }
         }
       }
-      if (matchedFile || DEBUG) {
+      if (matchedFile) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
         // 
         // MIGRATION FILE CHANGE DETECTED
@@ -656,7 +655,7 @@ module.exports = (app, { getRouter }) => {
               repo: repoName,
               head: payload.ref,
               base: repo.default_branch,
-              title: `Merge ${payload.ref.substring(String('refs/heads/').length)} into ${repo.default_branch}`,
+              title: `Merge ${branchName} into ${repo.default_branch}`,
               body: 'Pull request created by Flybot Github application.\n\nInfo:\n```\n' + JSON.stringify(infoJson, null, 4) + '\n```'
             })
             consoleLog(thisFile, 'PR result:', result)
