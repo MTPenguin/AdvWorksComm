@@ -651,7 +651,7 @@ module.exports = (app, { getRouter }) => {
             fs.writeFileSync(`${dir}/${m.name}`, content.data);
           }
           // Check with Flyway
-          const infoResult = await fwCmdLn(process.env.DB_JDBC)('info')
+          const infoResult = await fwCmdLn(dir)(process.env.DB_JDBC)('info')
           DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
           const infoJson = JSON.parse(infoResult.stdout)
           const pending = infoJson.migrations.findIndex(m => m.state === 'Pending')
