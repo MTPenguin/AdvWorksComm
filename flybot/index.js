@@ -643,6 +643,10 @@ module.exports = (app, { getRouter }) => {
             path: 'migrations',
           });
           consoleLog(thisFile, 'migrations:', migrations)
+          for (const m of migrations) {
+            const content = await octokit.request(m.download_url)
+            consoleLog(thisFile, 'content:', content)
+          }
           // Check with Flyway
           const infoResult = await fwCmdLn(process.env.DB_JDBC)('info')
           DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
