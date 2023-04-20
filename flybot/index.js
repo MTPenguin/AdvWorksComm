@@ -637,7 +637,7 @@ module.exports = (app, { getRouter }) => {
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
           }
-          const migrations = await octokit.repos.getContent({
+          const { data: migrations } = await octokit.repos.getContent({
             owner: repoOwner,
             repo: repoName,
             path: 'migrations',
