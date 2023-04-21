@@ -229,10 +229,10 @@ module.exports = (app, { getRouter }) => {
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
     const payload = context.payload
-    const repo = payload.repository
+    const repository = payload.repository
+    const owner = repository.owner.login
+    const repo = repository.name
     const issueBody = payload.issue.body
-    const repoOwner = repo.owner.login
-    const repoName = repo.name
 
     const DEBUG = false
 
@@ -270,7 +270,7 @@ module.exports = (app, { getRouter }) => {
     /**
      * Get current version
      */
-    const tags = await octokit.request(repo.tags_url)
+    const tags = await octokit.request(repository.tags_url)
     DEBUG && consoleLog(thisFile, 'tags:', tags)
     const tagsSorted = semver.rsort(tags.data.map(d => d.name))
     DEBUG && consoleLog(thisFile, 'tagsSorted:', tagsSorted)
@@ -308,7 +308,7 @@ module.exports = (app, { getRouter }) => {
     /**
      * In order to create a new branch off of default, we first have to get the sha of mergeBranch
      */
-    const mergeBranch = await octokit.request(repo.branches_url, { branch: repo.default_branch })
+    const mergeBranch = await octokit.request(repository.branches_url, { branch: repository.default_branch })
     DEBUG && consoleLog(thisFile, 'mergeBranch:', mergeBranch)
 
     /* DEBUG ADD LIGHT TAG REF */
@@ -329,8 +329,8 @@ module.exports = (app, { getRouter }) => {
 
     // Create a new branch
     let result = await octokit.git.createRef({
-      owner: repoOwner,
-      repo: repoName,
+      owner,
+      repo,
       ref: `refs/heads/${newBranch}`,
       sha: mergeBranch.data.commit.sha,
       key: payload.issue.number
@@ -357,8 +357,8 @@ module.exports = (app, { getRouter }) => {
     }
 
     result = await octokit.repos.createOrUpdateFileContents({
-      owner: repoOwner,
-      repo: repoName,
+      owner,
+      repo,
       branch: newBranch,
       path: 'migrations/' + newMigration + '.sql',
       message,
@@ -395,8 +395,8 @@ module.exports = (app, { getRouter }) => {
     const body = `\`\`\`${JSON.stringify(content)}\`\`\``
     DEBUG && consoleLog(thisFile, 'body:', body)
     result = await octokit.issues.update({
-      owner: repoOwner,
-      repo: repoName,
+      owner,
+      repo,
       issue_number: payload.issue.number,
       title: newBranch,
       body,
@@ -593,13 +593,14 @@ module.exports = (app, { getRouter }) => {
     const commits = context.payload.commits
     const octokit = context.octokit
     const payload = context.payload
-    const repo = payload.repository
-    const repoOwner = repo.owner.login
-    const repoName = repo.name
+    const repository = payload.repository
+    const owner = repository.owner.login
+    const repo = repository.name
     const branchName = payload.ref.substring(String('refs/heads/').length)
     const { $ } = await import('execa')
 
     const DEBUG = true
+    DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
     // DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
 
     // SKIP IF
@@ -612,7 +613,7 @@ module.exports = (app, { getRouter }) => {
     // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
     const fwCmdLn = mDir => jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:${mDir} ${cmds} -url=${jdbc} -outputType=json`
 
-    if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/) || DEBUG) {
+    if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
       // Look for migration file changes
       DEBUG && consoleLog(thisFile, 'commits:', commits)
@@ -626,7 +627,7 @@ module.exports = (app, { getRouter }) => {
           }
         }
       }
-      if (matchedFile || DEBUG) {
+      if (matchedFile) {
         DEBUG && consoleLog(thisFile, 'matched file:', matchedFile)
         // 
         // MIGRATION FILE CHANGE DETECTED
@@ -670,17 +671,19 @@ module.exports = (app, { getRouter }) => {
 
             // And create PR
             const result = await octokit.pulls.create({
-              owner: repoOwner,
-              repo: repoName,
+              owner,
+              repo,
               head: payload.ref,
-              base: repo.default_branch,
-              title: `Merge ${branchName} into ${repo.default_branch}`,
+              base: repository.default_branch,
+              title: `Merge ${branchName} into ${repository.default_branch}`,
               body: 'Pull request created by Flybot Github application.\n\nInfo:\n```\n' + JSON.stringify(infoJson, null, 4) + '\n```'
             })
             consoleLog(thisFile, 'PR result:', result)
             consoleLog(`Pull request created: ${result.data.html_url}`)
-
-
+            // Cleanup
+            if (fs.existsSync(dir)) {
+              fs.rmSync(dir, { recursive: true })
+            }
           } else DEBUG && consoleLog(thisFile, 'NO Migrations')
         } catch (error) {
           console.error(thisFile, 'FW:', error.message)
@@ -980,5 +983,75 @@ module.exports = (app, { getRouter }) => {
     // app.onAny(async (context) => {
     //   consoleLog(thisFile, 'onAny:', { event: context.name, action: context.payload.action })
   });
+
+  /*******************                  ON PULL_REQUEST_REVIEW                 *******************/
+  app.on('pull_request_review', async (context) => {
+    const octokit = context.octokit
+    const payload = context.payload
+    const repository = payload.repository
+    const owner = repository.owner.login
+    const repo = repository.name
+    const prState = payload.review.state
+    const ref = payload.pull_request.head.ref
+
+    const DEBUG = true
+    DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
+    // DEBUG && consoleLog(thisFile, 'pull_request_review payload:', payload)
+    // DEBUG && consoleLog(thisFile, 'pull_request_review payload.pull_request:', payload.pull_request)
+
+    if (prState === 'approved') {
+      const chkNew = await octokit.rest.checks.create({
+        owner,
+        repo,
+        name: 'App Check For PR Approval',
+        head_sha: payload.pull_request.head.sha
+      })
+      DEBUG && consoleLog(thisFile, 'pull_request_review create chkNew:', chkNew)
+
+
+      // const chkSuites = await octokit.rest.checks.listSuitesForRef({
+      //   owner,
+      //   repo,
+      //   ref,
+      // });
+      // DEBUG && consoleLog(thisFile, 'pull_request_review chkSuites.data.check_suites:', chkSuites.data.check_suites)
+      // const chkRuns = await octokit.rest.checks.listForSuite({
+      //   owner,
+      //   repo,
+      //   check_suite_id: chkSuites.data.check_suites[chkSuites.data.check_suites.length - 1]?.id,
+      // });
+      // DEBUG && consoleLog(thisFile, 'pull_request_review chkRuns.data.check_runs:', chkRuns.data.check_runs)
+
+      const chkUpdate = await octokit.rest.checks.update({
+        owner,
+        repo,
+        check_run_id: chkNew.data.id, // chkRuns.data.check_runs[0]?.id, 
+        conclusion: 'success',
+        output: {
+          summary: 'Output data here',
+          title: 'Check Summary'
+        }, actions: [{
+          label: 'Action Button',
+          description: 'This button triggers an event in flyBot',
+          identifier: 'i1'
+        }]
+      })
+      DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate:', chkUpdate)
+      DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate?.data:', chkUpdate?.data)
+    }
+  })
+
+  /*******************                  ON ANY FOR DEBUG                 *******************/
+  app.onAny(async (context) => {
+    const octokit = context.octokit
+    const payload = context.payload
+    const repository = payload.repository
+    const owner = repository.owner.login
+    const repo = repository.name
+
+    const DEBUG = true
+    DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
+    DEBUG && consoleLog(thisFile, 'pull_request_review payload:', payload)
+  })
 }
 
