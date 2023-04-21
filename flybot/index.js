@@ -12,11 +12,40 @@ const fetch = require('node-fetch')
 const path = require('path')
 const thisFile = 'flybot/index.js'
 const fs = require('fs')
+const consoleLog = console.log
+
+const getMigrationFiles = octokit => async ({ owner, repo, ref }) => {
+  const DEBUG = true
+  const REF = 'refs/heads/'
+  const branchName = ~ref.indexOf(REF) ? ref.substring(String(REF).length) : ref
+  const dir = `./_work/${branchName}`
+
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true })
+  }
+  fs.mkdirSync(dir, { recursive: true });
+
+  const { data: migrations } = await octokit.repos.getContent({
+    owner,
+    repo,
+    ref,
+    path: 'migrations',
+  });
+  DEBUG && consoleLog(thisFile, 'migrations:', migrations)
+  for (const m of migrations) {
+    const content = await octokit.request(m.download_url)
+    // DEBUG && consoleLog(thisFile, 'm:', m, '\ncontent:', content)
+    fs.writeFileSync(`${dir}/${m.name}`, content.data);
+  }
+}
+
+// https://github.com/sindresorhus/execa#readme
+// const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
+const fwCmdLn = $ => mDir => jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:${mDir} ${cmds} -url=${jdbc} -outputType=json`
 
 
 module.exports = (app, { getRouter }) => {
   // const consoleLog = app.log.info
-  const consoleLog = console.log
   consoleLog(thisFile, "Yay, the app was loaded!");
 
   /************************************************************************************************************************
@@ -225,7 +254,7 @@ module.exports = (app, { getRouter }) => {
   *            Event handlers
   ************************************************************************************************************************************/
 
-  /*******************                  ON ISSUES OPENED                  *******************/
+  /*******************                  ON ISSUES.OPENED                  *******************/
   app.on("issues.opened", async (context) => {
     const octokit = context.octokit
     const payload = context.payload
@@ -236,13 +265,7 @@ module.exports = (app, { getRouter }) => {
 
     const DEBUG = false
 
-    // consoleLog(thisFile
-    //   , `\npayload:`, payload
-    //   // , `\nrepo:`, repo
-    //   , `\nissueBody:`, issueBody
-    //   , `\nrepoOwner:`, repoOwner
-    //   , `\nrepoName:`, repoName
-    // )
+    DEBUG && consoleLog(thisFile, 'issues.opened context.name & .id:', context.name, context.id)
 
     /**
      * Does issue body contain valid json?
@@ -313,8 +336,8 @@ module.exports = (app, { getRouter }) => {
 
     /* DEBUG ADD LIGHT TAG REF */
     // await octokit.git.createRef({
-    //   owner: repoOwner,
-    //   repo: repoName,
+    //   owner,
+    //   repo,
     //   ref: 'refs/tags/v1.0.' + dateStamp,
     //   sha: mergeBranch.data.commit.sha
     // })
@@ -600,7 +623,7 @@ module.exports = (app, { getRouter }) => {
     const { $ } = await import('execa')
 
     const DEBUG = true
-    DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
+    DEBUG && consoleLog(thisFile, 'push context.name & .id:', context.name, context.id)
     // DEBUG && consoleLog(thisFile, 'Push event payload:', payload)
 
     // SKIP IF
@@ -608,10 +631,6 @@ module.exports = (app, { getRouter }) => {
       consoleLog(thisFile, 'SKIP action')
       return
     }
-
-    // https://github.com/sindresorhus/execa#readme
-    // const fwCmdLn = async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -configFiles=../flyway.conf -locations=filesystem:../migrations ${cmds} -url=${process.env.DB_JDBC} -outputType=json`
-    const fwCmdLn = mDir => jdbc => async cmds => $`flyway -community -user=${process.env.DB_USERNAME} -password=${process.env.DB_PASSWORD} -baselineOnMigrate=true -baselineVersion=${process.env.FW_BASELINE_VERSION} -configFiles=../flyway.conf -locations=filesystem:${mDir} ${cmds} -url=${jdbc} -outputType=json`
 
     if (branchName.match(/[0-9]+-[a-zA-Z]+-[0-9]+-data|refData|schema-/)) {
       DEBUG && consoleLog(thisFile, 'Matched branch')
@@ -621,7 +640,7 @@ module.exports = (app, { getRouter }) => {
       for (const commit of commits) {
         if (matchedFile) break
         for (const mod of commit.modified) {
-          if (mod.match(/^V/)) {
+          if (mod.match(/^migrations\/V/)) {
             matchedFile = mod
             break
           }
@@ -635,51 +654,61 @@ module.exports = (app, { getRouter }) => {
         try {
           // Get migration files
           const dir = `./_work/${branchName}`
-          if (fs.existsSync(dir)) {
-            fs.rmSync(dir, { recursive: true })
-          }
-          fs.mkdirSync(dir, { recursive: true });
-
-          const { data: migrations } = await octokit.repos.getContent({
-            owner: repoOwner,
-            repo: repoName,
-            ref: payload.ref,
-            path: 'migrations',
-          });
-          DEBUG && consoleLog(thisFile, 'migrations:', migrations)
-          for (const m of migrations) {
-            const content = await octokit.request(m.download_url)
-            // DEBUG && consoleLog(thisFile, 'm:', m, '\ncontent:', content)
-            fs.writeFileSync(`${dir}/${m.name}`, content.data);
-          }
+          await getMigrationFiles(octokit)({ owner, repo, ref: payload.ref })
           // Check with Flyway
-          const infoResult = await fwCmdLn(dir)(process.env.DB_JDBC)('info')
+          const infoResult = await fwCmdLn($)(dir)(process.env.DB_JDBC)('info')
           DEBUG && consoleLog(thisFile, 'infoResult:', infoResult);
           const infoJson = JSON.parse(infoResult.stdout)
           const pending = infoJson.migrations.findIndex(m => m.state === 'Pending')
           if (~pending) {
-            consoleLog(thisFile, 'Pending Migrations')
+            DEBUG && consoleLog(thisFile, 'Pending Migrations')
             // Now check if we can clean and build
-            const cleanResult = await fwCmdLn(dir)(process.env.DB_BUILD_JDBC)('clean')
+            const cleanResult = await fwCmdLn($)(dir)(process.env.DB_BUILD_JDBC)('clean')
             DEBUG && consoleLog(thisFile, 'cleanResult:', cleanResult);
             const cleanJson = JSON.parse(cleanResult.stdout)
-            const buildResult = await fwCmdLn(dir)(process.env.DB_BUILD_JDBC)('migrate')
+            const buildResult = await fwCmdLn($)(dir)(process.env.DB_BUILD_JDBC)('migrate')
             DEBUG && consoleLog(thisFile, 'buildResult:', buildResult);
             const buildJson = JSON.parse(buildResult.stdout)
 
             DEBUG && consoleLog(thisFile, 'cleanJson:', cleanJson, '\nbuildJson:', buildJson);
 
             // And create PR
-            const result = await octokit.pulls.create({
+            const prResult = await octokit.pulls.create({
               owner,
               repo,
               head: payload.ref,
               base: repository.default_branch,
               title: `Merge ${branchName} into ${repository.default_branch}`,
-              body: 'Pull request created by Flybot Github application.\n\nInfo:\n```\n' + JSON.stringify(infoJson, null, 4) + '\n```'
+              body: 'Pull request created by Flybot Github application.\n\nInfo:\n```\n' + JSON.stringify(infoJson, null, 4) + '\n```',
+              auto_merge: true
             })
-            consoleLog(thisFile, 'PR result:', result)
-            consoleLog(`Pull request created: ${result.data.html_url}`)
+            DEBUG && consoleLog(thisFile, 'PR prResult:', prResult)
+            DEBUG && consoleLog(`Pull request created: ${prResult.data.html_url}`)
+
+            // See if we can enable auto-merge with graphql
+            // Get the id
+            const idResult = await context.octokit.graphql(`
+            query getPrId {
+              repository(name: "${repo}", owner: "${owner}") {
+                  pullRequest(number: ${prResult.data.number}) {
+                            id
+                        }
+                  } 
+            }
+            `)
+            DEBUG && consoleLog(thisFile, 'PR idResult:', idResult)
+            const enableAutoMerge = `
+                mutation autoMerge ($pullRequestId: ID!) {
+                  enablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId, mergeMethod: MERGE}) {
+                    clientMutationId
+                  }
+                }
+                `
+
+            const gqlResult = await context.octokit.graphql(enableAutoMerge, {
+              pullRequestId: idResult.repository.pullRequest.id,
+            })
+            DEBUG && consoleLog(thisFile, 'PR gqlResult:', gqlResult)
             // Cleanup
             if (fs.existsSync(dir)) {
               fs.rmSync(dir, { recursive: true })
@@ -691,297 +720,6 @@ module.exports = (app, { getRouter }) => {
         }
       } else DEBUG && consoleLog(thisFile, 'NO matched files:', commits)
     } else DEBUG && consoleLog(thisFile, 'NON matched branchName:', branchName)
-
-
-
-    // name: CHK Pipeline (Self-Hosted)
-    // run-name: CHK ${{ github.head_ref || github.ref_name }} -> ${{ github.event.repository.name }}/${{ github.event.repository.default_branch }}
-
-    // # Controls when the workflow will run
-    // on:
-    //   # Triggers the workflow on push or pull request events but only for branches beginning with 'task' that have changes in their respective migration folder.
-    //   push:
-    //     branches: # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
-    //       #  GITHUB_ISSUE-JIRA-000-SCOPE-CURRENT_VERSION
-    //       - "[0-9]+-[a-zA-Z]+-[0-9]+-data-**"
-    //       - "[0-9]+-[a-zA-Z]+-[0-9]+-refData-**"
-    //       - "[0-9]+-[a-zA-Z]+-[0-9]+-schema-**"
-
-    //     paths:
-    //       - "migrations/V**"
-    //       - "migrations-build/V**"
-    //       - "migrations-prod-check/V**"
-    //       - "migrations-prod/V**"
-
-    //   # Allows you to run this workflow manually from the Actions tab
-    //   workflow_dispatch:
-
-    // env:
-    //   # Enable this for additional debug logging
-    //   ACTIONS_RUNNER_DEBUG: true
-    //   ACTION_EMAIL: "MTPenguinAction@youremail.com"
-    //   ACTION_USER: "MTPenguinAction"
-    //   REPORT_PATH: ${{ github.WORKSPACE }}\reports\
-    //   PUBLISH_PATH: https://mtpenguin.github.io/AdvWorksComm/
-    //   INFO_FILENAME: "${{ github.RUN_ID }}-Info"
-
-    // permissions:
-    //   contents: write
-    //   pull-requests: write
-    //   actions: write
-    //   id-token: write
-
-    // # Allow one concurrent deployment
-    // concurrency:
-    //   group: "${{ github.head_ref || github.ref_name }}_CHECK"
-    //   cancel-in-progress: true
-
-    // # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-    // jobs:
-    //   info:
-    //     name: Migration Info
-    //     # Only run on users own self hosted
-    //     runs-on: [self-hosted] # Add "${{ github.actor }}" to make it specific to the dev machine
-    //     environment: "prod" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
-    //     outputs:
-    //       pendingMigrations: ${{ steps.checkStates.outputs.pendingMigrations }}
-    //     env:
-    //       stage: "Info"
-    //       # Environment Secrets - Ensure all of the below have been created as an Environment Secret (Projects Settings > Secrets > Actions section, specially related to the environment in question) #
-    //       databaseName: ${{ secrets.databaseName }}
-    //       JDBC: ${{ secrets.JDBC }}
-    //       userName: ${{ secrets.userName }}
-    //       password: ${{ secrets.password }}
-    //       # End of Environment Secrets #
-    //       publishArtifacts: true
-
-    //     # Steps represent a sequence of tasks that will be executed as part of the job
-    //     steps:
-    //       - name: Dump runner context
-    //         env:
-    //           RUNNER_CONTEXT: ${{ toJson(runner) }}
-    //         run: echo "runner context ${{ env.RUNNER_CONTEXT }}"
-
-    //       - name: Get/Set deployment environment
-    //         run: |
-    //           $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
-    //           echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
-    //           echo "${{ env.deployment_environment }}"
-
-    //       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    //       - uses: actions/checkout@v3
-
-    //       # Runs the Flyway info command ([ ` ]"tick" character IS escape character)
-    //       - name: Run Flyway info command
-    //         id: checkStates
-    //         run:
-    //           | # Format-Table >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //           md -Force ${{ env.REPORT_PATH }}
-    //           flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info -url="${{ env.JDBC }}" -outputType=json > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-    //           $infoObj = Get-Content -Raw -Path ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json | ConvertFrom-Json
-    //           cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-    //           echo "FLYWAY migration information:" > ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //           echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //           $infoObj.migrations | Format-Table -AutoSize -Wrap version, description, state, filepath >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt 
-    //           echo `````` >> ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //           cat ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //           $pending = @($infoObj.migrations | Where-Object -Property state -Match "^Pending")
-    //           echo "$( $pending )"
-    //           echo "$( $pending.count )"
-    //           echo "pendingMigrations=$( $pending.count -ne 0)" > $env:GITHUB_OUTPUT
-
-    //       - name: Add info files to repo
-    //         run: |
-    //           git config --global user.name "${{ env.ACTION_USER }}"
-    //           git config --global user.email "${{ env.ACTION_EMAIL }}"
-    //           git add ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.*
-
-    //       - name: Echo pending migrations
-    //         run: |
-    //           echo "${{ steps.checkStates.outputs.pendingMigrations }}"
-
-    //       # Publish as an artifact
-    //       - name: Publish migration information
-    //         if: env.publishArtifacts == 'true'
-    //         uses: actions/upload-artifact@v3
-    //         with:
-    //           name: flyway-info
-    //           path: |
-    //             ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.txt
-    //             ${{ env.REPORT_PATH }}${{ env.INFO_FILENAME }}.json
-
-    //       - name: Commit info files and comment current migrations
-    //         if: ${{ steps.checkStates.outputs.pendingMigrations == 'True' }}
-    //         run: |
-    //           git commit -am "Add migration info files"
-    //           git push
-
-    //       - name: Commit info files and comment NOTHING to do!
-    //         if: ${{ steps.checkStates.outputs.pendingMigrations == 'False' }}
-    //         run:
-    //           | # Do not add a pull here.  There should be no new files.  New files show up when action is re-run.
-    //           git commit -am "No pending migrations found"
-    //           git push
-    //           echo "::error::NOTHING to do!"; exit 1
-
-    //   build:
-    //     name: Deploy Build
-    //     # The type of runner that the job will run on
-    //     runs-on: self-hosted
-    //     environment: "build" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
-    //     needs: info
-    //     if: ${{ needs.info.outputs.pendingMigrations == 'True' }}
-    //     env:
-    //       stage: "Build"
-    //       # Environment Secrets - Ensure all of the below have been created as an Environment Secret (Projects Settings > Secrets > Actions section, specially related to the environment in question) #
-    //       databaseName: ${{ secrets.databaseName}}
-    //       # JDBC: ${{ secrets.JDBC }}
-    //       userName: ${{ secrets.userName }}
-    //       password: ${{ secrets.password }}
-    //       # End of Environment Secrets #
-    //       executeBuild: true
-    //       publishArtifacts: true
-    //       cleanDisabled: true
-
-    //     # Steps represent a sequence of tasks that will be executed as part of the job
-    //     steps:
-    //       - name: Get/Set deployment environment
-    //         run: |
-    //           $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
-    //           echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
-    //           echo "${{ env.deployment_environment }}"
-
-    //       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    //       - uses: actions/checkout@v3
-
-    //       - name: Set JDBC
-    //         run: |
-    //           echo "runner:${{ runner.name }}"
-    //           echo "JDBC=${{ vars[format('JDBC_{0}', runner.name )] }}" >> $env:GITHUB_ENV
-
-    //       - name: View JDBC
-    //         run: |
-    //           echo "JDBC: ${{ env.JDBC }}"
-
-    //       # Runs the Flyway Clean command against the Build database
-    //       - name: Clean build db
-    //         if: env.executeBuild == 'true'
-    //         run: |
-    //           flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -baselineVersion="${{ vars.BASELINE_VERSION }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info clean info -url="${{ env.JDBC }}" -cleanDisabled='false'
-
-    //       # Runs the Flyway Migrate command against the Build database
-    //       - name: Migrate build db
-    //         if: env.executeBuild == 'true'
-    //         run: |
-    //           flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -baselineVersion="${{ vars.BASELINE_VERSION }}" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info migrate info -url="${{ env.JDBC }}" -cleanDisabled='${{ env.cleanDisabled }}'
-
-    //       # Runs the Flyway Undo command against the Build database
-    //       # If the first undo script is U002, this will validate all undo scripts up to and including that
-    //       # - name: Undo build db
-    //       #   if: env.executeBuild == 'true'
-    //       #   run: |
-    //       #     flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info undo info -url="${{ env.JDBC }}" -cleanDisabled='${{ env.cleanDisabled }}' -target="${{ vars.FIRST_UNDO_SCRIPT }}"
-
-    //       # Create a directory to stage the artifact files
-    //       - name: Stage files for publishing
-    //         if: env.publishArtifacts == 'true'
-    //         run: |
-    //           cp -R ${{ github.WORKSPACE }}/migrations Artifact_Files/Migration/
-
-    //       # Test for environment specific migrations
-    //       - name: Set Env for environment specific files
-    //         run: |
-    //           echo "env_migrations=$(Test-Path ${{ github.WORKSPACE }}/migrations-${{ env.deployment_environment }} )" >> $env:GITHUB_ENV
-
-    //       # Create a directory to stage the environment specific artifact files
-    //       - name: Stage environment specific files for publishing
-    //         if: env.publishArtifacts == 'true' && env.env_migrations == 'True'
-    //         run: | # || : prevents errors on empty dir
-    //           cp -R ${{ github.WORKSPACE }}/migrations-${{ env.deployment_environment }}/* Artifact_Files/Migration/ || :
-
-    //       # After migration scripts are validated, publish them as an artifact
-    //       - name: Publish validated migration scripts
-    //         if: env.publishArtifacts == 'true'
-    //         uses: actions/upload-artifact@v3
-    //         with:
-    //           name: flyway-build
-    //           path: Artifact_Files/Migration/
-
-    //   prod-preparation:
-    //     name: Production deployment preparation - report creation
-    //     # The type of runner that the job will run on
-    //     runs-on: self-hosted
-    //     environment: "prod-check" #Ensure this environment name is setup in the projects Settings>Environment area. Ensuring any reviewers are also configured
-    //     if: ${{ true }} #Set this variable to false to temporarily disable the job
-    //     needs: build
-    //     env:
-    //       stage: "Prod"
-    //       branch_name: ${{ github.head_ref || github.ref_name }}
-    //       # Environment Secrets - Ensure all of the below have been created as an Environment Secret (Projects Settings > Secrets > Actions section, specially related to the environment in question) #
-    //       databaseName: ${{ secrets.databaseName }}
-    //       JDBC: ${{ secrets.JDBC }}
-    //       userName: ${{ secrets.userName }}
-    //       password: ${{ secrets.password }}
-    //       check_JDBC: ${{ secrets.check_JDBC }}
-    //       check_userName: ${{ secrets.check_userName }}
-    //       check_password: ${{ secrets.check_password }}
-    //       # End of Environment Secrets #
-    //       generateDriftAndChangeReport: true
-    //       failReleaseIfDriftDetected: false
-    //       publishArtifacts: true
-    //       GITHUB_TOKEN: ${{ github.token }}
-    //       REPORT_FILE: ${{ github.RUN_ID }}-${{ secrets.databaseName }}-Check-Report.html
-
-    //     # Steps represent a sequence of tasks that will be executed as part of the job
-    //     steps:
-    //       - name: Get/Set deployment environment
-    //         run: |
-    //           $deployments = curl ${{ github.event.repository.deployments_url }} | ConvertFrom-Json
-    //           echo "deployment_environment=$( $deployments[0] | select -expand environment )" >> $env:GITHUB_ENV
-    //           echo "${{ env.deployment_environment }}"
-    //       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    //       - uses: actions/checkout@v3
-
-    //       # Runs the Flyway Check command, to produce a deployment report, against the production database
-    //       # - name: Create check reports
-    //       #   if: env.generateDriftAndChangeReport == 'true'
-    //       #   run: |
-    //       #     flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -configFiles="${{ github.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\migrations, filesystem:${{ github.WORKSPACE }}\migrations-${{ env.deployment_environment }}" check -dryrun -changes -drift "-check.failOnDrift=${{ env.failReleaseIfDriftDetected }}" "-check.buildUrl=${{ env.check_JDBC }}" "-check.buildUser=${{ env.check_userName }}" "-check.buildPassword=${{ env.check_password }}" -url="${{ env.JDBC }}" "-check.reportFilename=${{ env.REPORT_PATH }}${{ env.REPORT_FILE }}"
-    //       #   continue-on-error: false
-
-    //       # - name: Publish check report
-    //       #   if: env.publishArtifacts == 'true' && (${{ failure() }} || ${{ success() }})
-    //       #   uses: actions/upload-artifact@v3
-    //       #   with:
-    //       #     name: flyway-reports
-    //       #     path: ${{ github.WORKSPACE }}\reports
-
-    //       # # Commit report to GitHub and put pages URL in commit message
-    //       # - name: Commit report
-    //       #   if: ${{ failure() }} || ${{ success() }}
-    //       #   run: |
-    //       #     git config --global user.name "${{ env.ACTION_USER }}"
-    //       #     git config --global user.email "${{ env.ACTION_EMAIL }}"
-    //       #     git add ${{ env.REPORT_PATH }}
-    //       #     git commit -am "Flyway check report URL:${{ env.PUBLISH_PATH }}${{ env.REPORT_FILE }}"
-    //       #     git pull
-    //       #     git push
-
-    //       - name: Create ${{ env.branch_name }} pull request
-    //         run: |
-    //           gh pr create -H "${{ env.branch_name }}" --title 'Merge ${{ env.branch_name }} into ${{ github.event.repository.default_branch }}' --body 'Pull request created by Github action.'
-    //           gh pr merge --auto --merge
-
-    //       # Trigger workflow to publish report to GitHub pages and try to comment on P.R. (if exists)
-    //       - name: Trigger check report to GitHub pages workflow
-    //         if: ${{ failure() }} || ${{ success() }}
-    //         run: |
-    //           gh workflow run fwCheckReport.yml -r ${{ github.ref }} -f title="${{ github.head_ref || github.ref_name }} Info Report" -f report_path="${{ env.PUBLISH_PATH }}" -f info_file="${{ env.INFO_FILENAME }}.txt"
-
-    //   })
-
-    // app.onAny(async (context) => {
-    //   consoleLog(thisFile, 'onAny:', { event: context.name, action: context.payload.action })
   });
 
   /*******************                  ON PULL_REQUEST_REVIEW                 *******************/
@@ -993,22 +731,23 @@ module.exports = (app, { getRouter }) => {
     const repo = repository.name
     const prState = payload.review.state
     const ref = payload.pull_request.head.ref
+    const { $ } = await import('execa')
 
     const DEBUG = true
-    DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
-    // DEBUG && consoleLog(thisFile, 'pull_request_review payload:', payload)
-    // DEBUG && consoleLog(thisFile, 'pull_request_review payload.pull_request:', payload.pull_request)
+    DEBUG && consoleLog(thisFile, 'pull_request_review context.name & .id:', context.name, context.id)
+    DEBUG && consoleLog(thisFile, 'pull_request_review payload:', payload)
+    DEBUG && consoleLog(thisFile, 'pull_request_review payload.pull_request:', payload.pull_request)
 
     if (prState === 'approved') {
       const chkNew = await octokit.rest.checks.create({
         owner,
         repo,
-        name: 'App Check For PR Approval',
+        name: 'Run migration on default branch',
         head_sha: payload.pull_request.head.sha
       })
       DEBUG && consoleLog(thisFile, 'pull_request_review create chkNew:', chkNew)
 
-
+      // FIND EXISTING
       // const chkSuites = await octokit.rest.checks.listSuitesForRef({
       //   owner,
       //   repo,
@@ -1021,6 +760,83 @@ module.exports = (app, { getRouter }) => {
       //   check_suite_id: chkSuites.data.check_suites[chkSuites.data.check_suites.length - 1]?.id,
       // });
       // DEBUG && consoleLog(thisFile, 'pull_request_review chkRuns.data.check_runs:', chkRuns.data.check_runs)
+
+
+
+
+      // Get issue JSON
+      const issue = await octokit.issues.get({
+        owner,
+        repo,
+        issue_number: payload.pull_request.head.ref.substr(0, payload.pull_request.head.ref.indexOf('-'))
+      });
+      DEBUG && consoleLog(thisFile, 'pull_request_review issue:', issue)
+      const bodyStart = issue.data.body.indexOf('```') + 3
+      const bodyEnd = issue.data.body.lastIndexOf('```')
+      const versionObj = JSON.parse(issue.data.body.substring(bodyStart, bodyEnd))
+      DEBUG && consoleLog(thisFile, 'pull_request_review versionObj:', versionObj)
+
+      // Get version information
+      const filePath = `./_work/${ref}/V${versionObj.newVersion}__${ref}.sql`
+      DEBUG && consoleLog(thisFile, 'pull_request_review filePath:', filePath)
+
+      // Get migration files
+      await getMigrationFiles(octokit)({ owner, repo, ref: payload.pull_request.head.ref })
+
+      const content = fs.readFileSync(filePath, { encoding: 'utf8' });
+      DEBUG && consoleLog(thisFile, 'pull_request_review content:', content)
+      const expectedVersion = versionObj.expectedVersion ? versionObj.expectedVersion : versionObj.currentVersion.substring(1, versionObj.currentVersion.length - 1)
+      DEBUG && consoleLog(thisFile, 'pull_request_review expectedVersion:', expectedVersion)
+      const prepend = `
+            Declare @version varchar(25);
+            SELECT @version= Coalesce(Json_Value(
+              (SELECT Convert(NVARCHAR(3760), value) 
+              FROM sys.extended_properties AS EP
+              WHERE major_id = 0 AND minor_id = 0 
+                AND name = 'Database_Info'), '$[0].Version'), 'that was not recorded');
+            -- PARSENAME USED TO ONLY COMPARE MAJOR AND MINOR
+            IF PARSENAME(@version, 3) + PARSENAME(@version, 2)  <> PARSENAME('${expectedVersion}', 3) + PARSENAME('${expectedVersion}', 2)
+            BEGIN
+            RAISERROR ('The Target was at version %s, not the correct version (${expectedVersion})',16,1,@version)
+            SET NOEXEC ON;
+            END
+      `
+      const postpend = `
+             PRINT N'Creating extended properties'
+             SET NOEXEC off
+             go
+             USE AdvWorksComm
+             DECLARE @DatabaseInfo NVARCHAR(3750), @version NVARCHAR(20)
+             SET @version=N'${versionObj.newVersion}'
+             PRINT N'New version === ' + @version
+             SELECT @DatabaseInfo =
+               (
+               SELECT 'AdvWorksComm' AS "Name", @version  AS "Version",
+               'The AdvWorksComm.' AS "Description",
+                 GetDate() AS "Modified",
+             SUser_Name() AS "by"
+               FOR JSON PATH
+               );
+
+             IF not EXISTS
+               (SELECT name, value  FROM fn_listextendedproperty(
+                 N'Database_Info',default, default, default, default, default, default) )
+                 EXEC sys.sp_addextendedproperty @name=N'Database_Info', @value=@DatabaseInfo
+             ELSE
+               EXEC sys.sp_Updateextendedproperty  @name=N'Database_Info', @value=@DatabaseInfo
+           `
+      fs.writeFileSync(filePath, prepend + content + postpend)
+
+      // Runs the Flyway repair to update the checksum for above changes to pass validation
+      // flyway -community -user="${{ env.userName }}" -password="${{ env.password }}" -baselineOnMigrate="true" -baselineVersion="${{ vars.BASELINE_VERSION }}" -configFiles="${{ GITHUB.WORKSPACE }}\flyway.conf" -locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info repair info -url="${{ env.JDBC }}" -cleanDisabled='false'
+      const repairResult = await fwCmdLn($)(filePath)(process.env.DB_JDBC)('repair')
+      DEBUG && consoleLog(thisFile, 'pull_request_review repairResult:', repairResult)
+
+      // Runs the Flyway Migrate against the Production database
+      // flyway - community - user="${{ env.userName }}" - password="${{ env.password }}" - baselineOnMigrate="true" - baselineVersion="${{ vars.BASELINE_VERSION }}" - configFiles="${{ GITHUB.WORKSPACE }}\flyway.conf" - locations="filesystem:${{ github.WORKSPACE }}\\migrations, filesystem:${{ github.WORKSPACE }}\\migrations-${{ env.deployment_environment }}" info migrate info - url="${{ env.JDBC }}" - cleanDisabled='false'
+      const migrateResult = await fwCmdLn($)(filePath)(process.env.DB_JDBC)('migrate')
+      DEBUG && consoleLog(thisFile, 'pull_request_review migrateResult:', migrateResult)
+
 
       const chkUpdate = await octokit.rest.checks.update({
         owner,
@@ -1036,8 +852,24 @@ module.exports = (app, { getRouter }) => {
           identifier: 'i1'
         }]
       })
-      DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate:', chkUpdate)
-      DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate?.data:', chkUpdate?.data)
+      // DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate:', chkUpdate)
+      // DEBUG && consoleLog(thisFile, 'pull_request_review chkUpdate?.data:', chkUpdate?.data)
+    }
+  })
+
+  /*******************                  ON REQUESTED_ACTION                 *******************/
+  app.on('check_run', async (context) => {
+    const octokit = context.octokit
+    const payload = context.payload
+    const repository = payload.repository
+    const owner = repository.owner.login
+    const repo = repository.name
+
+    const DEBUG = true
+
+    if (payload.action === 'requested_action') {
+      DEBUG && consoleLog(thisFile, 'requested_action context.name & .id:', context.name, context.id)
+      DEBUG && consoleLog(thisFile, 'requested_action payload:', payload)
     }
   })
 
@@ -1049,9 +881,9 @@ module.exports = (app, { getRouter }) => {
     const owner = repository.owner.login
     const repo = repository.name
 
-    const DEBUG = true
+    const DEBUG = !Array(['issues', 'push', 'pull_request_review', 'check_run']).includes(context.name)
     DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
-    DEBUG && consoleLog(thisFile, 'pull_request_review payload:', payload)
+    DEBUG && consoleLog(thisFile, 'onAny payload:', payload)
   })
 }
 
