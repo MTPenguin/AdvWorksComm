@@ -70,6 +70,37 @@ module.exports = (app, { getRouter }) => {
     return res.sendFile(scriptFile);
   })
 
+  // router.post('/install', async (routerReq, routerRes) => {
+  //   const manifestFile = path.join(__dirname, 'app.yml')
+  //   consoleLog(thisFile, 'manifestFile:', manifestFile)
+
+  //   const file = fs.readFileSync('./app.yml', { encoding: 'utf8' })
+  //   console.log('file:\n', file)
+  //   fetch('https://github.com/settings/apps/new', {
+  //     method: "POST",
+  //     params: { manifest: file, state: 'superSecure' }
+  //   })
+  //     .then(async function (res) {
+  //       console.log('POST response:', res)
+  //       const text = await res.text()
+  //       consoleLog(thisFile, '/install text:', text)
+  //       routerRes.send(text)
+  //       // return JSON.parse(text)
+  //     }) // expecting a json response
+  //     // .then(async json => {
+  //     //   console.log(thisFile, '/login/cb THEN json:', json)
+  //     // })
+  //     .catch(function (error) {
+  //       console.error(error.message, error)
+  //     })
+  // })
+
+  router.get('/manifest', async (req, res) => {
+    const manifest = path.join(__dirname, '/manifest.json')
+    consoleLog(thisFile, 'manifest:', manifest)
+    return res.sendFile(manifest);
+  })
+
   router.get('/issue-ui/index.js', async (req, res) => {
     if (req.session.loggedIn) {
       const scriptFile = path.join(__dirname, '../issue-ui/index.js')

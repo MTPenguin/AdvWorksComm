@@ -155,13 +155,32 @@ const gui = () => {
           id: 'logoutBtn',
           type: 'button',
           onclick() {
-            const url = 'https://github.com/logout'
-            console.log('url:', url)
             window.location.href = 'https://github.com/logout'
           }
         },
           'LOG OUT'
-        ))
+        ),
+        m('form', {
+          action: 'https://github.com/settings/apps/new?state=superSecure',
+          // onsubmit: (e) => {
+          //   e.preventDefault()
+          //   console.log('Submit')
+          // }
+        }, [
+          m('input[type="text"][placeholder="{"manifest":"json"}"][name="manifest"][id="manifest"][hidden]', {
+            value: JSON.stringify({
+              "default_events": [
+                "issues"
+              ],
+              "default_permissions": {
+                "issues": "write"
+              },
+              "metadata": "read"
+            })
+          }),
+          m('button[type="submit"]', 'Install'),
+        ])
+      )
     }
   }
 
