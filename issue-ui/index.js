@@ -159,43 +159,7 @@ const gui = () => {
           }
         },
           'LOG OUT'
-        ),
-        m('form', {
-          action: 'https://github.com/settings/apps/new?state=superSecure',
-          // onsubmit: (e) => {
-          //   e.preventDefault()
-          //   console.log('Submit')
-          // }
-        }, [
-          m('input[type="text"][placeholder="{"manifest":"json"}"][name="manifest"][id="manifest"][hidden]', {
-            value: JSON.stringify({
-              "default_events": [
-                "issues"
-              ],
-              "default_permissions": {
-                "issues": "write"
-              },
-              "metadata": "read",
-              "name": "FlyBot",
-              "url": "https://github.com/settings/apps/flybotmtp",
-              "hook_attributes": {
-                "url": "https://example.com/github/events",
-              },
-              "redirect_url": "installRedirect",
-              "callback_urls": [
-                "https://example.com/callback"
-              ],
-              "public": true,
-              "default_events": [
-                "issues",
-                "issue_comment",
-                "check_suite",
-                "check_run"
-              ]
-            })
-          }),
-          m('button[type="submit"]', 'Install'),
-        ])
+        )
       )
     }
   }
