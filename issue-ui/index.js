@@ -175,7 +175,23 @@ const gui = () => {
               "default_permissions": {
                 "issues": "write"
               },
-              "metadata": "read"
+              "metadata": "read",
+              "name": "FlyBot",
+              "url": "https://github.com/settings/apps/flybotmtp",
+              "hook_attributes": {
+                "url": "https://example.com/github/events",
+              },
+              "redirect_url": "installRedirect",
+              "callback_urls": [
+                "https://example.com/callback"
+              ],
+              "public": true,
+              "default_events": [
+                "issues",
+                "issue_comment",
+                "check_suite",
+                "check_run"
+              ]
             })
           }),
           m('button[type="submit"]', 'Install'),

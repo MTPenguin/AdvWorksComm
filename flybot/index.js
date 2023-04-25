@@ -101,6 +101,12 @@ module.exports = (app, { getRouter }) => {
     return res.sendFile(manifest);
   })
 
+  router.get('/installRedirect', async (req, res) => {
+    const { body, query } = req
+    consoleLog(thisFile, '/installRedirect body:', body)
+    consoleLog(thisFile, '/installRedirect query:', query)
+  })
+
   router.get('/issue-ui/index.js', async (req, res) => {
     if (req.session.loggedIn) {
       const scriptFile = path.join(__dirname, '../issue-ui/index.js')
