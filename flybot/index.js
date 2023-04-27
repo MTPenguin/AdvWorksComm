@@ -254,8 +254,8 @@ module.exports = (app, { getRouter }) => {
   *            Event handlers
   ************************************************************************************************************************************/
 
-  /*******************                  ON ISSUES.OPENED                  *******************/
-  app.on("issues.opened", async (context) => {
+  /*******************                  ON ISSUES                  *******************/
+  app.on("issues", async (context) => {
     const octokit = context.octokit
     const payload = context.payload
     const repository = payload.repository
@@ -266,6 +266,8 @@ module.exports = (app, { getRouter }) => {
     const DEBUG = false
 
     DEBUG && consoleLog(thisFile, 'issues.opened context.name & .id:', context.name, context.id)
+
+    if (!['opened', 'edited'].includes(payload.action)) return
 
     /**
      * Does issue body contain valid json?
@@ -881,7 +883,7 @@ module.exports = (app, { getRouter }) => {
     const owner = repository.owner.login
     const repo = repository.name
 
-    const DEBUG = !Array(['issues', 'push', 'pull_request_review', 'check_run']).includes(context.name)
+    const DEBUG = !Array(['push', 'pull_request_review', 'check_run']).includes(context.name)
     DEBUG && consoleLog(thisFile, 'onAny context.name & .id:', context.name, context.id)
     DEBUG && consoleLog(thisFile, 'onAny payload:', payload)
   })
